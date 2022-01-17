@@ -30,7 +30,7 @@ endif
 APP_LOAD_PARAMS += --path "44'"
 APP_LOAD_PARAMS += $(COMMON_LOAD_PARAMS)
 
-APPNAME      = "Boilerplate"
+APPNAME      = "Accumulate"
 APPVERSION_M = 1
 APPVERSION_N = 0
 APPVERSION_P = 1
