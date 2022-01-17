@@ -2,6 +2,10 @@
 
 This is a boilerplate application which can be forked to start a new project for the Ledger Nano S/X.
 
+## Docker builder container
+
+https://developers.ledger.com/docs/nano-app/build/
+
 ## Prerequisite
 
 Be sure to have your environment correctly set up (see [Getting Started](https://developers.ledger.com/docs/nano-app/introduction/)) and [ledgerblue](https://pypi.org/project/ledgerblue/) and installed.
