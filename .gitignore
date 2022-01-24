@@ -29,3 +29,6 @@ __pycache__/
 # Doxygen
 doc/html
 doc/latex
+build-*
+*.autosave
+*.user
