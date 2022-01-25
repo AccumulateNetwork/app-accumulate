@@ -51,7 +51,7 @@ Error Bytes_marshalBinary(const struct Bytes*self, struct Bytes *outData) {
         return ret;
     }
 
-    int offset = varint_write(outData->data,0,size);
+    int offset = varint_write(outData->data,0,self->len);
 
     memmove(&outData->data[offset], self->data, outData->len);
     outData->len = size;
@@ -73,13 +73,13 @@ Error Bytes_unmarshalBinary(Bytes* self, const Bytes *inData) {
         return ret;
     }
 
-    if ( size < self->len ) {
+    if ( self->len < size ) {
         ret.code = ErrorParameterInsufficientData;
         return ret;
     }
 
     self->len = size;
-    memmove(&self->data[offset], inData->data, self->len);
+    memmove(self->data, &inData->data[offset], self->len);
     return ret;
 }
 
@@ -120,10 +120,6 @@ Error Bytes64_marshalBinary(const Bytes64* self,Bytes *outData) {
     return ret;
 }
 
-typedef struct BigInt {
-    uint256_t bigInt;
-} BigInt;
-
 typedef struct String {
    Bytes string;
    int (*BinarySize)(const struct String *);
@@ -133,7 +129,20 @@ typedef struct String {
    Error (*UnmarshalBinary)(struct String*,const Bytes* data);
 } String;
 
-int BinarySizeString(const String *s) {
+
+typedef struct BigInt {
+    uint256_t bigInt;
+    int (*BinarySize)(const struct BigInt *);
+    bool (*Equal)(const struct BigInt*, const struct BigInt*);
+    int (*Copy)(struct BigInt*, const struct BigInt*);
+    Error (*MarshalBinary)(const struct BigInt*, Bytes *outData);
+    Error (*UnmarshalBinary)(struct BigInt*,const Bytes* data);
+} BigInt;
+
+
+static String String_init(String *s, uint8_t *buffer, int bufferLen);
+
+int String_binarySize(const String *s) {
     if ( !s ) {
         return 0;
     }
@@ -142,26 +151,34 @@ int BinarySizeString(const String *s) {
     return size;
 }
 
-int BinarySizeBytes(const Bytes *s) {
+int Bytes_binarySize(const Bytes *s) {
     if ( !s ) {
         return 0;
     }
     return s->len+varint_size(s->len);
 }
 
-int BinarySizeBytes32(const Bytes32 *s) {
+int Bytes32_binarySize(const Bytes32 *s) {
     if ( !s ) {
         return 0;
     }
     return s->len;
 }
 
-int BinarySizeBytes64(const Bytes64 *s) {
+int Bytes64_binarySize(const Bytes64 *s) {
     if ( !s ) {
         return 0;
     }
     return s->len;
 }
+
+int BigInt_binarySize(const BigInt *s) {
+    if ( !s ) {
+        return 0;
+    }
+    return 32;
+}
+
 
 static bool Bytes_equal(const Bytes *b1,const Bytes *b2) {
     if ( !b1 || !b2 ) {
@@ -177,7 +194,7 @@ static int Bytes_copy(Bytes *b1, const Bytes *b2) {
     if ( !b1 || !b2 ) {
         return 0;
     }
-    if ( b2->len < b1->len ) {
+    if ( b1->len < b2->len ) {
         return 0;
     }
 
@@ -185,19 +202,22 @@ static int Bytes_copy(Bytes *b1, const Bytes *b2) {
     return b1->len;
 }
 
-static Bytes Bytes_init(Bytes *b) {
+static Bytes Bytes_init(Bytes *b, uint8_t *buffer, uint64_t len) {
     Bytes init = { 0, 0,
-                   BinarySizeBytes,
+                   Bytes_binarySize,
                    Bytes_equal,
                    Bytes_copy,
                    Bytes_marshalBinary,
                    Bytes_unmarshalBinary };
+    if ( len && buffer ) {
+        init.len = len;
+        init.data = buffer;
+    }
     if ( b ) {
         *b = init;
     }
     return init;
 }
-
 
 
 static bool Bytes32_equal(const Bytes32 *b1, const Bytes32 *b2) {
@@ -255,7 +275,7 @@ Error Bytes32_unmarshalBinary(Bytes32* self, const Bytes *inData) {
 
 static Bytes32 Bytes32_init(Bytes32 *b) {
     Bytes32 init = { 32, {0},
-                     BinarySizeBytes32,
+                     Bytes32_binarySize,
                      Bytes32_equal,
                      Bytes32_copy,
                      Bytes32_marshalBinary,
@@ -305,7 +325,7 @@ static int Bytes64_copy(Bytes64 *b1, const Bytes64 *b2) {
 
 static Bytes64 Bytes64_init(Bytes64 *b) {
     Bytes64 init = { 64, {0},
-                     BinarySizeBytes64,
+                     Bytes64_binarySize,
                      Bytes64_equal,
                      Bytes64_copy,
                      Bytes64_marshalBinary,
@@ -315,11 +335,11 @@ static Bytes64 Bytes64_init(Bytes64 *b) {
     }
     return init;
 }
-static String String_init(String *s);
+
 Error String_marshalBinary(const String* self, Bytes *outData) {
     //Ensure the self length is the strlen w/o modifying self.
     String clone;
-    String_init(&clone);
+    String_init(&clone,0,0);
     clone.string.len = strlen((char*)self->string.data);
     clone.string.data = self->string.data;
     return clone.string.MarshalBinary(&clone.string,outData);
@@ -349,21 +369,79 @@ static bool String_equal(const String *b1, const String *b2) {
 static String String_init(String *s, uint8_t *buffer, int bufferLen) {
     String init;
 
-    Bytes_init(&init.string);
-    init.BinarySize = BinarySizeString;
+    Bytes_init(&init.string,buffer,bufferLen);
+    init.BinarySize = String_binarySize;
     init.Equal = String_equal;
     init.Copy = String_copy;
     init.MarshalBinary = String_marshalBinary;
     init.UnmarshalBinary = String_unmarshalBinary;
 
-    if (buffer && bufferLen) {
-        memset(buffer, 0, bufferLen);
-        init.string.data = buffer;
-        init.string.len = bufferLen;
-    }
 
     if ( s ) {
         *s = init;
+    }
+    return init;
+}
+
+static bool BigInt_equal(const BigInt *b1, const BigInt *b2) {
+    if ( !b1 || !b2 ) {
+        return false;
+    }
+    return equal256((uint256_t*)&b1->bigInt,(uint256_t*)&b2->bigInt);
+}
+
+
+static int BigInt_copy( BigInt *b1, const BigInt *b2) {
+    if ( !b1 || !b2 ) {
+        return 0;
+    }
+    copy256(&b1->bigInt, (uint256_t*) &b2->bigInt);
+    return 32;
+}
+
+Error BigInt_marshalBinary(const BigInt* self,Bytes *outData) {
+    Error ret = Error_init((void*)0);
+    if ( !outData || !self ) {
+        ret.code = ErrorParameterNil;
+        return ret;
+    }
+    if ( outData->len < 32 ) {
+        ret.code = ErrorParameterInsufficientData;
+        return ret;
+    }
+
+    outData->len = 32;
+    writeu256BE((uint256_t*)&self->bigInt, outData->data);
+    return ret;
+}
+
+Error BigInt_unmarshalBinary(BigInt* self, const Bytes *inData) {
+    Error ret = Error_init(0);
+    if ( !inData || !self ) {
+        ret.code = ErrorParameterNil;
+        return ret;
+    }
+
+    if ( inData->len < 32 ) {
+        ret.code = ErrorParameterInsufficientData;
+        return ret;
+    }
+
+    readu256BE(inData->data, &self->bigInt);
+    return ret;
+}
+
+
+static BigInt BigInt_init(BigInt *b) {
+    BigInt init;
+    zero256(&init.bigInt);
+    init.BinarySize = BigInt_binarySize;
+    init.Equal = BigInt_equal;
+    init.Copy = BigInt_copy;
+    init.MarshalBinary = BigInt_marshalBinary;
+    init.UnmarshalBinary = BigInt_unmarshalBinary;
+    if ( b ) {
+        *b = init;
     }
     return init;
 }
