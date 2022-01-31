@@ -8,6 +8,8 @@
 
 #include "common/buffer.h"
 #include <common/encoding.h>
+#include "_enums.h"
+#include "_test.h"
 
 static void test_encoding_bytes(void **state) {
     (void) state;
