@@ -1,6 +1,9 @@
 #ifndef ENCODING_H
 #define ENCODING_H
 
+//The structures in this file use buffered encoding that requires an external buffer be provided
+//This is used in support of the Accumulate types generator.
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -22,8 +25,11 @@ enum ErrorEnum {
     ErrorTypeNotFound,
     ErrorParameterNil,
     ErrorParameterInsufficientData,
+    ErrorBufferTooSmall,
     ErrorVarIntRead,
     ErrorVarIntWrite,
+    ErrorResizeRequred,
+    ErrorInvalidBigInt,
 };
 
 static Error ErrorCode[] = {
@@ -33,8 +39,11 @@ static Error ErrorCode[] = {
     {ErrorTypeNotFound, "type not found"},
     {ErrorParameterNil, "parameter is nil"},
     {ErrorParameterInsufficientData,"insufficient buffer size"},
+    {ErrorBufferTooSmall,"buffer size too small"},
     {ErrorVarIntRead, "varint read failed"},
     {ErrorVarIntWrite,"varint write failed"},
+    {ErrorResizeRequred,"resize required"},
+    {ErrorInvalidBigInt,"invalid big int"},
 };
 
 
@@ -46,8 +55,10 @@ static Error Error_init(Error *e) {
     }
     return err;
 }
+
 typedef struct Bytes {
    buffer_t buffer;
+
    int (*BinarySize)(const struct Bytes *);
    bool (*Equal)(const struct Bytes*, const struct Bytes*);
    int (*Copy)(struct Bytes*, const struct Bytes*);
@@ -57,7 +68,7 @@ typedef struct Bytes {
    Error (*UnmarshalJSON)(struct Bytes*,const struct Bytes *data);
 } Bytes;
 
-Error Bytes_marshalBinary(const struct Bytes*self, struct Bytes *outData) {
+Error Bytes_marshalBinaryDynamic(const struct Bytes*self, struct Bytes *outData) {
     Error ret = Error_init((void*)0);
     if ( !outData || !self ) {
         ret.code = ErrorParameterNil;
@@ -78,7 +89,47 @@ Error Bytes_marshalBinary(const struct Bytes*self, struct Bytes *outData) {
 }
 
 
-Error Bytes_unmarshalBinary(Bytes* self, const Bytes *inData) {
+Error Bytes_unmarshalBinaryDynamic(Bytes* self, const Bytes *inData) {
+    Error ret = Error_init(0);
+    if ( !inData || !self ) {
+        ret.code = ErrorParameterNil;
+        return ret;
+    }
+
+    uint64_t size = 0;
+    int offset = varint_read(inData->buffer.ptr + inData->buffer.offset,inData->buffer.size,&size);
+    if ( !buffer_can_read(&inData->buffer, size + offset ) ) {
+        ret.code = ErrorParameterInsufficientData;
+        return ret;
+    }
+
+    if ( self->buffer.size < size ) {
+        ret.code = ErrorParameterInsufficientData;
+        return ret;
+    }
+
+    self->buffer.size = size;
+    memmove((uint8_t*)self->buffer.ptr + self->buffer.offset, inData->buffer.ptr + inData->buffer.offset + offset, size);
+    return ret;
+}
+
+Error Bytes_marshalBinaryStatic(const struct Bytes*self, struct Bytes *outData) {
+    Error ret = ErrorCode[ErrorNone];
+    if ( !outData || !self ) {
+        return ErrorCode[ErrorParameterNil];
+    }
+
+    int size = self->BinarySize(self);
+    if ( !buffer_can_read(&outData->buffer,size) ) {
+        return ErrorCode[ErrorParameterInsufficientData];
+    }
+
+    memmove((uint8_t*)outData->buffer.ptr + outData->buffer.offset + offset, self->buffer.ptr + self->buffer.offset, size);
+    outData->buffer.offset += size;
+    return ret;
+}
+
+Error Bytes_unmarshalBinaryStatic(Bytes* self, const Bytes *inData) {
     Error ret = Error_init(0);
     if ( !inData || !self ) {
         ret.code = ErrorParameterNil;
@@ -105,36 +156,29 @@ Error Bytes_unmarshalBinary(Bytes* self, const Bytes *inData) {
 
 
 typedef struct VarInt {
-   uint64_t varint;
-   int (*BinarySize)(const struct VarInt *);
-   bool (*Equal)(const struct VarInt*, const struct VarInt*);
-   int (*Copy)(struct VarInt*, const struct VarInt*);
-   Error (*MarshalBinary)(const struct VarInt*, struct Bytes *outData);
-   Error (*UnmarshalBinary)(struct VarInt*,const struct Bytes* data);
-   Error (*MarshalJSON)(const struct VarInt*, struct Bytes *outData);
-   Error (*UnmarshalJSON)(struct VarInt*,const struct Bytes *data);
+   Bytes bytes;
+   Error (*get)(const struct VarInt *, uint64_t *out);
+   Error (*set)(const struct VarInt *, uint64_t *out);
 } VarInt;
 
+static Error VarInt_valid(const VarInt *v) {
+    if (!v) {
+        return ErrorCode[ErrorParameterNil];
+    }
+    return ErrorCode[ErrorNone];
+}
+static Error VarInt_set(const VarInt *v, uint64_t n) {
+    if (!v) {
+        return ErrorCode[ErrorParameterNil];
+    }
+    int size = varint_size(n);
+
+}
 static int VarInt_binarySize(const VarInt *v) {
     if (!v) {
         return 0;
     }
     return varint_size(v->varint);
-}
-
-static bool VarInt_equal(const VarInt*a, const VarInt*b) {
-    if (!a || !b) {
-        return false;
-    }
-    return a->varint == b->varint;
-}
-
-static int VarInt_copy(VarInt*a, const VarInt*b) {
-    if (!a || !b) {
-        return 0;
-    }
-    a->varint = b->varint;
-    return sizeof(a->varint);
 }
 
 Error VarInt_marshalBinary(const VarInt *self, struct Bytes *outData) {
@@ -177,15 +221,15 @@ static Error VarInt_unmarshalJSON(VarInt* v,const struct Bytes *data) {
 }
 
 static VarInt VarInit_init(VarInt *v, buffer_t *buffer) {
-    VarInt init = { 0,
+    VarInt init = { { {0,0,0},
                     VarInt_binarySize,
-                    VarInt_equal,
-                    VarInt_copy,
-                    VarInt_marshalBinary,
-                    VarInt_unmarshalBinary,
-                    VarInt_marshalJSON,
-                    VarInt_unmarshalJSON
-                  };
+                    Bytes_equal,
+                    Bytes_copy,
+                    Bytes_marshalBinaryStatic,
+                    Bytes_unmarshalBinaryStatic,
+                    Bytes_marshalJSON,
+                    Bytes_unmarshalJSON},
+                    ;
     if (v) {
         *v = init;
     }
@@ -193,7 +237,7 @@ static VarInt VarInit_init(VarInt *v, buffer_t *buffer) {
 }
 
 typedef struct Bytes32 {
-    uint8_t data[32];
+    buffer_t buffer;
     int (*BinarySize)(const struct Bytes32 *);
     bool (*Equal)(const struct Bytes32*, const struct Bytes32*);
     int (*Copy)(struct Bytes32*, const struct Bytes32*);
@@ -205,7 +249,7 @@ typedef struct Bytes32 {
 
 
 typedef struct Bytes64 {
-    uint8_t data[64];
+    buffer_t buffer;
     int (*BinarySize)(const struct Bytes64 *);
     bool (*Equal)(const struct Bytes64*, const struct Bytes64*);
     int (*Copy)(struct Bytes64*, const struct Bytes64*);
@@ -245,6 +289,10 @@ typedef struct String {
 
 typedef struct BigInt {
     uint256_t bigInt;
+    buffer_t buffer;
+    Error (*get)(const struct BigInt*, uint256_t *);
+    Error (*set)(struct BigInt*, const uint256_t *);
+
     int (*BinarySize)(const struct BigInt *);
     bool (*Equal)(const struct BigInt*, const struct BigInt*);
     int (*Copy)(struct BigInt*, const struct BigInt*);
@@ -254,6 +302,40 @@ typedef struct BigInt {
     Error (*UnmarshalJSON)(struct BigInt*,const struct Bytes *data);
 } BigInt;
 
+Error BigInt_valid(const BigInt *s) {
+    if (!s ) {
+        return ErrorCode[ErrorInvalidBigInt];
+    }
+    if ( s->buffer.size != 32 && s->buffer.ptr != 0) {
+        return ErrorCode[ErrorInvalidBigInt];
+    }
+}
+
+Error BigInt_get(const struct BigInt*s, uint256_t *v) {
+    Error e = BigInt_valid(s);
+    if ( e.code != ErrorNone ) {
+        return e;
+    }
+    if ( !v ) {
+        return ErrorCode[ErrorParameterNil];
+    }
+    //conv
+    readu256BE(s->buffer.ptr+s->buffer.offset,v);
+    return ErrorCode[ErrorNone];
+}
+
+Error BigInt_set(const struct BigInt*s, const uint256_t *v) {
+    Error e = BigInt_valid(s);
+    if ( e.code != ErrorNone ) {
+        return e;
+    }
+    if ( !v ) {
+        return ErrorCode[ErrorParameterNil];
+    }
+    //conv
+    writeu256BE(v,(uint8_t*)s->buffer.ptr+s->buffer.offset);
+    return ErrorCode[ErrorNone];
+}
 
 static String String_init(String *s, uint8_t *buffer, int bufferLen);
 
@@ -289,10 +371,11 @@ int Bytes64_binarySize(const Bytes64 *s) {
 }
 
 int BigInt_binarySize(const BigInt *s) {
-    if ( !s ) {
+    Error e = BigInt_valid(s);
+    if ( e.code != ErrorNone ) {
         return 0;
     }
-    return 32;
+    return s->buffer.size;
 }
 
 
