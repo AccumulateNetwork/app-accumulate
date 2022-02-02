@@ -59,6 +59,7 @@ add_library(transaction_deserialize ../src/transaction/deserialize.c)
 add_library(transaction_serialize ../src/transaction/serialize.c)
 add_library(transaction_utils ../src/transaction/utils.c)
 add_library(uint256 SHARED ../src/common/uint256.c)
+add_library(encoding SHARED ../src/common/encoding.c)
 
 target_link_libraries(test_base58 PUBLIC cmocka gcov base58)
 target_link_libraries(test_bip32 PUBLIC cmocka gcov bip32 read)
@@ -81,7 +82,7 @@ target_link_libraries(test_tx_utils PUBLIC
                       cmocka
                       gcov
                       transaction_utils)
-target_link_libraries(test_encoding uint256 buffer varint transaction_utils gcov cmocka read write format bip32)
+target_link_libraries(test_encoding uint256 buffer varint transaction_utils gcov cmocka read write format bip32 encoding)
 
 add_test(test_base58 test_base58)
 add_test(test_bip32 test_bip32)

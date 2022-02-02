@@ -124,39 +124,30 @@ Error Bytes_marshalBinaryStatic(const struct Bytes*self, struct Bytes *outData) 
         return ErrorCode[ErrorParameterInsufficientData];
     }
 
-    memmove((uint8_t*)outData->buffer.ptr + outData->buffer.offset + offset, self->buffer.ptr + self->buffer.offset, size);
+    memmove((uint8_t*)outData->buffer.ptr + outData->buffer.offset, self->buffer.ptr + self->buffer.offset, size);
     outData->buffer.offset += size;
     return ret;
 }
 
 Error Bytes_unmarshalBinaryStatic(Bytes* self, const Bytes *inData) {
-    Error ret = Error_init(0);
     if ( !inData || !self ) {
-        ret.code = ErrorParameterNil;
-        return ret;
+        return ErrorCode[ErrorParameterNil];
     }
 
     uint64_t size = 0;
-    int offset = varint_read(inData->buffer.ptr + inData->buffer.offset,inData->buffer.size,&size);
-    if ( !buffer_can_read(&inData->buffer, size + offset ) ) {
-        ret.code = ErrorParameterInsufficientData;
-        return ret;
-    }
 
-    if ( self->buffer.size-self->buffer.offset < size ) {
-        ret.code = ErrorParameterInsufficientData;
-        return ret;
+    if ( self->buffer.size < size ) {
+        return ErrorCode[ErrorParameterInsufficientData];
     }
 
     self->buffer.size = size;
-    self->buffer.offset = 0;
-    memmove((uint8_t*)self->buffer.ptr + self->buffer.offset, inData->buffer.ptr + inData->buffer.offset + offset, size);
-    return ret;
+    memmove((uint8_t*)self->buffer.ptr + self->buffer.offset, inData->buffer.ptr + inData->buffer.offset, size);
+    return ErrorCode[ErrorNone];
 }
 
 
 typedef struct VarInt {
-   Bytes bytes;
+   Bytes buffer;
    Error (*get)(const struct VarInt *, uint64_t *out);
    Error (*set)(const struct VarInt *, uint64_t *out);
 } VarInt;
@@ -167,13 +158,17 @@ static Error VarInt_valid(const VarInt *v) {
     }
     return ErrorCode[ErrorNone];
 }
+
 static Error VarInt_set(const VarInt *v, uint64_t n) {
     if (!v) {
         return ErrorCode[ErrorParameterNil];
     }
     int size = varint_size(n);
-
+    if ( size != v->buffer.size ) {
+        return ErrorCode[ErrorResizeRequred];
+    }
 }
+
 static int VarInt_binarySize(const VarInt *v) {
     if (!v) {
         return 0;
