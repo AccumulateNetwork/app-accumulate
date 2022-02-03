@@ -1,125 +1,142 @@
 
 #include "encoding.h"
 
-static Error Error_init(Error *e) {
+Error Error_init(Error *e) {
     Error err = ErrorCode[ErrorNone];
     if ( e ) {
         *e = err;
     }
     return err;
 }
-
-Error Bytes_marshalBinaryDynamic(const struct Bytes*self, struct Bytes *outData) {
-    Error ret = Error_init((void*)0);
-    if ( !outData || !self ) {
-        ret.code = ErrorParameterNil;
-        return ret;
+int Bytes_binarySizeStatic(const struct Bytes *self) {
+    if (!self) {
+        return 0;
     }
-
-    int size = self->BinarySize(self);
-    if ( !buffer_can_read(&outData->buffer,size) ) {
-        ret.code = ErrorParameterInsufficientData;
-        return ret;
-    }
-
-    int offset = varint_write((uint8_t*)outData->buffer.ptr,outData->buffer.offset,self->buffer.size-self->buffer.offset);
-
-    memmove((uint8_t*)outData->buffer.ptr + outData->buffer.offset + offset, self->buffer.ptr + self->buffer.offset, size-offset);
-    outData->buffer.offset += size;
-    return ret;
+    return self->buffer.size;
 }
 
-
-Error Bytes_unmarshalBinaryDynamic(Bytes* self, const Bytes *inData) {
-    Error ret = Error_init(0);
-    if ( !inData || !self ) {
-        ret.code = ErrorParameterNil;
-        return ret;
+int Bytes_binarySizeDynamic(const struct Bytes *self) {
+    if (!self) {
+        return 0;
     }
-
-    uint64_t size = 0;
-    int offset = varint_read(inData->buffer.ptr + inData->buffer.offset,inData->buffer.size,&size);
-    if ( !buffer_can_read(&inData->buffer, size + offset ) ) {
-        ret.code = ErrorParameterInsufficientData;
-        return ret;
-    }
-
-    if ( self->buffer.size < size ) {
-        ret.code = ErrorParameterInsufficientData;
-        return ret;
-    }
-
-    self->buffer.size = size;
-    memmove((uint8_t*)self->buffer.ptr + self->buffer.offset, inData->buffer.ptr + inData->buffer.offset + offset, size);
-    return ret;
+    int n = varint_size(self->buffer.size);
+    return n + self->buffer.size;
 }
 
-Error Bytes_marshalBinaryStatic(const struct Bytes*self, struct Bytes *outData) {
-    Error ret = ErrorCode[ErrorNone];
+Error Bytes_marshalBinaryDynamic(const struct Bytes*self, struct Marshaler *outData) {
     if ( !outData || !self ) {
         return ErrorCode[ErrorParameterNil];
     }
 
     int size = self->BinarySize(self);
-    if ( !buffer_can_read(&outData->buffer,size) ) {
+    if ( !buffer_can_read(&outData->cache,size) ) {
         return ErrorCode[ErrorParameterInsufficientData];
     }
 
-    memmove((uint8_t*)outData->buffer.ptr + outData->buffer.offset, self->buffer.ptr + self->buffer.offset, size);
-    outData->buffer.offset += size;
-    return ret;
-}
+    int offset = varint_write((uint8_t*)outData->cache.ptr,outData->cache.offset,self->buffer.size);
 
-Error Bytes_unmarshalBinaryStatic(Bytes* self, const Bytes *inData) {
-    if ( !inData || !self ) {
-        return ErrorCode[ErrorParameterNil];
-    }
-
-    uint64_t size = 0;
-
-    if ( self->buffer.size < size ) {
-        return ErrorCode[ErrorParameterInsufficientData];
-    }
-
-    self->buffer.size = size;
-    memmove((uint8_t*)self->buffer.ptr + self->buffer.offset, inData->buffer.ptr + inData->buffer.offset, size);
+    memmove((uint8_t*)outData->cache.ptr + outData->cache.offset + offset, self->buffer.ptr + self->buffer.offset, size-offset);
+    outData->cache.offset += size;
+    outData->data.buffer.size += size;
     return ErrorCode[ErrorNone];
 }
 
 
-static bool Bytes_equal(const Bytes *b1,const Bytes *b2) {
+Error Bytes_unmarshalBinaryDynamic(Bytes* self, const Marshaler *inData) {
+
+    if ( !inData || !self ) {
+        return ErrorCode[ErrorParameterNil];
+    }
+
+    uint64_t size = 0;
+    int offset = varint_read(inData->data.buffer.ptr + inData->data.buffer.offset,inData->data.buffer.size,&size);
+    if ( !buffer_can_read(&inData->data.buffer, size + offset ) ) {
+        return ErrorCode[ErrorParameterInsufficientData];
+    }
+
+    if ( self->buffer.size < size ) {
+        return ErrorCode[ErrorParameterInsufficientData];
+    }
+
+    self->buffer.size = size;
+    memmove((uint8_t*)self->buffer.ptr + self->buffer.offset, inData->data.buffer.ptr + inData->data.buffer.offset + offset, size);
+    return ErrorCode[ErrorNone];
+}
+
+Error Bytes_marshalBinaryStatic(const struct Bytes*self, struct Marshaler *outData) {
+    if ( !outData || !self ) {
+        return ErrorCode[ErrorParameterNil];
+    }
+
+    int size = self->BinarySize(self);
+    if ( !buffer_can_read(&outData->cache,size) ) {
+        return ErrorCode[ErrorParameterInsufficientData];
+    }
+
+    memmove((uint8_t*)outData->cache.ptr + outData->cache.offset, self->buffer.ptr + self->buffer.offset, size);
+    outData->cache.offset += size;
+    outData->data.buffer.size += size;
+    return ErrorCode[ErrorNone];
+}
+
+Error Bytes_unmarshalBinaryStatic(Bytes* self, const Marshaler *inData) {
+    if ( !inData || !self ) {
+        return ErrorCode[ErrorParameterNil];
+    }
+
+    if ( inData->data.buffer.size < self->buffer.size) {
+        return ErrorCode[ErrorParameterInsufficientData];
+    }
+
+    memmove((uint8_t*)self->buffer.ptr + self->buffer.offset, inData->data.buffer.ptr + inData->data.buffer.offset, self->buffer.size);
+    return ErrorCode[ErrorNone];
+}
+
+
+bool Bytes_equal(const Bytes *b1,const Bytes *b2) {
     if ( !b1 || !b2 ) {
         return false;
     }
-    if ( b1->buffer.size-b1->buffer.offset != b2->buffer.size-b2->buffer.offset ) {
+    if ( b1->buffer.size != b2->buffer.size ) {
         return false;
     }
-    return memcmp(b1->buffer.ptr+b1->buffer.offset, b2->buffer.ptr+b1->buffer.offset, b1->buffer.size-b1->buffer.offset)==0;
+    return memcmp(b1->buffer.ptr+b1->buffer.offset, b2->buffer.ptr+b2->buffer.offset, b1->buffer.size)==0;
 }
 
-static int Bytes_copy(Bytes *b1, const Bytes *b2) {
+int Bytes_copy(Bytes *b1, const Bytes *b2) {
     if ( !b1 || !b2 ) {
         return 0;
     }
-    if ( b1->buffer.size-b1->buffer.offset < b2->buffer.size-b2->buffer.offset ) {
+    if ( b1->buffer.size < b2->buffer.size ) {
         return 0;
     }
 
-    memmove((uint8_t*)b1->buffer.ptr + b1->buffer.offset, b2->buffer.ptr + b2->buffer.offset, b1->buffer.size-b1->buffer.offset);
-    return b1->buffer.size - b1->buffer.offset;
+    memmove((uint8_t*)(b1->buffer.ptr + b1->buffer.offset), b2->buffer.ptr + b2->buffer.offset, b1->buffer.size);
+    return b1->buffer.size;
 }
 
+Error Bytes_marshalJSON(const struct Bytes* self, struct Marshaler *outData) {
+    return ErrorCode[ErrorNotImplemented];
+}
 
-static Bytes Bytes_init(Bytes *b, uint8_t *buffer, uint64_t len) {
+Error Bytes_unmarshalJSON(struct Bytes* self, const struct Marshaler *data) {
+    return ErrorCode[ErrorNotImplemented];
+}
+
+Bytes Bytes_init(Bytes *b, buffer_t *buffer, int size) {
     Bytes init = { {0, 0, 0},
-                   Bytes_binarySize,
-                   Bytes_equal,
-                   Bytes_copy,
-                   Bytes_marshalBinary,
-                   Bytes_unmarshalBinary };
-    if ( len && buffer ) {
-        init.buffer.size = len;
-        init.buffer.ptr = buffer;
+                 Bytes_binarySizeDynamic,
+                 Bytes_equal,
+                 Bytes_copy,
+                 Bytes_marshalBinaryDynamic,
+                 Bytes_unmarshalBinaryDynamic,
+                 Bytes_marshalJSON,
+                 Bytes_unmarshalJSON};
+    if ( buffer ) {
+        init.buffer.size = size;
+        init.buffer.ptr = buffer->ptr;
+        init.buffer.offset = buffer->offset;
+        buffer->offset += size;
     }
     if ( b ) {
         *b = init;
@@ -128,80 +145,206 @@ static Bytes Bytes_init(Bytes *b, uint8_t *buffer, uint64_t len) {
 }
 
 
-
-static Error VarInt_valid(const VarInt *v) {
+Error Bytes32_valid(const Bytes*v) {
     if (!v) {
         return ErrorCode[ErrorParameterNil];
+    }
+    if (!v->buffer.ptr || v->buffer.size != 32) {
+        return ErrorCode[ErrorBufferTooSmall];
     }
     return ErrorCode[ErrorNone];
 }
 
-static Error VarInt_set(const VarInt *v, uint64_t n) {
+Error Bytes32_get(const struct Bytes *v, Bytes *out) {
+    Error e = Bytes32_valid(v);
+    if ( e.code != ErrorNone ) {
+        return e;
+    }
+    if (!out) {
+        return ErrorCode[ErrorParameterNil];
+    }
+    if (out->buffer.size < 32) {
+        return ErrorCode[ErrorBufferTooSmall];
+    }
+    int n = v->Copy(out, v);
+    if ( n != 32 ) {
+        return ErrorCode[ErrorBadCopy];
+    }
+    return e;
+}
+
+Error Bytes32_set(struct Bytes *v, const Bytes *in) {
+    Error e = Bytes32_valid(v);
+    if ( e.code != ErrorNone ) {
+        return e;
+    }
+    if (!in) {
+        return ErrorCode[ErrorParameterNil];
+    }
+    if (in->buffer.size < 32) {
+        return ErrorCode[ErrorBufferTooSmall];
+    }
+    int n = v->Copy(v, in);
+    if ( n != 32 ) {
+        return ErrorCode[ErrorBadCopy];
+    }
+    return e;
+}
+
+
+Error Bytes64_valid(const Bytes*v) {
     if (!v) {
         return ErrorCode[ErrorParameterNil];
     }
-    int size = varint_size(n);
-    if ( size != v->buffer.size ) {
-        return ErrorCode[ErrorResizeRequred];
+    if (!v->buffer.ptr || v->buffer.size != 64) {
+        return ErrorCode[ErrorBufferTooSmall];
     }
+    return ErrorCode[ErrorNone];
 }
 
-static int VarInt_binarySize(const VarInt *v) {
+Error Bytes64_get(const struct Bytes *v, Bytes *out) {
+    Error e = Bytes64_valid(v);
+    if ( e.code != ErrorNone ) {
+        return e;
+    }
+    if (!out) {
+        return ErrorCode[ErrorParameterNil];
+    }
+    if (out->buffer.size < 64) {
+        return ErrorCode[ErrorBufferTooSmall];
+    }
+    int n = v->Copy(out, v);
+    if ( n != 64 ) {
+        return ErrorCode[ErrorBadCopy];
+    }
+    return e;
+}
+
+Error Bytes64_set(struct Bytes *v, const Bytes *in) {
+    Error e = Bytes64_valid(v);
+    if ( e.code != ErrorNone ) {
+        return e;
+    }
+    if (!in) {
+        return ErrorCode[ErrorParameterNil];
+    }
+    if (in->buffer.size < 64) {
+        return ErrorCode[ErrorBufferTooSmall];
+    }
+    int n = v->Copy(v, in);
+    if ( n != 64 ) {
+        return ErrorCode[ErrorBadCopy];
+    }
+    return e;
+}
+
+
+Error VarInt_valid(const Bytes *v) {
     if (!v) {
+        return ErrorCode[ErrorParameterNil];
+    }
+    if (v->buffer.size != sizeof(uint64_t)) {
+        return ErrorCode[ErrorBufferTooSmall];
+    }
+    return ErrorCode[ErrorNone];
+}
+
+Error VarInt_set(Bytes *v, uint64_t n) {
+    Error e = VarInt_valid(v);
+    if ( e.code != ErrorNone ) {
+        return e;
+    }
+
+    *(uint64_t*)(v->buffer.ptr+v->buffer.offset) = n;
+    return ErrorCode[ErrorNone];
+}
+
+Error VarInt_get(const Bytes *v, uint64_t *n) {
+    Error e = VarInt_valid(v);
+    if (e.code != ErrorNone) {
+        return e;
+    }
+
+    if (!n) {
+        return ErrorCode[ErrorParameterNil];
+    }
+
+    *n = *(uint64_t*)(v->buffer.ptr+v->buffer.offset);
+    return ErrorCode[ErrorNone];
+}
+
+int VarInt_binarySize(const Bytes *v) {
+    Error e = VarInt_valid(v);
+    if ( e.code != ErrorNone ) {
         return 0;
     }
-    return varint_size(v->varint);
+
+    uint64_t val = *(uint64_t*)(v->buffer.ptr+v->buffer.offset);
+    return (int)varint_size(val);
 }
 
-Error VarInt_marshalBinary(const VarInt *self, struct Bytes *outData) {
+Error VarInt_marshalBinary(const Bytes *self, struct Marshaler *outData) {
     if ( !outData || !self ) {
         return ErrorCode[ErrorParameterNil];
     }
 
-    int size = self->BinarySize(self);
-    if ( !buffer_can_read(&outData->buffer,size) ) {
+    int size = VarInt_binarySize(self);
+    if ( !buffer_can_read(&outData->cache,size) ) {
         return ErrorCode[ErrorParameterInsufficientData];
     }
 
-    int r = varint_write((uint8_t*)outData->buffer.ptr,outData->buffer.offset,size);
+    int r = varint_write((uint8_t*)outData->cache.ptr,outData->cache.offset,size);
     if (r < 0) {
         return ErrorCode[ErrorVarIntWrite];
     }
-    outData->buffer.offset += size;
+    outData->cache.offset += size;
+    outData->data.buffer.size += size;
     return ErrorCode[ErrorNone];
 }
 
-static Error VarInt_unmarshalBinary(VarInt* self, const Bytes *inData) {
-    if ( !inData || !self ) {
+Error VarInt_unmarshalBinary(Bytes* self, const Marshaler *inData) {
+    Error e = VarInt_valid(self);
+    if ( e.code != ErrorNone ) {
+        return e;
+    }
+    if ( !inData ) {
         return ErrorCode[ErrorParameterNil];
     }
 
-    int offset = varint_read(inData->buffer.ptr+inData->buffer.offset,inData->buffer.size,&self->varint);
+    int offset = varint_read((uint8_t*)inData->data.buffer.ptr+inData->data.buffer.offset,
+                             inData->data.buffer.size,
+                             (uint64_t*)(self->buffer.ptr+self->buffer.offset));
     if ( offset < 0 ) {
         return ErrorCode[ErrorVarIntRead];
     }
 
-    return ErrorCode[ErrorNone];
+    return e;
 }
 
-static Error VarInt_marshalJSON(const VarInt* v, Bytes *outData) {
-    return ErrorCode[ErrorNotImplemented];
-}
 
-static Error VarInt_unmarshalJSON(VarInt* v,const struct Bytes *data) {
-    return ErrorCode[ErrorNotImplemented];
-}
-
-static VarInt VarInit_init(VarInt *v, buffer_t *buffer) {
+VarInt VarInit_init(VarInt *v, buffer_t *buffer) {
     VarInt init = { { {0,0,0},
                     VarInt_binarySize,
                     Bytes_equal,
                     Bytes_copy,
-                    Bytes_marshalBinaryStatic,
-                    Bytes_unmarshalBinaryStatic,
+                    VarInt_marshalBinary,
+                    VarInt_unmarshalBinary,
                     Bytes_marshalJSON,
                     Bytes_unmarshalJSON},
-                    ;
+                    VarInt_get,
+                    VarInt_set,
+                  };
+    if (buffer) {
+        int sizeNeeded = sizeof(uint64_t);
+        if ( buffer->size - buffer->offset < sizeNeeded ) {
+            return init;
+        }
+        init.data.buffer.ptr = buffer->ptr;
+        init.data.buffer.offset = buffer->offset;
+        init.data.buffer.size = sizeNeeded;
+        buffer->offset += sizeNeeded;
+    }
+
     if (v) {
         *v = init;
     }
@@ -209,16 +352,17 @@ static VarInt VarInit_init(VarInt *v, buffer_t *buffer) {
 }
 
 
-Error BigInt_valid(const BigInt *s) {
+Error BigInt_valid(const Bytes *s) {
     if (!s ) {
         return ErrorCode[ErrorInvalidBigInt];
     }
     if ( s->buffer.size != 32 && s->buffer.ptr != 0) {
         return ErrorCode[ErrorInvalidBigInt];
     }
+    return ErrorCode[ErrorNone];
 }
 
-Error BigInt_get(const struct BigInt*s, uint256_t *v) {
+Error BigInt_get(const struct Bytes*s, uint256_t *v) {
     Error e = BigInt_valid(s);
     if ( e.code != ErrorNone ) {
         return e;
@@ -227,11 +371,11 @@ Error BigInt_get(const struct BigInt*s, uint256_t *v) {
         return ErrorCode[ErrorParameterNil];
     }
     //conv
-    readu256BE(s->buffer.ptr+s->buffer.offset,v);
+    readu256BE((uint8_t*)s->buffer.ptr+s->buffer.offset,v);
     return ErrorCode[ErrorNone];
 }
 
-Error BigInt_set(const struct BigInt*s, const uint256_t *v) {
+Error BigInt_set(struct Bytes*s, const uint256_t *v) {
     Error e = BigInt_valid(s);
     if ( e.code != ErrorNone ) {
         return e;
@@ -240,36 +384,151 @@ Error BigInt_set(const struct BigInt*s, const uint256_t *v) {
         return ErrorCode[ErrorParameterNil];
     }
     //conv
-    writeu256BE(v,(uint8_t*)s->buffer.ptr+s->buffer.offset);
+
+    writeu256BE((uint256_t*)v,(uint8_t*)s->buffer.ptr+s->buffer.offset);
     return ErrorCode[ErrorNone];
 }
 
+BigInt BigInit_init(BigInt *v, buffer_t *buffer) {
+    BigInt init = { { {0,0,0},
+                    Bytes_binarySizeStatic,
+                    Bytes_equal,
+                    Bytes_copy,
+                    Bytes_marshalBinaryStatic,
+                    Bytes_unmarshalBinaryStatic,
+                    Bytes_marshalJSON,
+                    Bytes_unmarshalJSON},
+                    BigInt_get,
+                    BigInt_set,
+                  };
+    if (buffer) {
+        int sizeNeeded = 32;
+        if ( buffer->size - buffer->offset < sizeNeeded ) {
+            return init;
+        }
+        init.data.buffer.ptr = buffer->ptr;
+        init.data.buffer.offset = buffer->offset;
+        init.data.buffer.size = sizeNeeded;
+        buffer->offset += sizeNeeded;
+    }
 
-
-
-static Bytes32 Bytes32_init(Bytes32 *b) {
-    Bytes32 init = { {0},
-                   Bytes32_binarySize,
-                   Bytes32_equal,
-                   Bytes32_copy,
-                   Bytes32_marshalBinary,
-                   Bytes32_unmarshalBinary};
-    if ( b ) {
-        *b = init;
+    if (v) {
+        *v = init;
     }
     return init;
 }
 
-static String String_init(String *s, uint8_t *buffer, int bufferLen) {
+
+Bytes32 Bytes32_init(Bytes32 *v, buffer_t *buffer) {
+    Bytes32 init = { { {0,0,0},
+                    Bytes_binarySizeStatic,
+                    Bytes_equal,
+                    Bytes_copy,
+                    Bytes_marshalBinaryStatic,
+                    Bytes_unmarshalBinaryStatic,
+                    Bytes_marshalJSON,
+                    Bytes_unmarshalJSON},
+                    Bytes32_get,
+                    Bytes32_set,
+                  };
+    if (buffer) {
+        int sizeNeeded = 32;
+        if ( buffer->size - buffer->offset < sizeNeeded ) {
+            return init;
+        }
+        init.data.buffer.ptr = buffer->ptr;
+        init.data.buffer.offset = buffer->offset;
+        init.data.buffer.size = sizeNeeded;
+        buffer->offset += sizeNeeded;
+    }
+
+    if (v) {
+        *v = init;
+    }
+    return init;
+}
+
+
+Bytes64 Bytes64_init(Bytes64 *v, buffer_t *buffer) {
+    Bytes64 init = { { {0,0,0},
+                    Bytes_binarySizeStatic,
+                    Bytes_equal,
+                    Bytes_copy,
+                    Bytes_marshalBinaryStatic,
+                    Bytes_unmarshalBinaryStatic,
+                    Bytes_marshalJSON,
+                    Bytes_unmarshalJSON},
+                    Bytes64_get,
+                    Bytes64_set,
+                  };
+    if (buffer) {
+        int sizeNeeded = 64;
+        if ( buffer->size - buffer->offset < sizeNeeded ) {
+            return init;
+        }
+        init.data.buffer.ptr = buffer->ptr;
+        init.data.buffer.offset = buffer->offset;
+        init.data.buffer.size = sizeNeeded;
+        buffer->offset += sizeNeeded;
+    }
+
+    if (v) {
+        *v = init;
+    }
+    return init;
+}
+
+Error String_valid(const Bytes *s) {
+    if (!s ) {
+        return ErrorCode[ErrorInvalidString];
+    }
+    if ( s->buffer.size != 32 && s->buffer.ptr != 0) {
+        return ErrorCode[ErrorInvalidString];
+    }
+    return ErrorCode[ErrorNone];
+}
+
+Error String_get(const struct Bytes*s, char *v, int vlen) {
+    Error e = String_valid(s);
+    if ( e.code != ErrorNone ) {
+        return e;
+    }
+    if ( !v ) {
+        return ErrorCode[ErrorParameterNil];
+    }
+    if (vlen < s->buffer.size ) {
+        return ErrorCode[ErrorBufferTooSmall];
+    }
+
+    strncpy((char*)v,(const char*)s->buffer.ptr+s->buffer.offset,s->buffer.size);
+    return ErrorCode[ErrorNone];
+}
+
+Error String_set(struct Bytes*s, const char *v) {
+    Error e = String_valid(s);
+    if ( e.code != ErrorNone ) {
+        return e;
+    }
+    if ( !v ) {
+        return ErrorCode[ErrorParameterNil];
+    }
+
+    if (strlen(v) > s->buffer.size) {
+        return ErrorCode[ErrorBufferTooSmall];
+    }
+
+    memset((void*)(s->buffer.ptr+s->buffer.offset),0,s->buffer.size);
+    strncpy((char*)(s->buffer.ptr+s->buffer.offset),v,s->buffer.size);
+    return ErrorCode[ErrorNone];
+}
+
+String String_init(String *s, buffer_t *buffer, int size) {
     String init;
 
-    Bytes_init(&init.string,buffer,bufferLen);
-    init.BinarySize = String_binarySize;
-    init.Equal = String_equal;
-    init.Copy = String_copy;
-    init.MarshalBinary = String_marshalBinary;
-    init.UnmarshalBinary = String_unmarshalBinary;
+    Bytes_init(&init.data,buffer, size);
 
+    init.get = String_get;
+    init.set = String_set;
 
     if ( s ) {
         *s = init;
@@ -277,18 +536,16 @@ static String String_init(String *s, uint8_t *buffer, int bufferLen) {
     return init;
 }
 
-
-static BigInt BigInt_init(BigInt *b) {
-    BigInt init;
-    zero256(&init.bigInt);
-    init.BinarySize = BigInt_binarySize;
-    init.Equal = BigInt_equal;
-    init.Copy = BigInt_copy;
-    init.MarshalBinary = BigInt_marshalBinary;
-    init.UnmarshalBinary = BigInt_unmarshalBinary;
-    if ( b ) {
-        *b = init;
+Marshaler Marshaler_init(Marshaler *v, buffer_t *buffer ) {
+    Marshaler init;
+    if (buffer) {
+        init.data.buffer.size = 0;
+        init.cache.size = buffer->size;
+        init.data.buffer.ptr = init.cache.ptr = buffer->ptr;
+        init.data.buffer.offset = init.cache.offset = buffer->offset;
+    }
+    if (v) {
+        *v = init;
     }
     return init;
 }
-
