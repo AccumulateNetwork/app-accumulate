@@ -8,6 +8,7 @@ Error Error_init(Error *e) {
     }
     return err;
 }
+
 int Bytes_binarySizeStatic(const struct Bytes *self) {
     if (!self) {
         return 0;
@@ -292,8 +293,13 @@ Error VarInt_marshalBinary(const Bytes *self, struct Marshaler *outData) {
     if ( !buffer_can_read(&outData->cache,size) ) {
         return ErrorCode[ErrorParameterInsufficientData];
     }
+    uint64_t n = 0;
+    Error e = VarInt_get(self,&n);
+    if ( e.code != ErrorNone ) {
+        return e;
+    }
 
-    int r = varint_write((uint8_t*)outData->cache.ptr,outData->cache.offset,size);
+    int r = varint_write((uint8_t*)outData->cache.ptr,outData->cache.offset,n);
     if (r < 0) {
         return ErrorCode[ErrorVarIntWrite];
     }

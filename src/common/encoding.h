@@ -107,6 +107,7 @@ typedef struct VarInt {
    Error (*set)(struct Bytes *, uint64_t in);
 } VarInt;
 
+
 Error Error_init(Error *e);
 Bytes Bytes_init(Bytes *b, buffer_t *buffer, int size);
 VarInt VarInit_init(VarInt *v, buffer_t *buffer);
@@ -115,5 +116,41 @@ Bytes32 Bytes32_init(Bytes32 *v, buffer_t *buffer);
 Bytes64 Bytes64_init(Bytes64 *v, buffer_t *buffer);
 String String_init(String *s, buffer_t *buffer, int size);
 Marshaler Marshaler_init(Marshaler *v, buffer_t *buffer );
+
+int Bytes_binarySizeStatic(const struct Bytes *self);
+int Bytes_binarySizeDynamic(const struct Bytes *self);
+Error Bytes_marshalBinaryDynamic(const struct Bytes*self, struct Marshaler *outData);
+Error Bytes_unmarshalBinaryDynamic(Bytes* self, const Marshaler *inData);
+Error Bytes_marshalBinaryStatic(const struct Bytes*self, struct Marshaler *outData);
+Error Bytes_unmarshalBinaryStatic(Bytes* self, const Marshaler *inData);
+bool Bytes_equal(const Bytes *b1,const Bytes *b2);
+int Bytes_copy(Bytes *b1, const Bytes *b2);
+Error Bytes_marshalJSON(const struct Bytes* self, struct Marshaler *outData);
+Error Bytes_unmarshalJSON(struct Bytes* self, const struct Marshaler *data);
+int VarInt_binarySize(const Bytes *v);
+
+Error Bytes32_valid(const Bytes*v);
+Error Bytes32_get(const struct Bytes *v, Bytes *out);
+Error Bytes32_set(struct Bytes *v, const Bytes *in);
+Error Bytes64_valid(const Bytes*v);
+Error Bytes64_get(const struct Bytes *v, Bytes *out);
+Error Bytes64_set(struct Bytes *v, const Bytes *in);
+Error VarInt_valid(const Bytes *v);
+Error VarInt_set(Bytes *v, uint64_t n);
+Error VarInt_get(const Bytes *v, uint64_t *n);
+int VarInt_binarySize(const Bytes *v);
+Error VarInt_marshalBinary(const Bytes *self, struct Marshaler *outData);
+Error VarInt_unmarshalBinary(Bytes* self, const Marshaler *inData);
+VarInt VarInit_init(VarInt *v, buffer_t *buffer);
+Error BigInt_valid(const Bytes *s);
+Error BigInt_get(const struct Bytes*s, uint256_t *v);
+Error BigInt_set(struct Bytes*s, const uint256_t *v);
+
+Error String_valid(const Bytes *s);
+Error String_get(const struct Bytes*s, char *v, int vlen);
+Error String_set(struct Bytes*s, const char *v);
+String String_init(String *s, buffer_t *buffer, int size);
+Marshaler Marshaler_init(Marshaler *v, buffer_t *buffer );
+
 
 #endif
