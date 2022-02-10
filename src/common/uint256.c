@@ -30,6 +30,17 @@ static uint64_t readUint64BE(uint8_t *buffer) {
            (((uint64_t)buffer[6]) << 8) | (((uint64_t)buffer[7]));
 }
 
+void writeu64BE(uint64_t r, uint8_t *buffer) {
+    buffer[0] = (uint8_t)(r >> 56);
+    buffer[1] = (uint8_t)(r >> 48);
+    buffer[2] = (uint8_t)(r >> 40);
+    buffer[3] = (uint8_t)(r >> 32);
+    buffer[4] = (uint8_t)(r >> 24);
+    buffer[5] = (uint8_t)(r >> 16);
+    buffer[6] = (uint8_t)(r >> 8);
+    buffer[7] = (uint8_t)(r);
+}
+
 void readu128BE(uint8_t *buffer, uint128_t *target) {
     UPPER_P(target) = readUint64BE(buffer);
     LOWER_P(target) = readUint64BE(buffer + 8);
@@ -38,6 +49,16 @@ void readu128BE(uint8_t *buffer, uint128_t *target) {
 void readu256BE(uint8_t *buffer, uint256_t *target) {
     readu128BE(buffer, &UPPER_P(target));
     readu128BE(buffer + 16, &LOWER_P(target));
+}
+
+void writeu128BE(uint128_t *source, uint8_t *buffer) {
+    writeu64BE(UPPER_P(source), buffer);
+    writeu64BE(LOWER_P(source), buffer + 8);
+}
+
+void writeu256BE(uint256_t *source, uint8_t *buffer) {
+    writeu64BE(source, buffer);
+    writeu64BE(source + 16, buffer + 8);
 }
 
 bool zero128(uint128_t *number) {
