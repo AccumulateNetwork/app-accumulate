@@ -116,7 +116,7 @@ Error Bytes_unmarshalJSON(struct Bytes* self, const struct Marshaler *data) {
     return ErrorCode(ErrorNotImplemented);
 }
 
-Bytes Bytes_init(Bytes *b, buffer_t *buffer, int size) {
+Bytes Bytes_init(const Bytes_t *b) {
     Bytes init = { {0, 0, 0},
                  Bytes_binarySizeDynamic,
                  Bytes_equal,
@@ -125,14 +125,10 @@ Bytes Bytes_init(Bytes *b, buffer_t *buffer, int size) {
                  Bytes_unmarshalBinaryDynamic,
                  Bytes_marshalJSON,
                  Bytes_unmarshalJSON};
-    if ( buffer ) {
-        init.buffer.size = size;
-        init.buffer.ptr = buffer->ptr;
-        init.buffer.offset = buffer->offset;
-        buffer->offset += size;
-    }
     if ( b ) {
-        *b = init;
+        init.buffer.size = b->size;
+        init.buffer.ptr = b->ptr;
+        init.buffer.offset = b->offset;
     }
     return init;
 }
@@ -184,6 +180,16 @@ Error Bytes32_set(struct Bytes *v, const Bytes *in) {
     return e;
 }
 
+#define ENCODE_VALID(TYPE,SIZE) \
+Error TYPE##_valid(const TYPE*v) {\
+    if (!v) {\
+        return ErrorCode(ErrorParameterNil);\
+    }\
+    if (!v->buffer.ptr || v->buffer.size != SIZE) {\
+        return ErrorCode(ErrorBufferTooSmall);\
+    }\
+    return ErrorCode(ErrorNone);\
+}
 
 Error Bytes64_valid(const Bytes*v) {
     if (!v) {
@@ -232,12 +238,15 @@ Error Bytes64_set(struct Bytes *v, const Bytes *in) {
 }
 
 
-Error VarInt_valid(const Bytes *v) {
+Error VarInt_valid(const VarInt *v) {
     if (!v) {
         return ErrorCode(ErrorParameterNil);
     }
-    if (v->buffer.size != sizeof(uint64_t)) {
+    if (v->data.buffer.size != sizeof(uint64_t)) {
         return ErrorCode(ErrorBufferTooSmall);
+    }
+    if ( !v->MarshalBinary || !v->UnmarshalBinary || !v->get || !v->set ) {
+        return ErrorCode(ErrorInvalidObject)
     }
     return ErrorCode(ErrorNone);
 }
@@ -276,6 +285,11 @@ int VarInt_binarySize(const Bytes *v) {
     return (int)varint_size(val);
 }
 
+Error VarInt_marshalBinary_t(const struct VarInt *v, struct Marshaler *outData) {
+    Error e = VarInt_valid(v)
+}
+Error VarInt_unmarshalBinary_t(struct VarInt *,const struct Marshaler *data);
+
 Error VarInt_marshalBinary(const Bytes *self, struct Marshaler *outData) {
     if ( !outData || !self ) {
         return ErrorCode(ErrorParameterNil);
@@ -297,7 +311,7 @@ Error VarInt_marshalBinary(const Bytes *self, struct Marshaler *outData) {
     }
     outData->cache.offset += size;
     outData->data.buffer.size += size;
-    return ErrorCode[ErrorNone];
+    return ErrorCode(ErrorNone);
 }
 
 Error VarInt_unmarshalBinary(Bytes* self, const Marshaler *inData) {

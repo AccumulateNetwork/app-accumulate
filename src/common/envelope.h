@@ -6,15 +6,16 @@
 typedef struct Transaction {
     VarInt type;
     Bytes *payload;
-    Error MarshalBinary(const struct Transaction* t, struct Marshaler *outData);
-    Error UnmarshalBinary(struct Transaction* t, struct Marshaler *inData);
+    Error (*MarshalBinary)(const struct Transaction* t, struct Marshaler *outData);
+    Error (*UnmarshalBinary)(struct Transaction* t, struct Marshaler *inData);
+    int (*BinarySize)(const struct Transaction *self);
 } Transaction; //encoder
 
-typedef struct {
-    VarInt       _numSignatures;//stores the number of signatures.
-    ED25519Sig  *_Signatures;   //`json:"signatures,omitempty" form:"signatures" query:"signatures" validate:"required"`
+typedef struct Envelope {
+    VarInt       _numSignatures;  //stores the number of signatures.
+    ED25519Sig  *_Signatures;     //`json:"signatures,omitempty" form:"signatures" query:"signatures" validate:"required"`
     Bytes        _TxHash;         //  `json:"txHash,omitempty" form:"txHash" query:"txHash" validate:"required"`
-    Transaction *_Transaction;          //  `json:"transaction,omitempty" form:"transaction" query:"transaction" validate:"required"`
+    Transaction *_Transaction;    //  `json:"transaction,omitempty" form:"transaction" query:"transaction" validate:"required"`
 } Envelope; //encoder
 
 

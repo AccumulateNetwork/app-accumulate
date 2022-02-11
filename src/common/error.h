@@ -5,10 +5,11 @@ typedef struct Error {
    char err[64];
 } Error;
 
-enum ErrorEnum {
+typedef enum {
     ErrorNone = 0,
     ErrorUnknown,
     ErrorInvalidEnum,
+    ErrorInvalidObject,
     ErrorNotImplemented,
     ErrorTypeNotFound,
     ErrorParameterNil,
@@ -20,9 +21,8 @@ enum ErrorEnum {
     ErrorResizeRequred,
     ErrorInvalidBigInt,
     ErrorInvalidString,
-};
+} ErrorEnum;
 
 Error ErrorCode(ErrorEnum e); 
-
-Error Error_init(Error *e); 
+Error Error_init(Error *e);
 

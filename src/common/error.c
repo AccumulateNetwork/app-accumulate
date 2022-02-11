@@ -13,6 +13,7 @@ Error ErrorCode(ErrorEnum e) {
     {ErrorNone, {0}},
     {ErrorUnknown, "unknown"},
     {ErrorInvalidEnum,"invalid enum"},
+    {ErrorInvalidObject,"invalid object"},
     {ErrorNotImplemented, "not implemented"},
     {ErrorTypeNotFound, "type not found"},
     {ErrorParameterNil, "parameter is nil"},

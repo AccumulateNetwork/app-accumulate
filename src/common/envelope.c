@@ -1,66 +1,64 @@
-#pragma once
-
 #include <common/encoding.h>
 #include <common/envelope.h>
 
-int Envelope_binarySize(const struct Envelope* self) {
-    if ( !self ) {
+int Envelope_binarySize(const Envelope* v) {
+    if ( !v ) {
         return 0;
     }
     int ret = 0;
     uint64_t numSignatures = 0;
-    Error e = VarInt_get(self->numSignatures.data,&numSignatures);
+    Error e = VarInt_get(&v->_numSignatures.data,&numSignatures);
     if ( e.code != ErrorNone ) {
         return 0;
     }
 
-    ret += VarInt_binarySize(self->numSignatures.data);
+    ret += VarInt_binarySize(&v->_numSignatures.data);
 
-    for ( int i = 0; i < numSignatures ; ++n ) {
-        ret += self->Signatures->BinarySize(self->Signatures);
+    for ( int i = 0; i < numSignatures ; ++i ) {
+        ret += v->_Signatures->BinarySize(v->_Signatures);
     }
 
-    ret += self->TxHash.data.BinarySize(self->TxHash.data);
+    ret += v->_TxHash.BinarySize(&v->_TxHash);
 
-    ret += self->transaction->BinarySize(self->transaction);
+    ret += v->_Transaction->BinarySize(v->_Transaction);
 
     return ret;
 }
 
 Error Envelope_marshalBinary(const struct Envelope* self, struct Marshaler *outData) {
-    if ( !self || !outdata ) {
-        return ErrorCode[ErrorParameterNil];
+    if ( !self || !outData ) {
+        return ErrorCode(ErrorParameterNil);
     }
 
     int n = Envelope_binarySize(self);
     if ( n + outData->cache.offset < outData->cache.size) {
-        return ErrorCode[ErrorBufferTooSmall];
+        return ErrorCode(ErrorBufferTooSmall);
     }
 
-    Error e = VarInt_marshalBinary(self->numSignatures.data,outData);
+    Error e = self->_numSignatures.MarshalBinary(&self->_numSignatures,outData);
     if ( e.code != ErrorNone ) {
         return e;
     }
 
     uint64_t numSignatures = 0;
-    e = VarInt_get(self->numSignatures.data,&numSignatures);
+    e = VarInt_get(&self->_numSignatures.data,&numSignatures);
     if ( e.code != ErrorNone ) {
-        return 0;
+        return e;
     }
 
     for ( int i = 0; i < numSignatures; ++i ) {
-        e = self->Signatures->MarshalBinary(self->Signatures,outData);
+        e = self->_Signatures->MarshalBinary(self->_Signatures,outData);
         if ( e.code != ErrorNone ) {
             return e;
         }
     }
 
-    e = self->TxHash.data.MarshalBinary(self->TxHash.data,outData);
+    e = self->_TxHash.MarshalBinary(&self->_TxHash,outData);
     if ( e.code != ErrorNone ) {
         return e;
     }
 
-    e = self->transaction->MarshalBinary(self->transaction,outData);
+    e = self->_Transaction->MarshalBinary(self->_Transaction,outData);
 
     return e;
 }

@@ -50,6 +50,8 @@ typedef struct Bytes32 {
     Bytes data;
     Error (*get)(const struct Bytes *, Bytes32_t *out);
     Error (*set)(struct Bytes *, const Bytes32_t *in);
+    Error (*MarshalBinary)(const struct Bytes32 *, struct Marshaler *outData);
+    Error (*UnmarshalBinary)(struct Bytes32 *,const struct Marshaler *data);
 } Bytes32;
 
 
@@ -59,14 +61,21 @@ typedef struct Bytes64 {
     Bytes data;
     Error (*get)(const struct Bytes *, Bytes64_t *out);
     Error (*set)(struct Bytes *, const Bytes64_t *in);
+
+    Error (*MarshalBinary)(const struct Bytes64 *, struct Marshaler *outData);
+    Error (*UnmarshalBinary)(struct Bytes64 *,const struct Marshaler *data);
 } Bytes64;
 
 
 typedef buffer_t String_t;
 typedef struct String {
-   Bytes data;
-   Error (*get)(const struct String *, String_t *out);
-   Error (*set)(struct String *, const String_t *in);
+    Bytes data;
+    Error (*get)(const struct String *, String_t *out);
+    Error (*set)(struct String *, const String_t *in);
+
+    Error (*MarshalBinary)(const struct String *, struct Marshaler *outData);
+    Error (*UnmarshalBinary)(struct String *,const struct Marshaler *data);
+
 } String;
 
 typedef uint256_t BigInt_t;
@@ -74,26 +83,29 @@ typedef struct BigInt {
     Bytes data;
     Error (*get)(const struct Bytes*, uint256_t *out);
     Error (*set)(struct Bytes*, const uint256_t *in);
+
+    Error (*MarshalBinary)(const struct BigInt *, struct Marshaler *outData);
+    Error (*UnmarshalBinary)(struct BigInt *,const struct Marshaler *data);
 } BigInt;
 
 typedef uint64_t VarInt_t;
 typedef struct VarInt {
-   Bytes data;
-   Error (*get)(const struct Bytes *, VarInt_t *out);
-   Error (*set)(struct Bytes *, VarInt_t in);
+    Bytes data;
+    Error (*get)(const struct Bytes *, VarInt_t *out);
+    Error (*set)(struct Bytes *, VarInt_t in);
+
+    Error (*MarshalBinary)(const struct VarInt *, struct Marshaler *outData);
+    Error (*UnmarshalBinary)(struct VarInt *,const struct Marshaler *data);
 } VarInt;
 
 //Bytes Bytes_init(Bytes *b, buffer_t *buffer, int size);
-
-Bytes Bytes_init(const Bytes_t *b);
-
-
 //VarInt VarInit_init(VarInt *v, buffer_t *buffer);
 //BigInt BigInit_init(BigInt *v, buffer_t *buffer);
 //Bytes32 Bytes32_init(Bytes32 *v, buffer_t *buffer);
 //Bytes64 Bytes64_init(Bytes64 *v, buffer_t *buffer);
 //String String_init(String *s, buffer_t *buffer, int size);
 
+Bytes Bytes_init(const Bytes_t *b);
 VarInt VarInit_init(const VarInt_t *v);
 BigInt BigInit_init(const BigInt_t *v);
 Bytes32 Bytes32_init(const Bytes32_t *v);
@@ -120,13 +132,13 @@ Error Bytes32_set(struct Bytes *v, const Bytes *in);
 Error Bytes64_valid(const Bytes*v);
 Error Bytes64_get(const struct Bytes *v, Bytes *out);
 Error Bytes64_set(struct Bytes *v, const Bytes *in);
-Error VarInt_valid(const Bytes *v);
+Error VarInt_valid(const VarInt *v);
 Error VarInt_set(Bytes *v, uint64_t n);
 Error VarInt_get(const Bytes *v, uint64_t *n);
 int VarInt_binarySize(const Bytes *v);
 Error VarInt_marshalBinary(const Bytes *self, struct Marshaler *outData);
 Error VarInt_unmarshalBinary(Bytes* self, const Marshaler *inData);
-VarInt VarInit_init(VarInt *v, buffer_t *buffer);
+
 Error BigInt_valid(const Bytes *s);
 Error BigInt_get(const struct Bytes*s, uint256_t *v);
 Error BigInt_set(struct Bytes*s, const uint256_t *v);

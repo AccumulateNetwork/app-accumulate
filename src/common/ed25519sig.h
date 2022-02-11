@@ -10,14 +10,12 @@ typedef struct {
     uint8_t  _Signature[64]; // a set of 64 byte signatures
 } ED25519Sig_t;
 
-//#pragma pop()
-
-
 typedef struct ED25519Sig {
     VarInt    _Nonce;
     Bytes32   _PublicKey;
     Bytes64   _Signature;
-    Error MarshalBinary(const struct ED25519Sig* t, struct Marshaler *outData);
-    Error UnmarshalBinary(struct ED25519Sig* t, struct Marshaler *inData);
+    Error (*MarshalBinary)(const struct ED25519Sig* t, struct Marshaler *outData);
+    Error (*UnmarshalBinary)(struct ED25519Sig* t, struct Marshaler *inData);
+    int (*BinarySize)(const struct ED25519Sig *self);
 } ED25519Sig;
 
