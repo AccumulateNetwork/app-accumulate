@@ -12,43 +12,7 @@
 #include <common/uint256.h>
 #include <common/varint.h>
 #include <common/buffer.h>
-
-typedef struct Error {
-   int code;
-   char err[64];
-} Error;
-
-enum ErrorEnum {
-    ErrorNone = 0,
-    ErrorUnknown,
-    ErrorNotImplemented,
-    ErrorTypeNotFound,
-    ErrorParameterNil,
-    ErrorParameterInsufficientData,
-    ErrorBadCopy,
-    ErrorBufferTooSmall,
-    ErrorVarIntRead,
-    ErrorVarIntWrite,
-    ErrorResizeRequred,
-    ErrorInvalidBigInt,
-    ErrorInvalidString,
-};
-
-static Error ErrorCode[] = {
-    {ErrorNone, {0}},
-    {ErrorUnknown, "unknown"},
-    {ErrorNotImplemented, "not implemented"},
-    {ErrorTypeNotFound, "type not found"},
-    {ErrorParameterNil, "parameter is nil"},
-    {ErrorParameterInsufficientData,"insufficient buffer size"},
-    {ErrorBadCopy,"cannot copy buffer"},
-    {ErrorBufferTooSmall,"buffer size too small"},
-    {ErrorVarIntRead, "varint read failed"},
-    {ErrorVarIntWrite,"varint write failed"},
-    {ErrorResizeRequred,"resize required"},
-    {ErrorInvalidBigInt,"invalid big int"},
-    {ErrorInvalidString,"invalid string"},
-};
+#include <common/error.h>
 
 struct Marshaler;
 
@@ -64,6 +28,8 @@ typedef struct Bytes {
    Error (*UnmarshalJSON)(struct Bytes*,const struct Marshaler *data);
 } Bytes;
 
+typedef buffer_t Bytes_t;
+
 typedef struct Marshaler {
     Bytes data;
     buffer_t cache;
@@ -77,44 +43,61 @@ typedef Error (*UnmarshalBinary)(struct Bytes*,const struct Marshaler *data);
 typedef Error (*MarshalJSON)(const struct Bytes*, struct Marshaler *outData);
 typedef Error (*UnmarshalJSON)(struct Bytes*,const struct Marshaler *data);
 
+typedef uint8_t Bytes32_t[32];
 typedef struct Bytes32 {
     Bytes data;
-    Error (*get)(const struct Bytes *, Bytes *out);
-    Error (*set)(struct Bytes *, const Bytes *in);
+    Error (*get)(const struct Bytes *, Bytes32_t *out);
+    Error (*set)(struct Bytes *, const Bytes32_t *in);
 } Bytes32;
+
+
+typedef uint8_t Bytes64_t[64];
 
 typedef struct Bytes64 {
     Bytes data;
-    Error (*get)(const struct Bytes *, Bytes *out);
-    Error (*set)(struct Bytes *, const Bytes *in);
+    Error (*get)(const struct Bytes *, Bytes64_t *out);
+    Error (*set)(struct Bytes *, const Bytes64_t *in);
 } Bytes64;
 
+
+typedef buffer_t String_t;
 typedef struct String {
    Bytes data;
-   Error (*get)(const struct Bytes *, char *out, int oulen);
-   Error (*set)(struct Bytes *, const char *in);
+   Error (*get)(const struct String *, String_t *out);
+   Error (*set)(struct String *, const String_t *in);
 } String;
 
+typedef uint256_t BigInt_t;
 typedef struct BigInt {
     Bytes data;
     Error (*get)(const struct Bytes*, uint256_t *out);
     Error (*set)(struct Bytes*, const uint256_t *in);
 } BigInt;
 
+typedef uint64_t VarInt_t;
 typedef struct VarInt {
    Bytes data;
-   Error (*get)(const struct Bytes *, uint64_t *out);
-   Error (*set)(struct Bytes *, uint64_t in);
+   Error (*get)(const struct Bytes *, VarInt_t *out);
+   Error (*set)(struct Bytes *, VarInt_t in);
 } VarInt;
 
+//Bytes Bytes_init(Bytes *b, buffer_t *buffer, int size);
 
-Error Error_init(Error *e);
-Bytes Bytes_init(Bytes *b, buffer_t *buffer, int size);
-VarInt VarInit_init(VarInt *v, buffer_t *buffer);
-BigInt BigInit_init(BigInt *v, buffer_t *buffer);
-Bytes32 Bytes32_init(Bytes32 *v, buffer_t *buffer);
-Bytes64 Bytes64_init(Bytes64 *v, buffer_t *buffer);
-String String_init(String *s, buffer_t *buffer, int size);
+Bytes Bytes_init(const Bytes_t *b);
+
+
+//VarInt VarInit_init(VarInt *v, buffer_t *buffer);
+//BigInt BigInit_init(BigInt *v, buffer_t *buffer);
+//Bytes32 Bytes32_init(Bytes32 *v, buffer_t *buffer);
+//Bytes64 Bytes64_init(Bytes64 *v, buffer_t *buffer);
+//String String_init(String *s, buffer_t *buffer, int size);
+
+VarInt VarInit_init(const VarInt_t *v);
+BigInt BigInit_init(const BigInt_t *v);
+Bytes32 Bytes32_init(const Bytes32_t *v);
+Bytes64 Bytes64_init(const Bytes64_t *v);
+String String_init(const String_t *s);
+
 Marshaler Marshaler_init(Marshaler *v, buffer_t *buffer );
 
 int Bytes_binarySizeStatic(const struct Bytes *self);
@@ -149,8 +132,7 @@ Error BigInt_set(struct Bytes*s, const uint256_t *v);
 Error String_valid(const Bytes *s);
 Error String_get(const struct Bytes*s, char *v, int vlen);
 Error String_set(struct Bytes*s, const char *v);
-String String_init(String *s, buffer_t *buffer, int size);
-Marshaler Marshaler_init(Marshaler *v, buffer_t *buffer );
+
 
 
 #endif

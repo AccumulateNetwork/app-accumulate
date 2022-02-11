@@ -11,17 +11,17 @@ typedef struct Transaction {
 } Transaction; //encoder
 
 typedef struct {
-    VarInt   numSignatures;//stores the number of signatures.
-    ED25519Sig *Signatures;   //`json:"signatures,omitempty" form:"signatures" query:"signatures" validate:"required"`
-    Bytes TxHash;         //  `json:"txHash,omitempty" form:"txHash" query:"txHash" validate:"required"`
-    Transaction *transaction;          //  `json:"transaction,omitempty" form:"transaction" query:"transaction" validate:"required"`
+    VarInt       _numSignatures;//stores the number of signatures.
+    ED25519Sig  *_Signatures;   //`json:"signatures,omitempty" form:"signatures" query:"signatures" validate:"required"`
+    Bytes        _TxHash;         //  `json:"txHash,omitempty" form:"txHash" query:"txHash" validate:"required"`
+    Transaction *_Transaction;          //  `json:"transaction,omitempty" form:"transaction" query:"transaction" validate:"required"`
 } Envelope; //encoder
 
 
 typedef struct {
-    uint64_t       NumSignatures;//stores the number of signatures.
-    ED25519Sig_t *Signatures;   //`json:"signatures,omitempty" form:"signatures" query:"signatures" validate:"required"`
-    uint8_t TxHash[32];         //  `json:"txHash,omitempty" form:"txHash" query:"txHash" validate:"required"`
-    uint64_t TransactionType;
-    void *Transaction;          //  `json:"transaction,omitempty" form:"transaction" query:"transaction" validate:"required"`
-} Envelope_t;
+    uint64_t       _NumSignatures;   // stores the number of signatures to follow
+    ED25519Sig_t * _Signatures;      // `json:"signatures,omitempty" form:"signatures" query:"signatures" validate:"required"`
+    uint8_t        _TxHash[32];      //  `json:"txHash,omitempty" form:"txHash" query:"txHash" validate:"required"`
+    uint64_t       _TransactionType;
+    void *         _Transaction;     //  `json:"transaction,omitempty" form:"transaction" query:"transaction" validate:"required"`
+} Envelope_t; //actual type

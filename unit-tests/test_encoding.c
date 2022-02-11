@@ -11,6 +11,51 @@
 #define ACME_HEADER
 #include "_enums2.h"
 
+
+typedef struct {
+   Bytes32_t a;
+   Bytes64_t b;
+   String_t c;
+   BigInt_t d;
+   VarInt_t e;
+} test_t;
+
+typedef struct {
+   Bytes32 a;
+   Bytes64 b;
+   String c;
+   BigInt d;
+   VarInt e;
+} test_e; //encoder
+
+test_e Test_init(test_t *t) {
+    test_e init;
+    init.a = Bytes32_init(&t->a);
+    init.b = Bytes64_init(&t->b);
+    init.c = String_init(&t->c);
+    init.d = BigInt_init(&t->d);
+    init.e = VarInt_init(&t->e);
+    return init;
+}
+
+static void test_encoding_struct(void **state) {
+    uint8_t backbuff[1024] = {0};
+
+    char str[32] = {0};
+
+    test_t test;
+    test.a = memset(test.a, 0, sizeof(a));
+    test.b = memset(test.b, 0, sizeof(b));
+    test.c.offset = 0;
+    test.c.ptr = str;
+    test.c.size = sizeof(str);
+    zero256(test.d);
+    e = 0;
+
+    Bytes_t buffer = {backbuff, sizeof(backbuff), 0};
+    Bytes b = Bytes_init(&buffer);
+
+}
 static void test_encoding_bytes(void **state) {
     (void) state;
 
