@@ -59,12 +59,6 @@ static void test_encoding_struct(void **state) {
 static void test_encoding_bytes(void **state) {
     (void) state;
 
-    uint8_t buff1[1024] = {0};
-    uint8_t buff2[1024] = {0};
-
-    buffer_t backend = {buff1,sizeof(buff1),0};
-    buffer_t primary = {buff2,sizeof(buff2),0};
-
     Bytes32 b;
     Error err = Error_init(0);
 
