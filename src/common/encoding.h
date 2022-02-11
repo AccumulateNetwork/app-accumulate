@@ -8,7 +8,9 @@
 #include <string.h>
 #include <stdlib.h>
 
+#define JSMN_HEADER
 #include <common/jsmn.h>
+
 #include <common/uint256.h>
 #include <common/varint.h>
 #include <common/buffer.h>
