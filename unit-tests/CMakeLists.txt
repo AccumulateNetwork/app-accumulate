@@ -65,9 +65,8 @@ add_library(apdu_parser STATIC ../src/apdu/parser.c)
 add_library(transaction_deserialize ../src/transaction/deserialize.c)
 add_library(transaction_serialize ../src/transaction/serialize.c)
 add_library(transaction_utils ../src/transaction/utils.c)
-add_library(uint256 SHARED ../src/common/uint256.c)
-add_library(envelope STATIC ../src/common/envelope.c)
 add_library(uint256 STATIC ../src/common/uint256.c)
+add_library(envelope STATIC ../src/common/envelope.c)
 add_library(encoding STATIC ../src/common/encoding.c)
 
 target_link_libraries(test_base58 PUBLIC ${CMOCKA_LIBRARY} gcov base58)
@@ -93,8 +92,14 @@ target_link_libraries(test_tx_utils PUBLIC
                       gcov
                       transaction_utils)
 
-target_link_libraries(test_envelope envelope encoding uint256 buffer varint transaction_utils gcov ${CMOCKA_LIBRARY} read write format bip32)
-target_link_libraries(test_encoding encoding uint256 buffer varint transaction_utils gcov ${CMOCKA_LIBRARY} read write format bip32)
+target_link_libraries(test_encoding encoding envelope uint256
+        buffer varint transaction_utils gcov
+        ${CMOCKA_LIBRARY} read write format bip32)
+
+
+#target_link_libraries(test_envelope envelope encoding uint256
+#        buffer varint transaction_utils gcov
+#        ${CMOCKA_LIBRARY} read write format bip32)
 
 add_test(test_base58 test_base58)
 add_test(test_bip32 test_bip32)
