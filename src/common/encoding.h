@@ -106,7 +106,7 @@ typedef struct VarInt {
 //String String_init(String *s, buffer_t *buffer, int size);
 
 Bytes Bytes_init(const Bytes_t *b);
-VarInt VarInit_init(const VarInt_t *v);
+VarInt VarInt_init(const VarInt_t *v);
 BigInt BigInit_init(const BigInt_t *v);
 Bytes32 Bytes32_init(const Bytes32_t *v);
 Bytes64 Bytes64_init(const Bytes64_t *v);
@@ -124,7 +124,6 @@ bool Bytes_equal(const Bytes *b1,const Bytes *b2);
 int Bytes_copy(Bytes *b1, const Bytes *b2);
 Error Bytes_marshalJSON(const struct Bytes* self, struct Marshaler *outData);
 Error Bytes_unmarshalJSON(struct Bytes* self, const struct Marshaler *data);
-int VarInt_binarySize(const Bytes *v);
 
 Error Bytes32_valid(const Bytes*v);
 Error Bytes32_get(const struct Bytes *v, Bytes *out);
@@ -132,12 +131,19 @@ Error Bytes32_set(struct Bytes *v, const Bytes *in);
 Error Bytes64_valid(const Bytes*v);
 Error Bytes64_get(const struct Bytes *v, Bytes *out);
 Error Bytes64_set(struct Bytes *v, const Bytes *in);
+
 Error VarInt_valid(const VarInt *v);
 Error VarInt_set(Bytes *v, uint64_t n);
 Error VarInt_get(const Bytes *v, uint64_t *n);
 int VarInt_binarySize(const Bytes *v);
 Error VarInt_marshalBinary(const Bytes *self, struct Marshaler *outData);
 Error VarInt_unmarshalBinary(Bytes* self, const Marshaler *inData);
+VarInt VarInt_init(VarInt *v, buffer_t *buffer);
+//#define DECLARE_ENCODERS(TYPE) \
+//Error TYPE##Valid(const TYPE *v) { \
+//    if (!v) return ErrorCode(ErrorParameterNil); \
+//    Type##_valid(&v.data)                        \
+//}
 
 Error BigInt_valid(const Bytes *s);
 Error BigInt_get(const struct Bytes*s, uint256_t *v);

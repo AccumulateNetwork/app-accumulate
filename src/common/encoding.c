@@ -285,10 +285,13 @@ int VarInt_binarySize(const Bytes *v) {
     return (int)varint_size(val);
 }
 
-Error VarInt_marshalBinary_t(const struct VarInt *v, struct Marshaler *outData) {
-    Error e = VarInt_valid(v)
+Error VarIntMarshalBinary(const VarInt *v, Marshaler *outData) {
+    if ( !v || !outData ) {
+        return ErrorCode(ErrorParameterNil);
+    }
+    return VarInt_marshalBinary(&v->data, outData);
 }
-Error VarInt_unmarshalBinary_t(struct VarInt *,const struct Marshaler *data);
+
 
 Error VarInt_marshalBinary(const Bytes *self, struct Marshaler *outData) {
     if ( !outData || !self ) {
@@ -334,7 +337,7 @@ Error VarInt_unmarshalBinary(Bytes* self, const Marshaler *inData) {
 }
 
 
-VarInt VarInit_init(VarInt *v, buffer_t *buffer) {
+VarInt VarInt_init(VarInt *v, buffer_t *buffer) {
     VarInt init = { { {0,0,0},
                     VarInt_binarySize,
                     Bytes_equal,

@@ -25,6 +25,22 @@ int Envelope_binarySize(const Envelope* v) {
     return ret;
 }
 
+Error Envelope_marshalBinary2(const Envelope_t *self, Marshaler *outData) {
+    if ( !self || !outData ) {
+        return ErrorCode(ErrorParameterNil);
+    }
+
+    int size = Envelope_binarySize(self);
+    if ( size > outData->cache.size - outData->cache.offset) {
+        return ErrorCode(ErrorBufferTooSmall);
+    }
+
+}
+
+Error Envelope_copy(Envelope_t *dst, const Envelope *src) {
+    //copy the buffer into the object.
+}
+
 Error Envelope_marshalBinary(const struct Envelope* self, struct Marshaler *outData) {
     if ( !self || !outData ) {
         return ErrorCode(ErrorParameterNil);
@@ -35,7 +51,7 @@ Error Envelope_marshalBinary(const struct Envelope* self, struct Marshaler *outD
         return ErrorCode(ErrorBufferTooSmall);
     }
 
-    Error e = self->_numSignatures.MarshalBinary(&self->_numSignatures,outData);
+    Error e = VarInt_marshalBinary(&self->_numSignatures.data,outData);
     if ( e.code != ErrorNone ) {
         return e;
     }
@@ -47,7 +63,7 @@ Error Envelope_marshalBinary(const struct Envelope* self, struct Marshaler *outD
     }
 
     for ( int i = 0; i < numSignatures; ++i ) {
-        e = self->_Signatures->MarshalBinary(self->_Signatures,outData);
+        e = self->_Signatures->MarshalBinary(&self->_Signatures[i],outData);
         if ( e.code != ErrorNone ) {
             return e;
         }
@@ -61,6 +77,44 @@ Error Envelope_marshalBinary(const struct Envelope* self, struct Marshaler *outD
     e = self->_Transaction->MarshalBinary(self->_Transaction,outData);
 
     return e;
+}
+
+
+// Marshal process
+// data_t -> data byte field -> marshaler
+// unmarshal process
+// marshaler -> data byte field -> data_t
+// initialize real message
+// create a memory backed stream and assign it to marshaler
+// unmarshal stream and assign it to real message
+
+// Envelope_unmarshalBinary assign pointers to the envelop that reside in the bytestream
+Error Envelope_unmarshalBinary(Envelope* self, Marshaler *inData) {
+    if (!self || !inData) {
+        return ErrorCode(ErrorParameterNil);
+    }
+
+    self->_numSignatures.UnmarshalBinary(&self->_numSignatures, inData);
+
+    uint64_t numSignatures = 0;
+    Error e = VarInt_get(&self->_numSignatures.data,&numSignatures);
+    if (e.code != ErrorNone) {
+        return e;
+    }
+
+    for (int i = 0; i < numSignatures; ++i ) {
+        e = self->_signatures[i].UnmarshalBinary(&self->_signatures[i],inData);
+        if ( e.code != ErrorNone ) {
+            return e;
+        }
+    }
+
+    e = self->_txHash.UnmarshalBinary(&self->_txHash, inData);
+    if ( e.code != ErrorNone ) {
+        return e;
+    }
+
+    return self->_transaction->UnmarshalBinary(self->_transaction, inData);
 }
 
 //// GetTxHash returns the hash of the transaction.
@@ -88,6 +142,9 @@ Error Envelope_marshalBinary(const struct Envelope* self, struct Marshaler *outD
 //
 // EnvHash will panic if any of the signatures are not well formed or if
 // Transaction is nil and TxHash is nil or not a valid hash.
+Error EnvHash(Envelope_t *e, Bytes32_t *hash) {
+
+}
 //func (e *Envelope) EnvHash() []byte {
 //        // Already computed?
 //        if e.hash != nil {
@@ -116,41 +173,48 @@ Error Envelope_marshalBinary(const struct Envelope* self, struct Marshaler *outD
 //}
 
 // VerifyTxHash verifies that TxHash matches the hash of the transaction.
-func (e *Envelope) VerifyTxHash() bool {
-        if e.TxHash == nil {
-                return true
-        }
-        return bytes.Equal(e.TxHash, e.Transaction.calculateHash())
-}
+//Error VerifyTxHash(Envelope_t *e)  {
+//    if ( e-> == nil {
+//                return true
+//        }
+//        return bytes.Equal(e.TxHash, e.Transaction.calculateHash())
+//}
 
 // Hash calculates the hash of the transaction as H(H(header) + H(body)).
-func (t *Transaction) calculateHash() []byte {
-        // Already computed?
-        if t.hash != nil {
-                return t.hash
-        }
+Error CalculateTransactionHash(Transaction *t, Bytes32_t *hash) {
+    uint64_t type = 0;
 
-        if t.Type() == TransactionTypeSignPending {
-                // Do not use the hash for a signature transaction
-                return nil
-        }
+    Error e = t->type.get(&t->type.data, &type);
+    if ( e.code != ErrorNone ) {
+        return e;
+    }
 
-        // Marshal the header
-        data, err := t.TransactionHeader.MarshalBinary()
-        if err != nil {
-                // TransactionHeader.MarshalBinary will never return an error, but better safe than sorry.
-                panic(err)
-        }
+    if ( type == TransactionTypeSignPending ) {
+        // Do not use the hash for a signature transaction
+        return ErrorCode(ErrorInvalidObject);
+    }
 
-        // Calculate the hash
-        h1 := sha256.Sum256(data)
-        h2 := sha256.Sum256(t.Body)
-        data = make([]byte, sha256.Size*2)
-        copy(data, h1[:])
-        copy(data[sha256.Size:], h2[:])
-        h := sha256.Sum256(data)
-        t.hash = h[:]
-        return h[:]
+    // Marshal the header
+    e = t.TransactionHeader.MarshalBinary();
+    if ( e.code != ErrorNone ) {
+            // TransactionHeader.MarshalBinary will never return an error, but better safe than sorry.
+            return e
+    }
+
+    // Calculate the hash
+    uint8_t h[32] = {0};
+    e = sha256(data, datalen, h, 32);
+    if ( e.code != ErrorNone ) {
+        return e;
+    }
+
+    h2 := sha256.Sum256(t.Body)
+    data = make([]byte, sha256.Size*2)
+    copy(data, h1[:])
+    copy(data[sha256.Size:], h2[:])
+    h := sha256.Sum256(data)
+    t.hash = h[:]
+    return h[:]
 }
 
 // Type decodes the transaction type from the body.
