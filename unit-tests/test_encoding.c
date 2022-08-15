@@ -10,6 +10,7 @@
 #include <common/encoding.h>
 #define ACME_HEADER
 #include "_enums2.h"
+#include <common/protocol/enum.h>
 
 
 typedef struct {
