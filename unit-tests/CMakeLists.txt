@@ -10,7 +10,7 @@ project(unit_tests
 	      DESCRIPTION "Unit tests for Ledger Nano application"
         LANGUAGES C)
 
-set(CMOCKA_LIBRARY mocka)
+set(CMOCKA_LIBRARY cmocka)
 
 if (WIN32 OR MINGW OR CYGWIN)
     set(CMOCKA_LIBRARY libcmocka.dll.a)
