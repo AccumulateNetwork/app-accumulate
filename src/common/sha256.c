@@ -1,36 +1,36 @@
-#pragma once
 
-#include <common/encoding.h>
+#include <types.h>
+#include <common/error.h>
 
 #ifndef UNIT_TEST
 #include "os.h"
 #include "cx.h"
 #else
-#include <openssl/sha.h>
+#include <common/internal/testing/sha256.h>
 #endif
 
-static Error sha256(uint8_t *in, unsigned int len,  uint8_t *out, unsigned int out_len) {
+Error sha256(uint8_t *in, unsigned int len,  uint8_t *out, unsigned int out_len) {
     if ( !in || !out ) {
-        return -1;
+        return ErrorCode(ErrorParameterNil);
     }
     if ( out_len != 32 ) {
-        return -1;
+        return ErrorCode(ErrorParameterInsufficientData);
     }
 #ifndef UNIT_TEST
    int ret = cx_hash_sha256(in, len, out, out_len);
    if ( ret != 0 ) {
-	   return ErrorCode[ErrorInvalidHashParameters];
+	   return ErrorCode(ErrorInvalidHashParameters);
    }
 #else
     SHA256_CTX sha256;
-    SHA256_Init(&sha256);
-    SHA256_Update(&sha256, in, len);
-    SHA256_Final(out, &sha256);
+    sha256_init(&sha256);
+    sha256_update(&sha256, in, len);
+    sha256_final(&sha256, out);
 #endif
-    return ErrorCode[ErrorNone];
+    return ErrorCode(ErrorNone);
 }
 
-static Error sha256d(uint8_t *in, unsigned int len, uint8_t *out, unsigned int out_len) {
+Error sha256d(uint8_t *in, unsigned int len, uint8_t *out, unsigned int out_len) {
     uint8_t hash[32];
     Error e = sha256(in,len,hash,sizeof(hash));
     if ( e.code != ErrorNone ) {

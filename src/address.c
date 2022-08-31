@@ -27,6 +27,33 @@
 
 #include "transaction/types.h"
 
+typedef enum {
+    KeyTypeEd25519,
+    KeyTypeBtc,
+    KeyTypeEth,
+    KeyTypeFct
+} KeyType;
+
+bool lite_address_from_pubkey(KeyType t, const uint8_t public_key[static 64], uint8_t *out, size_t out_len) {
+    uint8_t address[32] = {0};
+
+    if (out_len < ADDRESS_LEN) {
+        return false;
+    }
+
+    switch (t) {
+        case KeyTypeEd25519:
+            break;
+        case KeyTypeBtc:
+            break;
+        case KeyTypeEth:
+            break;
+        case KeyTypeFct:
+            break;
+    };
+    return true;
+}
+
 bool address_from_pubkey(const uint8_t public_key[static 64], uint8_t *out, size_t out_len) {
     uint8_t address[32] = {0};
     cx_sha3_t keccak256;

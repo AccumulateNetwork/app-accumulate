@@ -29,7 +29,7 @@ ENABLE_TESTING()
 # specify C standard
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED True)
-set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Wall -pedantic -g -O0 --coverage")
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Wall -pedantic -g -O0 --coverage -DUNIT_TEST")
 
 set(GCC_COVERAGE_LINK_FLAGS "--coverage -lgcov")
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS}")
@@ -67,7 +67,12 @@ add_library(transaction_serialize ../src/transaction/serialize.c)
 add_library(transaction_utils ../src/transaction/utils.c)
 add_library(uint256 STATIC ../src/common/uint256.c)
 add_library(envelope STATIC ../src/common/envelope.c)
-add_library(encoding STATIC ../src/common/encoding.c)
+add_library(encoding STATIC ../src/common/encoding/bytes32.c ../src/common/encoding/bytes64.c
+        ../src/common/encoding/string.c ../src/common/encoding/varint.c ../src/common/encoding/bigint.c
+        ../src/common/encoding/marshaler.c ../src/common/encoding/url.c ../src/common/encoding/uvarint.c
+        ../src/common/encoding/bytes.c)
+add_library(error STATIC ../src/common/error.c)
+add_library(sha256 STATIC ../src/common/sha256.c ../src/common/internal/testing/sha256.c)
 
 target_link_libraries(test_base58 PUBLIC ${CMOCKA_LIBRARY} gcov base58)
 target_link_libraries(test_bip32 PUBLIC ${CMOCKA_LIBRARY} gcov bip32 read)
@@ -85,6 +90,8 @@ target_link_libraries(test_tx_parser PUBLIC
                       write
                       read
                       varint
+                      error
+                      sha256
                       transaction_utils)
 
 target_link_libraries(test_tx_utils PUBLIC
@@ -92,8 +99,8 @@ target_link_libraries(test_tx_utils PUBLIC
                       gcov
                       transaction_utils)
 
-target_link_libraries(test_encoding encoding envelope uint256
-        buffer varint transaction_utils gcov
+target_link_libraries(test_encoding sha256 encoding uint256
+        buffer varint error transaction_utils gcov
         ${CMOCKA_LIBRARY} read write format bip32)
 
 

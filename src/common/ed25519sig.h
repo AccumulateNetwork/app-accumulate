@@ -1,6 +1,6 @@
 #pragma once
 
-#include <common/encoding.h>
+#include <common/encoding/encoding.h>
 
 #pragma pack(1)
 

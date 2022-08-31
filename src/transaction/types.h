@@ -5,6 +5,8 @@
 
 #define MAX_TX_LEN   510
 #define ADDRESS_LEN  20
+#define CHECKSUM_LEN 4
+#define LITE_ADDRESS_LEN ADDRESS_LEN + CHECKSUM_LEN
 #define MAX_MEMO_LEN 465  // 510 - ADDRESS_LEN - 2*SIZE(U64) - SIZE(MAX_VARINT)
 
 typedef enum {

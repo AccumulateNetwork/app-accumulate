@@ -1,5 +1,8 @@
-#include <common/encoding.h>
+#include <common/error.h>
+#include <common/encoding/encoding.h>
 #include <common/envelope.h>
+#define ACME_HEADER
+#include <common/protocol/enum.h>
 
 int Envelope_binarySize(const Envelope* v) {
     if ( !v ) {
@@ -15,12 +18,12 @@ int Envelope_binarySize(const Envelope* v) {
     ret += VarInt_binarySize(&v->_numSignatures.data);
 
     for ( int i = 0; i < numSignatures ; ++i ) {
-        ret += v->_Signatures->BinarySize(v->_Signatures);
+        ret += v->_signatures->BinarySize(v->_signatures);
     }
 
-    ret += v->_TxHash.BinarySize(&v->_TxHash);
+    ret += v->_txHash.BinarySize(&v->_txHash);
 
-    ret += v->_Transaction->BinarySize(v->_Transaction);
+    ret += v->_transaction->BinarySize(v->_transaction);
 
     return ret;
 }
@@ -63,18 +66,18 @@ Error Envelope_marshalBinary(const struct Envelope* self, struct Marshaler *outD
     }
 
     for ( int i = 0; i < numSignatures; ++i ) {
-        e = self->_Signatures->MarshalBinary(&self->_Signatures[i],outData);
+        e = self->_signatures->MarshalBinary(&self->_signatures[i],outData);
         if ( e.code != ErrorNone ) {
             return e;
         }
     }
 
-    e = self->_TxHash.MarshalBinary(&self->_TxHash,outData);
+    e = self->_txHash.MarshalBinary(&self->_txHash,outData);
     if ( e.code != ErrorNone ) {
         return e;
     }
 
-    e = self->_Transaction->MarshalBinary(self->_Transaction,outData);
+    e = self->_transaction->MarshalBinary(self->_transaction,outData);
 
     return e;
 }
@@ -88,13 +91,13 @@ Error Envelope_marshalBinary(const struct Envelope* self, struct Marshaler *outD
 // create a memory backed stream and assign it to marshaler
 // unmarshal stream and assign it to real message
 
-// Envelope_unmarshalBinary assign pointers to the envelop that reside in the bytestream
+// Envelope_unmarshalBinary assign pointers to the envelope that reside in the bytestream
 Error Envelope_unmarshalBinary(Envelope* self, Marshaler *inData) {
     if (!self || !inData) {
         return ErrorCode(ErrorParameterNil);
     }
 
-    self->_numSignatures.UnmarshalBinary(&self->_numSignatures, inData);
+    VarInt_unmarshalBinary(&self->_numSignatures, inData);
 
     uint64_t numSignatures = 0;
     Error e = VarInt_get(&self->_numSignatures.data,&numSignatures);
@@ -142,9 +145,9 @@ Error Envelope_unmarshalBinary(Envelope* self, Marshaler *inData) {
 //
 // EnvHash will panic if any of the signatures are not well formed or if
 // Transaction is nil and TxHash is nil or not a valid hash.
-Error EnvHash(Envelope_t *e, Bytes32_t *hash) {
-
-}
+//Error EnvHash(Envelope_t *e, Bytes32_t *hash) {
+//
+//}
 //func (e *Envelope) EnvHash() []byte {
 //        // Already computed?
 //        if e.hash != nil {
@@ -180,66 +183,29 @@ Error EnvHash(Envelope_t *e, Bytes32_t *hash) {
 //        return bytes.Equal(e.TxHash, e.Transaction.calculateHash())
 //}
 
-// Hash calculates the hash of the transaction as H(H(header) + H(body)).
-Error CalculateTransactionHash(Transaction *t, Bytes32_t *hash) {
-    uint64_t type = 0;
-
-    Error e = t->type.get(&t->type.data, &type);
-    if ( e.code != ErrorNone ) {
-        return e;
-    }
-
-    if ( type == TransactionTypeSignPending ) {
-        // Do not use the hash for a signature transaction
-        return ErrorCode(ErrorInvalidObject);
-    }
-
-    // Marshal the header
-    e = t.TransactionHeader.MarshalBinary();
-    if ( e.code != ErrorNone ) {
-            // TransactionHeader.MarshalBinary will never return an error, but better safe than sorry.
-            return e
-    }
-
-    // Calculate the hash
-    uint8_t h[32] = {0};
-    e = sha256(data, datalen, h, 32);
-    if ( e.code != ErrorNone ) {
-        return e;
-    }
-
-    h2 := sha256.Sum256(t.Body)
-    data = make([]byte, sha256.Size*2)
-    copy(data, h1[:])
-    copy(data[sha256.Size:], h2[:])
-    h := sha256.Sum256(data)
-    t.hash = h[:]
-    return h[:]
-}
-
 // Type decodes the transaction type from the body.
-func (t *Transaction) Type() TransactionType {
-        typ := TransactionTypeUnknown
-        _ = typ.UnmarshalBinary(t.Body)
-        return typ
-}
-
-// Verify verifies that the signatures are valid.
-func (e *Envelope) Verify() bool {
-        // Compute the transaction hash
-        txid := e.GetTxHash()
-
-        // Check each signature
-        for _, v := range e.Signatures {
-                if !v.Verify(txid) {
-                        return false
-                }
-        }
-
-        return true
-}
-
-// As unmarshals the transaction payload as the given sub transaction type.
-func (e *Envelope) As(subTx encoding.BinaryUnmarshaler) error {
-        return subTx.UnmarshalBinary(e.Transaction.Body)
-}
+//func (t *Transaction) Type() TransactionType {
+//        typ := TransactionTypeUnknown
+//        _ = typ.UnmarshalBinary(t.Body)
+//        return typ
+//}
+//
+//// Verify verifies that the signatures are valid.
+//func (e *Envelope) Verify() bool {
+//        // Compute the transaction hash
+//        txid := e.GetTxHash()
+//
+//        // Check each signature
+//        for _, v := range e.Signatures {
+//                if !v.Verify(txid) {
+//                        return false
+//                }
+//        }
+//
+//        return true
+//}
+//
+//// As unmarshals the transaction payload as the given sub transaction type.
+//func (e *Envelope) As(subTx encoding.BinaryUnmarshaler) error {
+//        return subTx.UnmarshalBinary(e.Transaction.Body)
+//}

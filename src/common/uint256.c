@@ -19,7 +19,10 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <memory.h>
 #include "uint256.h"
+#include "read.h"
+#include "buffer.h"
 
 static const char HEXDIGITS[] = "0123456789abcdef";
 
@@ -41,9 +44,19 @@ void writeu64BE(uint64_t r, uint8_t *buffer) {
     buffer[7] = (uint8_t)(r);
 }
 
+void readu128LE(uint8_t *buffer, uint128_t *target) {
+    UPPER_P(target) = read_u64_le(buffer,0);
+    LOWER_P(target) = read_u64_le(buffer,8);
+}
+
 void readu128BE(uint8_t *buffer, uint128_t *target) {
     UPPER_P(target) = readUint64BE(buffer);
     LOWER_P(target) = readUint64BE(buffer + 8);
+}
+
+void readu256LE(uint8_t *buffer, uint256_t *target) {
+    readu128LE(buffer, &UPPER_P(target));
+    readu128LE(buffer + 16, &LOWER_P(target));
 }
 
 void readu256BE(uint8_t *buffer, uint256_t *target) {
@@ -528,6 +541,10 @@ static void reverseString(char *str, uint32_t length) {
     }
 }
 
+bool fromString256(const char *in, uint256_t *out) {
+
+}
+
 bool tostring128(uint128_t *number, uint32_t baseParam, char *out,
                  uint32_t outLength) {
     uint128_t rDiv;
@@ -578,3 +595,87 @@ bool tostring256(uint256_t *number, uint32_t baseParam, char *out,
     reverseString(out, offset);
     return true;
 }
+
+int tobytes256(uint256_t *number, uint8_t *out, uint32_t outLength) {
+    //convert to hex
+    char hexBuffer[65] = {0};
+
+    if ( !tostring256(number,16,hexBuffer, 64) ) {
+        return -1;
+    }
+
+    uint8_t buffer[32] = {0};
+
+    //now convert the hex to binary.
+    int n = hextobin(hexBuffer,strlen(hexBuffer), out, outLength);
+
+    return n;
+}
+
+int fromstring256(const char *in, size_t inLen, uint256_t *number) {
+    int bytesConsumed = 0;
+    clear256(number);
+
+    uint256_t number2;
+    clear256(&number2);
+
+    const char *str = in;
+    if ( *str == '-' ) {
+        //don't support negative number
+        return -1;
+    }
+    if ( *str == '+' && bytesConsumed < inLen ) {
+        ++bytesConsumed;
+        ++str;
+    }
+    while ((*str >= '0') && (*str <= '9') && bytesConsumed < inLen) {
+        uint256_t number1;
+        copy256(&number1,number);
+        clear256(&number2);
+        number2.elements[1].elements[1] = 10;
+        mul256(&number1, &number2, number);
+        clear256(&number2);
+        number2.elements[1].elements[1] = (*str) - '0';
+        copy256(&number1,number);
+        add256(&number1,&number2, number);
+        ++str;
+        ++bytesConsumed;
+    }
+
+    return bytesConsumed;
+}
+
+int frombytes256(const uint8_t *in, size_t inLen, uint256_t *number) {
+    uint8_t buffer[32] = {0};
+
+    int offset = sizeof(buffer)-inLen;
+    if ( offset < 0 ) {
+        return -1;
+    }
+
+    //align the buffer to 32 byte boundary
+    memmove(&buffer[offset],in, inLen);
+    readu256BE(buffer, number);
+    return inLen;
+}
+
+int fromhex256(const char *in, size_t inLen, uint256_t *number) {
+    //convert hex to binary
+    //pad binary to 32 bytes.
+    uint8_t buffer[32] = {0};
+    char inbuffer[65] = {0};
+    memset(inbuffer,'0',sizeof(inbuffer)-1);
+    int offset = sizeof(inbuffer) - inLen;
+    if ( offset < 0 ) {
+        return -1;
+    }
+
+    memmove(inbuffer, in, inLen);
+    int n = hextobin(in, inLen, buffer, sizeof(buffer));
+    if ( n < 0 ) {
+        return -1;
+    }
+
+    return frombytes256(buffer,n,number);
+}
+

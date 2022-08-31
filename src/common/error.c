@@ -1,4 +1,5 @@
 #include <common/error.h>
+#include <stdlib.h>
 
 Error Error_init(Error *e) {
     Error err = ErrorCode(ErrorNone);
@@ -8,8 +9,12 @@ Error Error_init(Error *e) {
     return err;
 }
 
+bool IsError(Error e) {
+    return e.code != ErrorNone;
+}
+
 Error ErrorCode(ErrorEnum e) {
-    static errors[] = {
+    static Error errors[] = {
     {ErrorNone, {0}},
     {ErrorUnknown, "unknown"},
     {ErrorInvalidEnum,"invalid enum"},
@@ -25,10 +30,21 @@ Error ErrorCode(ErrorEnum e) {
     {ErrorResizeRequred,"resize required"},
     {ErrorInvalidBigInt,"invalid big int"},
     {ErrorInvalidString,"invalid string"},
+    {ErrorInvalidHashParameters, "invalid hash params"},
+    {ErrorUVarIntRead, "uvarint read failed"},
+    {ErrorUVarIntWrite,"uvarint write failed"},
+    {ErrorMempoolFull, "mempool full"},
     };
-    if ( (int)(e) > sizeof(errors) ) {
-        return Error[ErrorInvalidEnum];
+    //if we have an error code greater than zero that makes it in here, then it is not indended as an error
+    if ( (int)(e) >= 0 ) {
+        return errors[ErrorNone];
     }
-    return errors[e];
+
+    //if we have an enum error that wasn't included in the list, then we have an error
+    if ( abs(e) > sizeof(errors) ) {
+        return errors[abs(ErrorInvalidEnum)];
+    }
+
+    return errors[abs(e)];
 }
 
