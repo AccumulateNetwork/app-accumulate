@@ -173,6 +173,13 @@ int marshalerWriteString(Marshaler *m, const struct String *v) {
     if ( IsError(e) ) {
         return e.code;
     }
+    Bytes s;
+    s.buffer.ptr = v->data.buffer.ptr + v->data.buffer.offset;
+    s.buffer.offset = 0;
+    int size = v->data.buffer.size - v->data.buffer.offset;
+    int len = strlen((const char *) s.buffer.ptr);
+    s.buffer.size = size < len ? size : len;
+
     return marshalerWriteBytes(m, &v->data);
 }
 

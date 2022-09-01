@@ -205,11 +205,42 @@ static void test_encoding_bigint(void **state) {
 
 }
 
+static void test_encoding_strings(void **state) {
+    uint8_t marshalBuffer[1024] = {0};
+    buffer_t buffer = { &marshalBuffer, sizeof (marshalBuffer), 0};
+
+    const char *expected_string = "the quick brown fox jumps over the lazy dog";
+
+    char sbuf[256] = {0};
+
+    buffer_t stringbuf = { sbuf, sizeof(sbuf), 0};
+    String s = String_new(&stringbuf,sizeof(sbuf));
+
+    String_set(&s, expected_string);
+    //test marshaler
+    Marshaler m = NewMarshaler(&buffer);
+    int code = marshalerWriteString(&m, &s);
+    assert_false(IsError(ErrorCode(code)));
+
+    //test unmarshaler
+    buffer_t enc = marshalerGetEncodedBuffer(&m);
+    Unmarshaler u = NewUnmarshaler(&enc, 0);
+    String test_string_unmarshal = String_new(0,0);
+    code = unmarshalerReadString(&u, &test_string_unmarshal );
+    assert_false(IsError(ErrorCode(code)));
+
+    String_get(&test_string_unmarshal, sbuf, sizeof(sbuf) );
+    assert_true( strcmp(sbuf, expected_string) == 0 );
+
+
+}
+
 int main() {
     const struct CMUnitTest tests[] = {
                         cmocka_unit_test(test_encoding_bytes),
                         cmocka_unit_test(test_encoding_varint),
                         cmocka_unit_test(test_encoding_bigint),
+                        cmocka_unit_test(test_encoding_strings),
     };
 
     return cmocka_run_group_tests(tests, NULL, NULL);
