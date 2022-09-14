@@ -34,6 +34,8 @@ Error ErrorCode(ErrorEnum e) {
     {ErrorUVarIntRead, "uvarint read failed"},
     {ErrorUVarIntWrite,"uvarint write failed"},
     {ErrorMempoolFull, "mempool full"},
+    {ErrorInvalidOffset, "invalid offset"},
+    {ErrorInvalidData, "invalid data"},
     };
     //if we have an error code greater than zero that makes it in here, then it is not indended as an error
     if ( (int)(e) >= 0 ) {

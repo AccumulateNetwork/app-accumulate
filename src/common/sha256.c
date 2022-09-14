@@ -2,6 +2,8 @@
 #include <types.h>
 #include <common/error.h>
 
+
+
 #ifndef UNIT_TEST
 #include "os.h"
 #include "cx.h"
@@ -9,7 +11,7 @@
 #include <common/internal/testing/sha256.h>
 #endif
 
-Error sha256(uint8_t *in, unsigned int len,  uint8_t *out, unsigned int out_len) {
+Error sha256(const uint8_t *in, unsigned int len,  uint8_t *out, unsigned int out_len) {
     if ( !in || !out ) {
         return ErrorCode(ErrorParameterNil);
     }
@@ -30,7 +32,7 @@ Error sha256(uint8_t *in, unsigned int len,  uint8_t *out, unsigned int out_len)
     return ErrorCode(ErrorNone);
 }
 
-Error sha256d(uint8_t *in, unsigned int len, uint8_t *out, unsigned int out_len) {
+Error sha256d(const uint8_t *in, unsigned int len, uint8_t *out, unsigned int out_len) {
     uint8_t hash[32];
     Error e = sha256(in,len,hash,sizeof(hash));
     if ( e.code != ErrorNone ) {

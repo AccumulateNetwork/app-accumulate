@@ -1,6 +1,6 @@
 /*****************************************************************************
- *   Ledger App Boilerplate.
- *   (c) 2020 Ledger SAS.
+ *   Accumulate Ledger Wallet
+ *   (c) 2022 DefiDevs, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -23,7 +23,8 @@
 
 #include "globals.h"
 
-int crypto_derive_private_key(cx_ecfp_private_key_t *private_key,
+int crypto_derive_private_key(cx_curve_t curve,
+                              cx_ecfp_private_key_t *private_key,
                               uint8_t chain_code[static 32],
                               const uint32_t *bip32_path,
                               uint8_t bip32_path_len) {
@@ -31,14 +32,15 @@ int crypto_derive_private_key(cx_ecfp_private_key_t *private_key,
 
     BEGIN_TRY {
         TRY {
-            // derive the seed with bip32_path
+            // derive the seed with bip32_path using secp256k1
             os_perso_derive_node_bip32(CX_CURVE_256K1,
                                        bip32_path,
                                        bip32_path_len,
                                        raw_private_key,
                                        chain_code);
-            // new private_key from raw
-            cx_ecfp_init_private_key(CX_CURVE_256K1,
+
+            // new ED25519 private_key from raw
+            cx_ecfp_init_private_key(curve,
                                      raw_private_key,
                                      sizeof(raw_private_key),
                                      private_key);
@@ -55,11 +57,12 @@ int crypto_derive_private_key(cx_ecfp_private_key_t *private_key,
     return 0;
 }
 
-int crypto_init_public_key(cx_ecfp_private_key_t *private_key,
+int crypto_init_public_key(cx_curve_t curve,
+                           cx_ecfp_private_key_t *private_key,
                            cx_ecfp_public_key_t *public_key,
                            uint8_t raw_public_key[static 64]) {
     // generate corresponding public key
-    cx_ecfp_generate_pair(CX_CURVE_256K1, public_key, private_key, 1);
+    cx_ecfp_generate_pair(curve, public_key, private_key, 1);
 
     memmove(raw_public_key, public_key->W + 1, 64);
 

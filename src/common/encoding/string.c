@@ -1,11 +1,22 @@
 
 #include "encoding.h"
 
-ENCODE_BINARY_SIZE_DYNAMIC(String)
 ENCODE_COPY(String)
 ENCODE_EQUAL(String)
-//ENCODE_MARSHAL_BINARY_DYNAMIC(String)
-//ENCODE_UNMARSHAL_BINARY_DYNAMIC(String)
+
+int String_binarySize(const String *v) {
+    CHECK_ERROR_INT(v)
+    CHECK_ERROR_INT(v->data.buffer.ptr)
+    Bytes s;
+    s.buffer.ptr = v->data.buffer.ptr + v->data.buffer.offset;
+    s.buffer.offset = 0;
+    int size = v->data.buffer.size - v->data.buffer.offset;
+    int len = strlen((const char *) s.buffer.ptr);
+    s.buffer.size = size < len ? size : len;
+
+    return Bytes_binarySizeDynamic(&s);
+}
+
 
 Error String_valid(const Bytes *v) {
     if (!v ) {

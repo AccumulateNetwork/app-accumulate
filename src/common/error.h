@@ -27,6 +27,8 @@ typedef enum {
     ErrorUVarIntRead = -16,
     ErrorUVarIntWrite = -17,
     ErrorMempoolFull = -18,
+    ErrorInvalidOffset = -19,
+    ErrorInvalidData = -20,
 } ErrorEnum;
 
 Error ErrorCode(ErrorEnum e); 

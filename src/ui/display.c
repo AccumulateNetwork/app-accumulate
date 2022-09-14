@@ -1,6 +1,6 @@
 /*****************************************************************************
- *   Ledger App Boilerplate.
- *   (c) 2020 Ledger SAS.
+ *   Accumulate Ledger Wallet
+ *   (c) 2022 DefiDevs, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -23,10 +23,10 @@
 
 #include "os.h"
 #include "ux.h"
-#include "glyphs.h"
+#include "../glyphs.h"
 
 #include "display.h"
-#include "constants.h"
+#include "../constants.h"
 #include "../globals.h"
 #include "../io.h"
 #include "../sw.h"
@@ -40,6 +40,7 @@ static action_validate_cb g_validate_callback;
 static char g_amount[30];
 static char g_bip32_path[60];
 static char g_address[43];
+
 
 // Step with icon and text
 UX_STEP_NOCB(ux_display_confirm_addr_step, pn, {&C_icon_eye, "Confirm Address"});
@@ -101,11 +102,17 @@ int ui_display_address() {
         return io_send_sw(SW_DISPLAY_BIP32_PATH_FAIL);
     }
 
+    //determine coin type which will determine acme address returned.
+    switch ( G_context.bip32_path[0] & 0x80000000u ) {
+
+    };
     memset(g_address, 0, sizeof(g_address));
     uint8_t address[ADDRESS_LEN] = {0};
     if (!address_from_pubkey(G_context.pk_info.raw_public_key, address, sizeof(address))) {
         return io_send_sw(SW_DISPLAY_ADDRESS_FAIL);
     }
+
+    lite_address_from_pubkey(G_context.bip32_path[1],G_context.pk_info.raw_public_key)
     snprintf(g_address, sizeof(g_address), "0x%.*H", sizeof(address), address);
 
     g_validate_callback = &ui_action_validate_pubkey;

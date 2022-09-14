@@ -23,7 +23,8 @@ typedef enum {
     GET_VERSION = 0x03,     /// version of the application
     GET_APP_NAME = 0x04,    /// name of the application
     GET_PUBLIC_KEY = 0x05,  /// public key of corresponding BIP32 path
-    SIGN_TX = 0x06          /// sign transaction with BIP32 path
+    SIGN_TX = 0x06,         /// sign transaction with BIP32 path
+    GET_ADDRESS = 0x07,     /// get associated address
 } command_e;
 
 /**
@@ -61,6 +62,8 @@ typedef enum {
 typedef struct {
     uint8_t raw_public_key[64];  /// x-coordinate (32), y-coodinate (32)
     uint8_t chain_code[32];      /// for public key derivation
+    int8_t  lite_account[48];
+    uint8_t hash[32];
 } pubkey_ctx_t;
 
 /**

@@ -1,9 +1,14 @@
 
 #include "encoding.h"
 
-ENCODE_BINARY_SIZE_DYNAMIC(Url)
 ENCODE_COPY(Url)
 ENCODE_EQUAL(Url)
+
+int Url_binarySize(const Url *v) {
+    String s;
+    s.data = v->data;
+    return String_binarySize(&s);
+}
 
 Error Url_valid(const Bytes *v) {
     return String_valid(v);
