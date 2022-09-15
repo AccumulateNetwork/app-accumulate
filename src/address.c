@@ -21,7 +21,7 @@
 #include <string.h>   // memmove
 
 #include "os.h"
-#include "cx.h"
+//#include "cx.h"
 
 #include "address.h"
 #include "transaction/types.h"
@@ -30,57 +30,41 @@
 #include "common/keccak.h"
 
 
-bool lite_address_from_pubkey(CoinType t,
-                              pubkey_ctx_t *publicKey,
-                              uint8_t *publicKeyOut, size_t *publicKeyLenInOut,
-                              uint8_t *keyHashOut, size_t keyHashLen,
-                              int8_t *keyNameOut, size_t keyNameLen,
-                              int8_t *liteIdOut, size_t liteIdLen) {
+bool lite_address_from_pubkey(CoinType t, pubkey_ctx_t *publicKey) {
     uint8_t address[32] = {0};
-    Error e = resolvePublicKey(t, publicKey,
-                     publicKeyOut, publicKeyLenInOut);
-    if (IsError(e)) {
-        return false;
-    }
+
     switch (t) {
         case CoinTypeAcme:
-            if ( *publicKeyLenInOut < 32 ) {
+            if ( publicKey->public_key_length != 32 ) {
                 return false;
             }
 
-            sha256(publicKeyOut,*publicKeyLenInOut, keyHashOut, keyHashLen);
-            if (!getLiteIdentityUrl(keyHashOut,keyHashLen,liteIdOut, liteIdLen)) {
+            sha256(publicKey->raw_public_key,publicKey->public_key_length,
+                       publicKey->hash, sizeof(publicKey->hash));
+            if (!getLiteIdentityUrl(publicKey->hash,sizeof(publicKey->hash),
+                                    publicKey->lite_account, sizeof(publicKey->lite_account))) {
                 return false;
             }
             break;
         case CoinTypeFct:
-            if ( *publicKeyLenInOut < 32 ) {
+            if ( publicKey->public_key_length != 32 ) {
                 return false;
             }
 
-            getFctLiteAddress(publicKeyOut, publicKeyLenInOut,
-                               keyHashOut, keyHashLen,
-                               keyNameOut, keyNameLen,
-                               liteIdOut, liteIdLen);
+            getFctLiteAddress(publicKey);
             break;
         case CoinTypeBtc: {
-            if ( *publicKeyLenInOut < 32 ) {
+            if ( publicKey->public_key_length != 33 ) {
                 return false;
             }
-            getBtcLiteIdentity(publicKeyOut, publicKeyLenInOut,
-                               keyHashOut, keyHashLen,
-                               keyNameOut, keyNameLen,
-                               liteIdOut, liteIdLen);
+            getBtcLiteIdentity(publicKey);
         }   break;
         case CoinTypeEth:{
-            if ( *publicKeyLenInOut < 64 ) {
+            if ( publicKey->public_key_length != 65 ) {
                 return false;
             }
 
-            getEthLiteIdentity(publicKeyOut, publicKeyLenInOut,
-                               keyHashOut, keyHashLen,
-                               keyNameOut, keyNameLen,
-                               liteIdOut,  liteIdLen);
+            getEthLiteIdentity(publicKey);
         }   break;
         default:
             return false;
@@ -88,29 +72,13 @@ bool lite_address_from_pubkey(CoinType t,
     return true;
 }
 
-bool getEthLiteIdentity(uint8_t *publicKey, size_t *publicKeyLen,
-        uint8_t *keyHash, size_t keyHashLen,
-        int8_t *keyName, size_t keyNameLen,
-        int8_t *liteId, size_t liteIdLen) {
-
-    if (keyNameLen < ADDRESS_LEN) {
-        return false;
-    }
-
-    if (liteIdLen < LITE_ADDRESS_LEN) {
-        return false;
-    }
-
-    if (keyHashLen != 32) {
-        return false;
-    }
-
-    if ( *publicKeyLen != 64 ) {
+bool getEthLiteIdentity(pubkey_ctx_t *publicKey) {
+    if ( publicKey->public_key_length != 65 ) {
         return false;
     }
 
     //1) generate eth hash
-    Error e = keccak(publicKey,64, keyHash, keyHashLen);
+    Error e = keccak(publicKey->raw_public_key+1,64, publicKey->hash, sizeof(publicKey->hash));
     if (IsError(e) ) {
         return false;
     }
@@ -118,30 +86,23 @@ bool getEthLiteIdentity(uint8_t *publicKey, size_t *publicKeyLen,
     //2) encode the name address
     int offset = 0;
     for ( int i = 0; i < ADDRESS_LEN; ++i ) {
-        snprintf((char*)&keyName[offset], keyNameLen - offset, "%02x", keyHash[i]);
+        snprintf((char*)&publicKey->address_name[offset], sizeof(publicKey->address_name) - offset,
+                 "%02x", publicKey->hash[i+sizeof(publicKey->hash)-ADDRESS_LEN]);
         offset += 2;
     }
 
     //3) compute lite identity url.
-    getLiteIdentityUrl(keyHash, keyNameLen - offset, liteId,liteIdLen);
+    getLiteIdentityUrl(publicKey->hash, sizeof(publicKey->hash) - offset,
+                       publicKey->lite_account,sizeof(publicKey->lite_account));
 
     return true;
 }
 
-bool getBtcLiteIdentity(uint8_t *publicKey, size_t *publicKeyLen,
-                        uint8_t *keyHash, size_t keyHashLen,
-                        int8_t *keyName, size_t keyNameLen,
-                        int8_t *liteId, size_t liteIdLen) {
-    return true;
+bool getBtcLiteIdentity(pubkey_ctx_t *publicKey) {
+    //placeholder
+    return publicKey != 0;
 }
 
-
-bool getAccLiteIdentity(uint8_t *publicKey, size_t *publicKeyLen,
-                        uint8_t *keyHash, size_t keyHashLen,
-                        int8_t *keyName, size_t keyNameLen,
-                        int8_t *liteId, size_t liteIdLen) {
-    return true;
-}
 
 bool getAcmeLiteAccountUrl(int8_t *liteIdUrl, uint8_t liteIdUrlLen) {
 
@@ -180,59 +141,11 @@ bool getLiteIdentityUrl(const uint8_t *keyHash, uint8_t keyHashLen, int8_t *urlO
     return true;
 }
 
-bool getLiteTokenAccount(const int8_t *liteIdentity, size_t liteIdentityLen,
-                         const int8_t *tokenUrl, size_t tokenUrlLen,
-                         int8_t *urlOut, size_t urlOutLen) {
-
-    return true;
-}
-
-Error resolvePublicKey( CoinType type, pubkey_ctx_t *publicKey,
-        uint8_t *out, size_t *inoutlen)
-{
-    if ( *inoutlen < (type==CoinTypeEth?64:32) )
-    {
-        return ErrorCode(ErrorBufferTooSmall);
-    }
-    *inoutlen = type==CoinTypeEth?64:32;
-    if ( publicKey->curve == CX_CURVE_256K1 )
-    {
-        memmove(out + 1, publicKey->W + 1, *inoutlen);
-    }
-    else if (publicKey->curve == CX_CURVE_Ed25519 && publicKey->W[0] != 0xED)
-    {
-        for (uint8_t i = 0; i < *inoutlen; i++)
-        {
-            out[i] = publicKey->W[64 - i];
-        }
-        if ((publicKey->W[32] & 1) != 0)
-        {
-            out[31] |= 0x80;
-        }
-    }
-    else
-    {
-        return ErrorCode(ErrorInvalidObject);
-    }
-
-    return ErrorCode(ErrorNone);
-}
-
-
-//the key prefix code is byte swapped
-const uint16_t g_factom_key_prefix[] = { 0xb15f, 0x7864, 0x2a59, 0xb65d };
-
-
-void getFctAddressStringFromRCDHash(uint8_t *rcdhash,int8_t *out, keyType_t keytype)
+Error getFctAddressStringFromRCDHash(uint8_t *rcdhash,int8_t *out, int8_t outLen)
 {
     uint8_t address[38];
 
-    if ( keytype < 0 || keytype > 3 )
-    {
-        THROW(BTCHIP_SW_INVALID_OFFSET);
-    }
-
-    *(uint16_t*)address = g_factom_key_prefix[keytype];
+    *(uint16_t*)address = 0xb15f;
 
     memmove(address+2, rcdhash, 32);
 
@@ -240,97 +153,41 @@ void getFctAddressStringFromRCDHash(uint8_t *rcdhash,int8_t *out, keyType_t keyt
     sha256d(address, 34, checksum,sizeof(checksum));
     memmove(address+34, checksum, 4);
 
-    base58_encode(address,38, out, 52);
-
-}
-
-void getFctAddressStringFromKey(cx_ecfp_public_key_t *publicKey, uint8_t *out,
-                                keyType_t keytype) {
-    uint8_t address[41];//FCT: prefix(2 bytes) + RCD_hash(32 bytes) + checksum(4 bytes)
-    // EC: prefix(2 bytes) + Pub Key (32 bytes) + checksum(4 bytes)
-    // ID: prefix(5 bytes) + Pub Key (32 bytes) + checksum(4 bytes)
-    uint8_t checksum[32];
-
-    uint8_t key_offset = (keytype == PUBLIC_OFFSET_ID) ? 5: 2;
-
-    //https://github.com/FactomProject/FactomDocs/blob/master/factomDataStructureDetails.md
-
-    //1) Concatenate 0x5fb1 and the RCD Hash bytewise
-    if ( keytype == PUBLIC_OFFSET_FCT )
-    {
-        *(uint16_t*)address = g_factom_key_prefix[keytype];
-        sha256d(publicKey->W, publicKey->W_len, &address[2],32);
-    }
-    else
-    {
-        if (keytype == PUBLIC_OFFSET_ID)
-        {
-            const uint8_t factom_id_prefix[] = { 0x03, 0x45, 0xef, 0x9d, 0xe0 };
-            os_memmove(address, factom_id_prefix, key_offset);
-        }
-        else //LEDGER-REVIEW: check that keytype is not going out of bound when used as an index in g_factom_key_prefix
-        {
-            //ensure keytype doesn't go out of bounds for g_factom_key_prefix
-            if ( keytype < 0 || keytype > 3 )
-            {
-
-                //THROW(INVALID_PARAMETER)
-                THROW(BTCHIP_SW_INVALID_OFFSET);
-            }
-            *(uint16_t*)address = g_factom_key_prefix[keytype];
-        }
-
-        memmove(&address[key_offset], publicKey->W, publicKey->W_len);
+    if (outLen < 52 ) {
+        return ErrorCode(ErrorBufferTooSmall);
     }
 
+    base58_encode(address,38, (char*) out, 52);
 
-    //2) Take the SHA256d of the above data. Append the first 4 bytes of
-    //   this SHA256d to the end of the above value bytewise
-    sha256d(address, 32 + key_offset, checksum, sizeof(checksum));
-
-    memmove(address + 32 + key_offset, checksum, 4);
-
-    //3) Convert the above value from base 256 to base 58. Use standard
-    //   Bitcoin base58 encoding to display the number
-    base(address, 32 + 4 + key_offset, out, 50 + key_offset);
+    return ErrorCode(ErrorNone);
 }
 
-bool getFctLiteAddress(const uint8_t uncompressedPubKey[static 64],
-                       uint8_t *pubKey, size_t *inoutPubKeyLen,
-                       uint8_t *keyHash, size_t keyHashLen,
-                       uint8_t *keyName, size_t keyNameLen,
-                       int8_t *liteId, size_t liteIdLen) {
-    if ( *inoutPubKeyLen < 32 || keyHashLen != 32 || keyNameLen < 52 ) {
+bool getFctLiteAddress(pubkey_ctx_t *publicKey) {
+    if ( publicKey->public_key_length != 32 ) {
         return false;
     }
-
-    if ( *inoutPubKeyLen == 64 ) {
-        //compress the key
-
-    }
-    *inoutPubKeyLen = 32;
 
     //2) compute rcd
     uint8_t rcd[33] = {0};
     rcd[0] = 0x01;
-    memmove(&rcd[1], pubKey, *inoutPubKeyLen);
+    memmove(&rcd[1], publicKey->raw_public_key, publicKey->public_key_length);
 
     //3) Hash rcd
-    Error e = sha256(rcd,sizeof(rcd),keyHash, keyHashLen);
+    Error e = sha256(rcd,sizeof(rcd),publicKey->hash, sizeof(publicKey->hash));
     if ( IsError(e) ) {
         return false;
     }
 
     //4) get fct label
-    getFctAddressStringFromRCDHash(keyHash, keyName, keyNameLen);
+    getFctAddressStringFromRCDHash(publicKey->hash, publicKey->address_name, sizeof(publicKey->address_name));
 
     //5) compute lite identity url.
-    getLiteIdentity(keyHash,liteId,liteIdLen);
-
+    getLiteIdentityUrl(publicKey->hash,sizeof(publicKey->hash),
+                       publicKey->lite_account,sizeof publicKey->lite_account);
     return true;
 }
 
-bool adjustDecimals(char *src, uint32_t srcLength, char *target,
+bool adjustDecimals(const char *src, uint32_t srcLength, char *target,
                     uint32_t targetLength, uint8_t decimals)
 {
     uint32_t startOffset;
@@ -438,16 +295,16 @@ unsigned short fct_print_amount(uint64_t amount, int8_t *out,
     }
     tmp[i] = '\0';
 
-    memmove(tmp2, "FCT ", 4); //"ғ"
+    strncpy(tmp2, "FCT ", 4); //"ғ"
     adjustDecimals(tmp, i, tmp2 + 4, 25, 8);
     if (strlen(tmp2) < outlen - 1)
     {
-        strcpy(out, tmp2);
+        strncpy((char*)out, tmp2, strlen(tmp2));
     }
     else
     {
         out[0] = '\0';
     }
-    return strlen(out);
+    return strlen((char*)out);
 }
 

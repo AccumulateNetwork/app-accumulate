@@ -29,6 +29,7 @@ typedef enum {
     ErrorMempoolFull = -18,
     ErrorInvalidOffset = -19,
     ErrorInvalidData = -20,
+    ErrorBadKey = -21,
 } ErrorEnum;
 
 Error ErrorCode(ErrorEnum e); 

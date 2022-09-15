@@ -39,7 +39,7 @@
 static action_validate_cb g_validate_callback;
 static char g_amount[30];
 static char g_bip32_path[60];
-static char g_address[43];
+static char g_address[MAX_ACME_LITE_ACCOUNT_LEN];
 
 
 // Step with icon and text
@@ -107,13 +107,17 @@ int ui_display_address() {
 
     };
     memset(g_address, 0, sizeof(g_address));
-    uint8_t address[ADDRESS_LEN] = {0};
-    if (!address_from_pubkey(G_context.pk_info.raw_public_key, address, sizeof(address))) {
+//    uint8_t address[ADDRESS_LEN] = {0};
+//    if (!address_from_pubkey(G_context.pk_info.raw_public_key, address, sizeof(address))) {
+//        return io_send_sw(SW_DISPLAY_ADDRESS_FAIL);
+//    }
+
+
+    if (!lite_address_from_pubkey(G_context.bip32_path[1], &G_context.pk_info)) {
         return io_send_sw(SW_DISPLAY_ADDRESS_FAIL);
     }
-
-    lite_address_from_pubkey(G_context.bip32_path[1],G_context.pk_info.raw_public_key)
-    snprintf(g_address, sizeof(g_address), "0x%.*H", sizeof(address), address);
+    snprintf(g_address, sizeof(g_address), "0x%.*H", sizeof(G_context.pk_info.lite_account),
+             G_context.pk_info.lite_account);
 
     g_validate_callback = &ui_action_validate_pubkey;
 

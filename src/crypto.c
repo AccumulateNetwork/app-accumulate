@@ -18,13 +18,33 @@
 #include <stdint.h>   // uint*_t
 #include <string.h>   // memset, explicit_bzero
 #include <stdbool.h>  // bool
-
+#include "common/error.h"
 #include "crypto.h"
-
+#include "cx.h"
+#include "memory.h"
 #include "globals.h"
 
-int crypto_derive_private_key(cx_curve_t curve,
-                              cx_ecfp_private_key_t *private_key,
+cx_curve_t inferCurve(const uint32_t *bip32_path, uint8_t bip32_path_len) {
+    if ( bip32_path_len < 3 ) {
+        THROW(ErrorBufferTooSmall);
+    }
+    cx_curve_t curve = CX_CURVE_256K1;
+    switch ( bip32_path[1] ) {
+        case CoinTypeBtc:
+        case CoinTypeEth:
+            curve = CX_CURVE_256K1;
+            break;
+        case CoinTypeFct:
+        case CoinTypeAcme:
+            curve = CX_CURVE_Ed25519;
+            break;
+        default:
+            THROW(ErrorInvalidEnum);
+    }
+    return curve;
+}
+
+int crypto_derive_private_key(cx_ecfp_private_key_t *private_key,
                               uint8_t chain_code[static 32],
                               const uint32_t *bip32_path,
                               uint8_t bip32_path_len) {
@@ -40,7 +60,7 @@ int crypto_derive_private_key(cx_curve_t curve,
                                        chain_code);
 
             // new ED25519 private_key from raw
-            cx_ecfp_init_private_key(curve,
+            cx_ecfp_init_private_key(inferCurve(bip32_path, bip32_path_len),
                                      raw_private_key,
                                      sizeof(raw_private_key),
                                      private_key);
@@ -57,17 +77,40 @@ int crypto_derive_private_key(cx_curve_t curve,
     return 0;
 }
 
-int crypto_init_public_key(cx_curve_t curve,
-                           cx_ecfp_private_key_t *private_key,
-                           cx_ecfp_public_key_t *public_key,
-                           uint8_t raw_public_key[static 64]) {
+Error crypto_init_public_key(cx_ecfp_private_key_t *private_key,
+                             cx_ecfp_public_key_t *public_key,
+                             uint8_t raw_public_key[static 65],//can be as large is 65 bytes
+                             uint8_t *public_key_len,
+                             bool compress) {
     // generate corresponding public key
-    cx_ecfp_generate_pair(curve, public_key, private_key, 1);
+    cx_ecfp_generate_pair(private_key->curve, public_key, private_key, 1);
 
-    memmove(raw_public_key, public_key->W + 1, 64);
+    if ( !compress ) {
+        memmove(raw_public_key, public_key->W, 65);
+    } else {
+        if (public_key->curve == CX_CURVE_256K1) {
+            if (public_key->W[0] != 0x04) {
+                return ErrorCode(ErrorBadKey);
+            }
+            raw_public_key[0] = (public_key->W[64] % 2 == 1) ? 0x03 : 0x02;
+            memmove(raw_public_key + 1, public_key->W + 1, 32);  // copy x
+            *public_key_len = 33;
+        } else if (public_key->curve == CX_CURVE_Ed25519 && public_key->W[0] != 0xED) {
+            for (uint8_t i = 0; i < *public_key_len; i++) {
+                raw_public_key[i] = public_key->W[64 - i];
+            }
+            if ((public_key->W[32] & 1) != 0) {
+                raw_public_key[31] |= 0x80;
+            }
+            *public_key_len = 32;
+        } else {
+            return ErrorCode(ErrorInvalidObject);
+        }
+    }
 
-    return 0;
+    return ErrorCode(ErrorNone);
 }
+
 
 int crypto_sign_message() {
     cx_ecfp_private_key_t private_key = {0};

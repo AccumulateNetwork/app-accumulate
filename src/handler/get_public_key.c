@@ -52,7 +52,9 @@ int handler_get_public_key(buffer_t *cdata, bool display) {
                               G_context.bip32_path,
                               G_context.bip32_path_len);
     // generate corresponding public key
-    crypto_init_public_key(&private_key, &public_key, G_context.pk_info.raw_public_key);
+    crypto_init_public_key(&private_key, &public_key, G_context.pk_info.raw_public_key,
+                           &G_context.pk_info.public_key_length,
+                           G_context.bip32_path[1] != CoinTypeEth);
     // reset private key
     explicit_bzero(&private_key, sizeof(private_key));
 

@@ -29,10 +29,10 @@ int helper_send_response_pubkey() {
     uint8_t resp[1 + 1 + PUBKEY_LEN + 1 + CHAINCODE_LEN] = {0};
     size_t offset = 0;
 
-    resp[offset++] = PUBKEY_LEN + 1;
+    resp[offset++] = G_context.pk_info.public_key_length + 1;
     resp[offset++] = 0x04;
-    memmove(resp + offset, G_context.pk_info.raw_public_key, PUBKEY_LEN);
-    offset += PUBKEY_LEN;
+    memmove(resp + offset, G_context.pk_info.raw_public_key,  G_context.pk_info.public_key_length);
+    offset += G_context.pk_info.public_key_length;
     resp[offset++] = CHAINCODE_LEN;
     memmove(resp + offset, G_context.pk_info.chain_code, CHAINCODE_LEN);
     offset += CHAINCODE_LEN;

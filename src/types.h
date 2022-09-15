@@ -39,6 +39,13 @@ typedef struct {
     uint8_t *data;  /// Command data
 } command_t;
 
+typedef enum {
+    CoinTypeBtc = 0x80000001,
+    CoinTypeEth = 0x8000003c,
+    CoinTypeFct = 0x80000083,
+    CoinTypeAcme = 0x80000119
+} CoinType;
+
 /**
  * Enumeration with parsing state.
  */
@@ -60,9 +67,11 @@ typedef enum {
  * Structure for public key context information.
  */
 typedef struct {
-    uint8_t raw_public_key[64];  /// x-coordinate (32), y-coodinate (32)
+    uint8_t raw_public_key[65];  /// v, x-coordinate (32), y-coodinate (32)
+    uint8_t public_key_length;   /// length of key, compressed / uncompressed
     uint8_t chain_code[32];      /// for public key derivation
-    int8_t  lite_account[48];
+    int8_t  address_name[64];
+    int8_t  lite_account[MAX_ACME_LITE_ACCOUNT_LEN];
     uint8_t hash[32];
 } pubkey_ctx_t;
 
