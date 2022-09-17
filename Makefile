@@ -21,7 +21,6 @@ endif
 
 include $(BOLOS_SDK)/Makefile.defines
 
-APP_LOAD_PARAMS  = --curve secp256k1 
 
 ifeq ($(TARGET_NAME), TARGET_NANOX)
 APP_LOAD_PARAMS=--appFlags 0x200  # APPLICATION_FLAG_BOLOS_SETTINGS
@@ -30,6 +29,7 @@ APP_LOAD_PARAMS=--appFlags 0x000
 endif
 # Accumulate supports addressing bitcoin, ethereum, factom, and accumulate  for accumulate transactions
 APP_LOAD_PARAMS += --path "44'/1'" --path "44'/60'" --path "44'/131'" --path "44'/281'"
+APP_LOAD_PARAMS += --curve ed25519 --curve secp256k1
 APP_LOAD_PARAMS += $(COMMON_LOAD_PARAMS)
 
 APPNAME      = "Accumulate"

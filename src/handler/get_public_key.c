@@ -48,9 +48,10 @@ int handler_get_public_key(buffer_t *cdata, bool display) {
 
     // derive private key according to BIP32 path
     crypto_derive_private_key(&private_key,
-                              G_context.pk_info.chain_code,
                               G_context.bip32_path,
                               G_context.bip32_path_len);
+
+    G_context.pk_info.public_key_length = sizeof(G_context.pk_info.raw_public_key);
     // generate corresponding public key
     crypto_init_public_key(&private_key, &public_key, G_context.pk_info.raw_public_key,
                            &G_context.pk_info.public_key_length,
