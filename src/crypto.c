@@ -146,14 +146,30 @@ int crypto_sign_message() {
 
     BEGIN_TRY {
         TRY {
-            sig_len = cx_ecdsa_sign(&private_key,
-                                    CX_RND_RFC6979 | CX_LAST,
-                                    CX_SHA256,
-                                    G_context.tx_info.m_hash,
-                                    sizeof(G_context.tx_info.m_hash),
-                                    G_context.tx_info.signature,
-                                    sizeof(G_context.tx_info.signature),
-                                    &info);
+            switch (private_key.curve) {
+            case CX_CURVE_256K1:
+               sig_len = cx_ecdsa_sign(&private_key,
+                                       CX_RND_RFC6979 | CX_LAST,
+                                       CX_SHA256,
+                                       G_context.tx_info.m_hash,
+                                       sizeof(G_context.tx_info.m_hash),
+                                       G_context.tx_info.signature,
+                                       sizeof(G_context.tx_info.signature),
+                                       &info);
+                break;
+            case CX_CURVE_Ed25519:
+                sig_len = cx_eddsa_sign(&private_key,
+                                        CX_LAST, CX_SHA512,
+                                        G_context.tx_info.m_hash,
+                                        sizeof(G_context.tx_info.m_hash),
+                                        NULL, 0,
+                                        G_context.tx_info.signature,
+                                        sizeof(G_context.tx_info.signature),
+                                        NULL);
+                break;
+            default:
+                THROW(ErrorInvalidEnum);
+            }
             PRINTF("Signature: %.*H\n", sig_len, G_context.tx_info.signature);
         }
         CATCH_OTHER(e) {

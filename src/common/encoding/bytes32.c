@@ -62,16 +62,10 @@ Error Bytes32_set(Bytes32 *v, const Bytes *in) {
 }
 
 Bytes32 Bytes32_new(buffer_t *b, size_t n) {
-    Bytes32 init = { { {0,0,0},
-                       Bytes_binarySizeStatic,
-                       Bytes_equal,
-                       Bytes_copy},
-                     Bytes32_get,
-                     Bytes32_set,
-    };
+    Bytes32 init = { {0,0,0}};
 
     if (b) {
-        int sizeNeeded = 32*n;
+        unsigned int sizeNeeded = 32*n;
         if ( b->size - b->offset < sizeNeeded ) {
             return init;
         }
@@ -84,6 +78,6 @@ Bytes32 Bytes32_new(buffer_t *b, size_t n) {
 }
 
 Bytes32 Bytes32_init(Bytes32_t *v) {
-    buffer_t buffer = { v, 32, 0};
+    buffer_t buffer = { v->x, 32, 0};
     return Bytes32_new(&buffer, 1);
 }

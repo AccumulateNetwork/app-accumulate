@@ -41,7 +41,7 @@ bool getLiteAcmeUrl(const uint8_t public_key[static 64],
                     int8_t *keyName, size_t keyNameLen);
 
 bool getLiteIdentityUrl(const uint8_t *keyHash, uint8_t keyHashLen,
-                        int8_t *urlOut, size_t urlOutLen);
+                        char *urlOut, size_t urlOutLen);
 //
 //Error resolvePublicKey( CoinType type, pubkey_ctx_t *publicKey,
 //                       uint8_t *out, size_t *inoutlen);

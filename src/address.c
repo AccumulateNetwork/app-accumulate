@@ -45,6 +45,7 @@ bool lite_address_from_pubkey(CoinType t, pubkey_ctx_t *publicKey) {
                                     publicKey->lite_account, sizeof(publicKey->lite_account))) {
                 return false;
             }
+            strcpy(publicKey->address_name, publicKey->lite_account);
             break;
         case CoinTypeFct:
             if ( publicKey->public_key_length != 32 ) {
@@ -117,7 +118,7 @@ bool getAcmeLiteAccountUrl(int8_t *liteIdUrl, uint8_t liteIdUrlLen) {
     return true;
 }
 
-bool getLiteIdentityUrl(const uint8_t *keyHash, uint8_t keyHashLen, int8_t *urlOut, size_t urlOutLen) {
+bool getLiteIdentityUrl(const uint8_t *keyHash, uint8_t keyHashLen, char *urlOut, size_t urlOutLen) {
 
     if ( keyHashLen < 20 ) {
         return false;
@@ -126,8 +127,6 @@ bool getLiteIdentityUrl(const uint8_t *keyHash, uint8_t keyHashLen, int8_t *urlO
         return false;
     }
     uint8_t checksum[32] = {0};
-    //1) compute checksum
-    sha256d(keyHash, 20, checksum, sizeof(checksum));
 
     //2) make url
     int offset = 6;
@@ -136,6 +135,9 @@ bool getLiteIdentityUrl(const uint8_t *keyHash, uint8_t keyHashLen, int8_t *urlO
         snprintf((char*)&urlOut[offset], urlOutLen - offset, "%02x", keyHash[i]);
         offset += 2;
     }
+    //1) compute checksum of identity
+    sha256((uint8_t*)&urlOut[6], 20, checksum, sizeof(checksum));
+
     snprintf((char*)&urlOut[offset], urlOutLen - offset, "%02x%02x%02x%02x", checksum[0], checksum[1],checksum[2],checksum[3]);
 
     return true;

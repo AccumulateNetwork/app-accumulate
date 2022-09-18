@@ -26,12 +26,12 @@ Error UVarInt_set(UVarInt *v, uint64_t n) {
         return e;
     }
 
-    int size = uvarint_size(n);
+    size_t size = uvarint_size(n);
     if ( size > v->data.buffer.size - v->data.buffer.offset ) {
         return ErrorCode(ErrorBufferTooSmall);
     }
 
-    *(uint64_t*)(v->data.buffer.ptr+v->data.buffer.offset) = n;
+    *((uint64_t*)(v->data.buffer.ptr+v->data.buffer.offset)) = n;
     varint_write((uint8_t *)v->data.buffer.ptr, v->data.buffer.offset, n);
     return ErrorCode(ErrorNone);
 }

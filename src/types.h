@@ -70,8 +70,8 @@ typedef struct {
     uint8_t raw_public_key[65];  /// v, x-coordinate (32), y-coodinate (32)
     uint8_t public_key_length;   /// length of key, compressed / uncompressed
     uint8_t chain_code[32];      /// for public key derivation
-    int8_t  address_name[64];
-    int8_t  lite_account[MAX_ACME_LITE_ACCOUNT_LEN];
+    char  address_name[64];
+    char  lite_account[MAX_ACME_LITE_ACCOUNT_LEN];
     uint8_t hash[32];
 } pubkey_ctx_t;
 
@@ -81,6 +81,8 @@ typedef struct {
 typedef struct {
     uint8_t raw_tx[MAX_TRANSACTION_LEN];  /// raw transaction serialized
     size_t raw_tx_len;                    /// length of raw transaction
+    uint8_t raw_siginfo[MAX_SIGNATURE_HEADER_LEN];
+    size_t raw_siginfo_len;
     transaction_t transaction;            /// structured transaction
     uint8_t m_hash[32];                   /// message hash digest
     uint8_t signature[MAX_DER_SIG_LEN];   /// transaction signature encoded in DER

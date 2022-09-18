@@ -23,7 +23,14 @@
 /**
  * Maximum transaction length (bytes).
  */
-#define MAX_TRANSACTION_LEN 1024*2 //10270 //510
+#ifdef TARGET_NANOS
+#define MAX_DATA_ENTRY 1
+#else
+#define MAX_DATA_ENTRY 10
+#endif
+#define MAX_SIGNATURE_HEADER_LEN 256
+
+#define MAX_TRANSACTION_LEN 1024*MAX_DATA_ENTRY //10270 //510
 
 /**
  * Maximum signature length (bytes).

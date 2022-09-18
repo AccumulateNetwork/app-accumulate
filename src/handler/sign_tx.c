@@ -84,6 +84,8 @@ int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more) {
 
             G_context.state = STATE_PARSED;
 
+            //enable cheat code: copy txid to hash
+            //G_context.tx_info.m_hash
             cx_sha3_t keccak256;
             cx_keccak_init(&keccak256, 256);
             cx_hash((cx_hash_t *) &keccak256,
