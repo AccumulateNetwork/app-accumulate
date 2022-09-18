@@ -1,6 +1,6 @@
-# Ledger Boilerplate Application
+# Ledger Accumulate Application
 
-This is a boilerplate application which can be forked to start a new project for the Ledger Nano S/X.
+This is the Accumulate application which can be forked to start a new project for the Ledger Nano S/X.
 
 ## Docker builder container
 
