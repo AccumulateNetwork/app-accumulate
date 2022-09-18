@@ -19,10 +19,7 @@ Error sha256(const uint8_t *in, unsigned int len,  uint8_t *out, unsigned int ou
         return ErrorCode(ErrorParameterInsufficientData);
     }
 #ifndef UNIT_TEST
-   int ret = cx_hash_sha256(in, len, out, out_len);
-   if ( ret != 0 ) {
-	   return ErrorCode(ErrorInvalidHashParameters);
-   }
+   cx_hash_sha256(in, len, out, out_len);
 #else
     SHA256_CTX sha256;
     sha256_init(&sha256);

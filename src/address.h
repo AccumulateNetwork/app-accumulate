@@ -26,21 +26,21 @@
 //bool address_from_pubkey(const uint8_t public_key[static 64], uint8_t *out, size_t out_len);
 
 
-bool lite_address_from_pubkey(CoinType t, pubkey_ctx_t *publicKey);
+Error lite_address_from_pubkey(CoinType t, pubkey_ctx_t *publicKey);
 
-bool getEthLiteIdentity(pubkey_ctx_t *publicKey);
+Error getEthLiteIdentity(pubkey_ctx_t *publicKey);
 
-bool getBtcLiteIdentity(pubkey_ctx_t *publicKey);
+Error getBtcLiteIdentity(pubkey_ctx_t *publicKey);
 
-bool getFctLiteAddress(pubkey_ctx_t *publicKey);
+Error getFctLiteAddress(pubkey_ctx_t *publicKey);
 
-bool getLiteAcmeAddress(pubkey_ctx_t *publicKey);
+Error getLiteAcmeAddress(pubkey_ctx_t *publicKey);
 
-bool getLiteAcmeUrl(const uint8_t public_key[static 64],
+Error getLiteAcmeUrl(const uint8_t public_key[static 64],
                     uint8_t *out, size_t out_len,
                     int8_t *keyName, size_t keyNameLen);
 
-bool getLiteIdentityUrl(const uint8_t *keyHash, uint8_t keyHashLen,
+Error getLiteIdentityUrl(const uint8_t *keyHash, uint8_t keyHashLen,
                         char *urlOut, size_t urlOutLen);
 //
 //Error resolvePublicKey( CoinType type, pubkey_ctx_t *publicKey,

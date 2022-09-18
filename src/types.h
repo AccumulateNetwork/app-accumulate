@@ -40,7 +40,7 @@ typedef struct {
 } command_t;
 
 typedef enum {
-    CoinTypeBtc = 0x80000001,
+    CoinTypeBtc = 0x80000000,
     CoinTypeEth = 0x8000003c,
     CoinTypeFct = 0x80000083,
     CoinTypeAcme = 0x80000119
@@ -74,6 +74,7 @@ typedef struct {
     char  lite_account[MAX_ACME_LITE_ACCOUNT_LEN];
     uint8_t hash[32];
 } pubkey_ctx_t;
+
 
 /**
  * Structure for transaction information context.

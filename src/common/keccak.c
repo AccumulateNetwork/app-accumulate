@@ -15,14 +15,9 @@ Error keccak(const uint8_t *in, unsigned int len,  uint8_t *out, unsigned int ou
         return ErrorCode(ErrorParameterInsufficientData);
     }
 #ifndef UNIT_TEST
-   int ret = cx_hash_sha256(in, len, out, out_len);
-   if ( ret != 0 ) {
-	   return ErrorCode(ErrorInvalidHashParameters);
-   }
    cx_sha3_t keccak256;
    cx_keccak_init(&keccak256, 256);
    cx_hash((cx_hash_t *) &keccak256, CX_LAST, in, len, out, out_len);
-
 #else
     sha3_context hash256;
     sha3_Init256(&hash256);

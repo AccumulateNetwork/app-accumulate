@@ -19,6 +19,7 @@
 #include <stddef.h>   // size_t
 #include <stdbool.h>  // bool
 #include <string.h>   // memmove
+#include <stdlib.h>
 
 #include "os.h"
 //#include "cx.h"
@@ -30,62 +31,54 @@
 #include "common/keccak.h"
 
 
-bool lite_address_from_pubkey(CoinType t, pubkey_ctx_t *publicKey) {
+Error lite_address_from_pubkey(CoinType t, pubkey_ctx_t *publicKey) {
     uint8_t address[32] = {0};
-
+    Error ret = Error_init(0);
     switch (t) {
         case CoinTypeAcme:
             if ( publicKey->public_key_length != 32 ) {
-                return false;
+                return ErrorCode(ErrorBadKey);
             }
-
             sha256(publicKey->raw_public_key,publicKey->public_key_length,
                        publicKey->hash, sizeof(publicKey->hash));
-            if (!getLiteIdentityUrl(publicKey->hash,sizeof(publicKey->hash),
-                                    publicKey->lite_account, sizeof(publicKey->lite_account))) {
-                return false;
+            ret = getLiteIdentityUrl(publicKey->hash,sizeof(publicKey->hash),
+                                    publicKey->lite_account, sizeof(publicKey->lite_account));
+            if ( IsError(ret) ) {
+                return ret;
             }
             strcpy(publicKey->address_name, publicKey->lite_account);
             break;
         case CoinTypeFct:
-            if ( publicKey->public_key_length != 32 ) {
-                return false;
-            }
-
-            getFctLiteAddress(publicKey);
+            ret = getFctLiteAddress(publicKey);
             break;
         case CoinTypeBtc: {
-            if ( publicKey->public_key_length != 33 ) {
-                return false;
-            }
-            getBtcLiteIdentity(publicKey);
+            ret = getBtcLiteIdentity(publicKey);
         }   break;
-        case CoinTypeEth:{
-            if ( publicKey->public_key_length != 65 ) {
-                return false;
-            }
-
-            getEthLiteIdentity(publicKey);
+        case CoinTypeEth: {
+            ret = getEthLiteIdentity(publicKey);
         }   break;
         default:
-            return false;
+            return ErrorCode(ErrorUnknown);
     };
-    return true;
+    return ret;
 }
 
-bool getEthLiteIdentity(pubkey_ctx_t *publicKey) {
+Error getEthLiteIdentity(pubkey_ctx_t *publicKey) {
     if ( publicKey->public_key_length != 65 ) {
-        return false;
+        return ErrorCode(ErrorBadKey);
     }
 
     //1) generate eth hash
     Error e = keccak(publicKey->raw_public_key+1,64, publicKey->hash, sizeof(publicKey->hash));
-    if (IsError(e) ) {
-        return false;
+    if ( IsError(e) ) {
+        return e;
     }
 
+    explicit_bzero(publicKey->address_name, sizeof(publicKey->address_name));
     //2) encode the name address
-    int offset = 0;
+    int offset = 2;
+    publicKey->address_name[0] = '0';
+    publicKey->address_name[1] = 'x';
     for ( int i = 0; i < ADDRESS_LEN; ++i ) {
         snprintf((char*)&publicKey->address_name[offset], sizeof(publicKey->address_name) - offset,
                  "%02x", publicKey->hash[i+sizeof(publicKey->hash)-ADDRESS_LEN]);
@@ -93,15 +86,16 @@ bool getEthLiteIdentity(pubkey_ctx_t *publicKey) {
     }
 
     //3) compute lite identity url.
-    getLiteIdentityUrl(publicKey->hash, sizeof(publicKey->hash) - offset,
+    e = getLiteIdentityUrl(&publicKey->hash[sizeof(publicKey->hash)-ADDRESS_LEN],
+                       ADDRESS_LEN,
                        publicKey->lite_account,sizeof(publicKey->lite_account));
-
-    return true;
+    return e;
 }
 
-bool getBtcLiteIdentity(pubkey_ctx_t *publicKey) {
+Error getBtcLiteIdentity(pubkey_ctx_t *publicKey) {
     //placeholder
-    return publicKey != 0;
+    strcpy(publicKey->address_name, "not implemented");
+    return ErrorCode(ErrorNone);
 }
 
 
@@ -118,13 +112,13 @@ bool getAcmeLiteAccountUrl(int8_t *liteIdUrl, uint8_t liteIdUrlLen) {
     return true;
 }
 
-bool getLiteIdentityUrl(const uint8_t *keyHash, uint8_t keyHashLen, char *urlOut, size_t urlOutLen) {
+Error getLiteIdentityUrl(const uint8_t *keyHash, uint8_t keyHashLen, char *urlOut, size_t urlOutLen) {
 
     if ( keyHashLen < 20 ) {
-        return false;
+        return ErrorCode(ErrorInvalidHashParameters);
     }
     if ( urlOutLen < 54 ) {
-        return false;
+        return ErrorCode(ErrorBufferTooSmall);
     }
     uint8_t checksum[32] = {0};
 
@@ -140,10 +134,10 @@ bool getLiteIdentityUrl(const uint8_t *keyHash, uint8_t keyHashLen, char *urlOut
 
     snprintf((char*)&urlOut[offset], urlOutLen - offset, "%02x%02x%02x%02x", checksum[0], checksum[1],checksum[2],checksum[3]);
 
-    return true;
+    return ErrorCode(ErrorNone);
 }
 
-Error getFctAddressStringFromRCDHash(uint8_t *rcdhash,int8_t *out, int8_t outLen)
+Error getFctAddressStringFromRCDHash(uint8_t *rcdhash,char *out, int8_t outLen)
 {
     uint8_t address[38];
 
@@ -164,9 +158,9 @@ Error getFctAddressStringFromRCDHash(uint8_t *rcdhash,int8_t *out, int8_t outLen
     return ErrorCode(ErrorNone);
 }
 
-bool getFctLiteAddress(pubkey_ctx_t *publicKey) {
+Error getFctLiteAddress(pubkey_ctx_t *publicKey) {
     if ( publicKey->public_key_length != 32 ) {
-        return false;
+        return ErrorCode(ErrorBadKey);
     }
 
     //2) compute rcd
@@ -177,16 +171,22 @@ bool getFctLiteAddress(pubkey_ctx_t *publicKey) {
     //3) Hash rcd
     Error e = sha256(rcd,sizeof(rcd),publicKey->hash, sizeof(publicKey->hash));
     if ( IsError(e) ) {
-        return false;
+        return e;
     }
 
     //4) get fct label
-    getFctAddressStringFromRCDHash(publicKey->hash, publicKey->address_name, sizeof(publicKey->address_name));
-
+    e = getFctAddressStringFromRCDHash(publicKey->hash, publicKey->address_name, sizeof(publicKey->address_name));
+    if (IsError(e) ) {
+        return e;
+    }
     //5) compute lite identity url.
-    getLiteIdentityUrl(publicKey->hash,sizeof(publicKey->hash),
+    e = getLiteIdentityUrl(publicKey->hash,sizeof(publicKey->hash),
                        publicKey->lite_account,sizeof publicKey->lite_account);
-    return true;
+    if (IsError(e) ) {
+        return e;
+    }
+    publicKey->address_name[0] = 'F';
+    return ErrorCode(ErrorNone);
 }
 
 bool adjustDecimals(const char *src, uint32_t srcLength, char *target,

@@ -61,6 +61,14 @@ UX_STEP_NOCB(ux_display_address_step,
                  .title = "Key Name",
                  .text =  G_context.pk_info.address_name,
              });
+// Step with title/text for address
+UX_STEP_NOCB(ux_display_lite_step,
+             bnnn_paging,
+             {
+                 .title = "Lite Identity",
+                 .text =  G_context.pk_info.lite_account,
+             });
+
 // Step with approve button
 UX_STEP_CB(ux_display_approve_step,
            pb,
@@ -88,6 +96,7 @@ UX_FLOW(ux_display_pubkey_flow,
         &ux_display_confirm_addr_step,
         &ux_display_path_step,
         &ux_display_address_step,
+        &ux_display_lite_step,
         &ux_display_approve_step,
         &ux_display_reject_step);
 
@@ -115,13 +124,13 @@ int ui_display_address() {
 //        return io_send_sw(SW_DISPLAY_ADDRESS_FAIL);
 //    }
 
-
-    if (!lite_address_from_pubkey(G_context.bip32_path[1], &G_context.pk_info)) {
-        return io_send_sw(SW_DISPLAY_ADDRESS_FAIL);
+    Error e = lite_address_from_pubkey(G_context.bip32_path[1], &G_context.pk_info);
+    if (IsError(e)) {
+        return io_send_sw(SW_ENCODE_ERROR(e));//SW_DISPLAY_ADDRESS_FAIL);
     }
 //    snprintf(g_address, sizeof(g_address), "0x%.*H", sizeof(G_context.pk_info.lite_account),
 //             G_context.pk_info.address_name);
-    snprintf(g_address, sizeof(g_address), "%s",    G_context.pk_info.address_name);
+//    snprintf(g_address, sizeof(g_address), "%s",    G_context.pk_info.address_name);
 
     g_validate_callback = &ui_action_validate_pubkey;
 
