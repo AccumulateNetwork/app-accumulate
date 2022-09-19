@@ -112,7 +112,7 @@ Error crypto_init_public_key(cx_ecfp_private_key_t *private_key,
                 return ErrorCode(ErrorBadKey);
             }
             raw_public_key[0] = (public_key->W[64] % 2 == 1) ? 0x03 : 0x02;
-            memmove(raw_public_key + 1, public_key->W + 1, 32);  // copy x
+            memmove(raw_public_key + 1, public_key->W + 1, 32);
             *public_key_len = 33;
         } else if (public_key->curve == CX_CURVE_Ed25519 && public_key->W[0] != 0xED) {
             if ( *public_key_len < 32 ) {
@@ -190,3 +190,33 @@ int crypto_sign_message() {
 
     return 0;
 }
+
+#ifndef _NR_cx_hash_ripemd160
+/** Missing in some SDKs, we implement it using the cxram section if needed. */
+static size_t cx_hash_ripemd160(const uint8_t *in, size_t in_len, uint8_t *out, size_t out_len) {
+    //PRINT_STACK_POINTER();
+
+    if (out_len < CX_RIPEMD160_SIZE) {
+        return 0;
+    }
+    cx_ripemd160_t cx;
+    cx_ripemd160_init_no_throw(&cx);
+    cx_ripemd160_update(&cx, in, in_len);
+    cx_ripemd160_final(&cx, out);
+    explicit_bzero(&cx, sizeof(cx_ripemd160_t));
+    return CX_RIPEMD160_SIZE;
+}
+#endif  // _NR_cx_hash_ripemd160
+
+void crypto_ripemd160(const uint8_t *in, uint16_t inlen, uint8_t out[static 20]) {
+    cx_hash_ripemd160(in, inlen, out, 20);
+}
+
+void crypto_hash160(const uint8_t *in, uint16_t inlen, uint8_t out[static 20]) {
+    //PRINT_STACK_POINTER();
+
+    uint8_t buffer[32];
+    cx_hash_sha256(in, inlen, buffer, 32);
+    crypto_ripemd160(buffer, 32, out);
+}
+
