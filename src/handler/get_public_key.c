@@ -1,6 +1,6 @@
 /*****************************************************************************
- *   Ledger App Boilerplate.
- *   (c) 2020 Ledger SAS.
+ *   Accumulate Ledger Wallet
+ *   (c) 2022 DefiDevs, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@
 #include "cx.h"
 
 #include "get_public_key.h"
+#include "common/error.h"
 #include "../globals.h"
 #include "../types.h"
 #include "../io.h"
@@ -37,6 +38,7 @@ int handler_get_public_key(buffer_t *cdata, bool display) {
     explicit_bzero(&G_context, sizeof(G_context));
     G_context.req_type = CONFIRM_ADDRESS;
     G_context.state = STATE_NONE;
+    G_context.pk_info.public_key_length = sizeof(G_context.pk_info.raw_public_key);
 
     cx_ecfp_private_key_t private_key = {0};
     cx_ecfp_public_key_t public_key = {0};
@@ -48,13 +50,19 @@ int handler_get_public_key(buffer_t *cdata, bool display) {
 
     // derive private key according to BIP32 path
     crypto_derive_private_key(&private_key,
-                              G_context.pk_info.chain_code,
                               G_context.bip32_path,
                               G_context.bip32_path_len);
+
     // generate corresponding public key
-    crypto_init_public_key(&private_key, &public_key, G_context.pk_info.raw_public_key);
+    Error e = crypto_init_public_key(&private_key, &public_key, G_context.pk_info.raw_public_key,
+                           &G_context.pk_info.public_key_length,
+                           G_context.bip32_path[1] != CoinTypeEth);
     // reset private key
     explicit_bzero(&private_key, sizeof(private_key));
+
+    if (IsError(e)) {
+        return io_send_sw(SW_ENCODE_ERROR(e));
+    }
 
     if (display) {
         return ui_display_address();

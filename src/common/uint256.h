@@ -61,7 +61,15 @@ void mul128(uint128_t *number1, uint128_t *number2, uint128_t *target);
 void mul256(uint256_t *number1, uint256_t *number2, uint256_t *target);
 void divmod128(uint128_t *l, uint128_t *r, uint128_t *div, uint128_t *mod);
 void divmod256(uint256_t *l, uint256_t *r, uint256_t *div, uint256_t *mod);
-bool tostring128(uint128_t *number, uint32_t base, char *out,
-                 uint32_t outLength);
-bool tostring256(uint256_t *number, uint32_t base, char *out,
-                 uint32_t outLength);
+bool tostring128(uint128_t *number, uint32_t base, char *out, uint32_t outLength);
+bool tostring256(uint256_t *number, uint32_t base, char *out, uint32_t outLength);
+
+///returns the number of bytes populated in "out" or -1 on error.
+int tobytes256(uint256_t *number, uint8_t *out, uint32_t outLength);
+
+void readu256LE(uint8_t *buffer, uint256_t *target);
+void readu128LE(uint8_t *buffer, uint128_t *target);
+
+int fromstring256(const char *in, size_t inLen, uint256_t *number);
+int fromhex256(const char *in, size_t inLen, uint256_t *number);
+int frombytes256(const uint8_t *in, size_t inLen, uint256_t *number);

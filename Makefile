@@ -1,6 +1,6 @@
 # ****************************************************************************
-#    Ledger App Boilerplate
-#    (c) 2020 Ledger SAS.
+#    Ledger App Accumulate
+#    (c) 2022 DefiDevs, Inc.
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -21,19 +21,21 @@ endif
 
 include $(BOLOS_SDK)/Makefile.defines
 
-APP_LOAD_PARAMS  = --curve secp256k1
+
 ifeq ($(TARGET_NAME), TARGET_NANOX)
 APP_LOAD_PARAMS=--appFlags 0x200  # APPLICATION_FLAG_BOLOS_SETTINGS
 else
 APP_LOAD_PARAMS=--appFlags 0x000
 endif
-APP_LOAD_PARAMS += --path "44'"
+# Accumulate supports addressing bitcoin, ethereum, factom, and accumulate  for accumulate transactions
+APP_LOAD_PARAMS += --path "44'/0'" --path "44'/60'" --path "44'/131'" --path "44'/281'"
+APP_LOAD_PARAMS += --curve ed25519 --curve secp256k1
 APP_LOAD_PARAMS += $(COMMON_LOAD_PARAMS)
 
 APPNAME      = "Accumulate"
 APPVERSION_M = 1
 APPVERSION_N = 0
-APPVERSION_P = 1
+APPVERSION_P = 2 
 APPVERSION   = "$(APPVERSION_M).$(APPVERSION_N).$(APPVERSION_P)"
 
 ifeq ($(TARGET_NAME),TARGET_NANOX)

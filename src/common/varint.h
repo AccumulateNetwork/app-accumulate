@@ -4,6 +4,12 @@
 #include <stddef.h>   // size_t
 #include <stdbool.h>  // bool
 
+enum {
+    MaxVarintLen16 = 3,
+    MaxVarintLen32 = 5,
+    MaxVarintLen64 = 10,
+};
+
 /**
  * Size of value represented as Bitcoin-like varint.
  *
@@ -15,7 +21,8 @@
  * @return number of bytes to write value as varint (1, 3, 5 or 9 bytes).
  *
  */
-uint8_t varint_size(uint64_t value);
+uint8_t varint_size(int64_t value);
+uint8_t uvarint_size(uint64_t value);
 
 /**
  * Read Bitcoin-like varint from byte buffer.
@@ -32,7 +39,8 @@ uint8_t varint_size(uint64_t value);
  * @return number of bytes read (1, 3, 5 or 9 bytes), -1 otherwise.
  *
  */
-int varint_read(const uint8_t *in, size_t in_len, uint64_t *value);
+int varint_read(const uint8_t *in, size_t in_len, int64_t *value);
+int uvarint_read(const uint8_t *in, size_t in_len, uint64_t *value);
 
 /**
  * Write Bitcoin-like varint to byte buffer.
@@ -49,4 +57,5 @@ int varint_read(const uint8_t *in, size_t in_len, uint64_t *value);
  * @return number of bytes written (1, 3, 5 or 9 bytes), -1 otherwise.
  *
  */
-int varint_write(uint8_t *out, size_t offset, uint64_t value);
+int varint_write(uint8_t *out, size_t offset, int64_t value);
+int uvarint_write(uint8_t *out, size_t offset, uint64_t value);

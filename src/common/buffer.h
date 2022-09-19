@@ -16,7 +16,7 @@ typedef enum {
  * Struct for buffer with size and offset.
  */
 typedef struct {
-    const uint8_t *ptr;  /// Pointer to byte buffer
+    uint8_t *ptr;        /// Pointer to byte buffer
     size_t size;         /// Size of byte buffer
     size_t offset;       /// Offset in byte buffer
 } buffer_t;
@@ -144,7 +144,8 @@ bool buffer_read_u64(buffer_t *buffer, uint64_t *value, endianness_t endianness)
  * @return true if success, false otherwise.
  *
  */
-bool buffer_read_varint(buffer_t *buffer, uint64_t *value);
+bool buffer_read_varint(buffer_t *buffer, int64_t *value);
+bool buffer_read_uvarint(buffer_t *buffer, uint64_t *value);
 
 /**
  * Read BIP32 path from buffer.
@@ -190,3 +191,5 @@ bool buffer_copy(const buffer_t *buffer, uint8_t *out, size_t out_len);
  *
  */
 bool buffer_move(buffer_t *buffer, uint8_t *out, size_t out_len);
+
+int hextobin(const char *hexStr, int hexLen, uint8_t *output, int outputLen);

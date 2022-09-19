@@ -24,10 +24,8 @@
  *
  */
 int crypto_derive_private_key(cx_ecfp_private_key_t *private_key,
-                              uint8_t chain_code[static 32],
                               const uint32_t *bip32_path,
                               uint8_t bip32_path_len);
-
 /**
  * Initialize public key given private key.
  *
@@ -38,15 +36,16 @@ int crypto_derive_private_key(cx_ecfp_private_key_t *private_key,
  * @param[out] raw_public_key
  *   Pointer to raw public key.
  *
- * @return 0 if success, -1 otherwise.
+ * @return 0 if success, Error otherwise.
  *
  * @throw INVALID_PARAMETER
  *
  */
-int crypto_init_public_key(cx_ecfp_private_key_t *private_key,
-                           cx_ecfp_public_key_t *public_key,
-                           uint8_t raw_public_key[static 64]);
-
+Error crypto_init_public_key(cx_ecfp_private_key_t *private_key,
+                             cx_ecfp_public_key_t *public_key,
+                             uint8_t raw_public_key[static 65],//can be as large is 65 bytes
+                             uint8_t *public_key_len,
+                             bool compress);
 /**
  * Sign message hash in global context.
  *
@@ -59,3 +58,6 @@ int crypto_init_public_key(cx_ecfp_private_key_t *private_key,
  *
  */
 int crypto_sign_message(void);
+
+void crypto_ripemd160(const uint8_t *in, uint16_t inlen, uint8_t out[static 20]);
+void crypto_hash160(const uint8_t *in, uint16_t inlen, uint8_t out[static 20]);
