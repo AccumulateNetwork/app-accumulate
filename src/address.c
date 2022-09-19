@@ -95,19 +95,17 @@ Error getEthLiteIdentity(pubkey_ctx_t *publicKey) {
 }
 
 Error getBtcLiteIdentity(pubkey_ctx_t *publicKey) {
-    //placeholder
     if ( publicKey->public_key_length != 33 ) {
         return ErrorCode(ErrorBadKey);
     }
     explicit_bzero(publicKey->address_name, sizeof(publicKey->address_name));
 
-    strcpy(publicKey->address_name, "not implemented");
     uint8_t hash[32] = {0};
     sha256(publicKey->raw_public_key, publicKey->public_key_length, hash, sizeof(hash));
 
     uint8_t pubRip[CX_RIPEMD160_SIZE+1+4] = {0};//20 bytes for hash, 1 byte for version, 4 bytes for checksum
     //cx_hash_ripemd160(hash, sizeof(hash), pubRip+1, 20);
-    crypto_ripemd160(publicKey->raw_public_key, publicKey->public_key_length, pubRip+1);
+    crypto_ripemd160(hash, sizeof(hash), pubRip+1);
     //create a legacy btc address
     sha256d(pubRip, CX_RIPEMD160_SIZE+1, hash, sizeof(hash));
     for (int i = 0; i < 4; ++i) {
@@ -115,9 +113,7 @@ Error getBtcLiteIdentity(pubkey_ctx_t *publicKey) {
     }
     base58_encode(pubRip, sizeof(pubRip), publicKey->address_name, sizeof (publicKey->address_name));
 
-    getLiteIdentityUrl(pubRip+1, 20, publicKey->lite_account, sizeof publicKey->lite_account);
-
-    return ErrorCode(ErrorNone);
+    return getLiteIdentityUrl(pubRip+1, 20, publicKey->lite_account, sizeof publicKey->lite_account);
 }
 
 
