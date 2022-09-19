@@ -3,6 +3,8 @@
 #include <stdint.h>   // uint*_t
 #include <stddef.h>   // size_t
 #include <stdbool.h>  // bool
+#include "common/error.h"
+#include "types.h"
 
 /**
  * Convert public key to address.
@@ -21,4 +23,25 @@
  * @return true if success, false otherwise.
  *
  */
-bool address_from_pubkey(const uint8_t public_key[static 64], uint8_t *out, size_t out_len);
+//bool address_from_pubkey(const uint8_t public_key[static 64], uint8_t *out, size_t out_len);
+
+
+Error lite_address_from_pubkey(CoinType t, pubkey_ctx_t *publicKey);
+
+Error getEthLiteIdentity(pubkey_ctx_t *publicKey);
+
+Error getBtcLiteIdentity(pubkey_ctx_t *publicKey);
+
+Error getFctLiteAddress(pubkey_ctx_t *publicKey);
+
+Error getLiteAcmeAddress(pubkey_ctx_t *publicKey);
+
+Error getLiteAcmeUrl(const uint8_t public_key[static 64],
+                    uint8_t *out, size_t out_len,
+                    int8_t *keyName, size_t keyNameLen);
+
+Error getLiteIdentityUrl(const uint8_t *keyHash, uint8_t keyHashLen,
+                        char *urlOut, size_t urlOutLen);
+//
+//Error resolvePublicKey( CoinType type, pubkey_ctx_t *publicKey,
+//                       uint8_t *out, size_t *inoutlen);

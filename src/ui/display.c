@@ -1,6 +1,6 @@
 /*****************************************************************************
- *   Ledger App Boilerplate.
- *   (c) 2020 Ledger SAS.
+ *   Accumulate Ledger Wallet
+ *   (c) 2022 DefiDevs, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -23,10 +23,10 @@
 
 #include "os.h"
 #include "ux.h"
-#include "glyphs.h"
+#include "../glyphs.h"
 
 #include "display.h"
-#include "constants.h"
+#include "../constants.h"
 #include "../globals.h"
 #include "../io.h"
 #include "../sw.h"
@@ -39,10 +39,14 @@
 static action_validate_cb g_validate_callback;
 static char g_amount[30];
 static char g_bip32_path[60];
-static char g_address[43];
+static char g_address[MAX_ACME_LITE_ACCOUNT_LEN];
+//static char g_address_name[64];
+//static char g_lite_account[MAX_ACME_LITE_ACCOUNT_LEN];
+
+
 
 // Step with icon and text
-UX_STEP_NOCB(ux_display_confirm_addr_step, pn, {&C_icon_eye, "Confirm Address"});
+UX_STEP_NOCB(ux_display_confirm_addr_step, pn, {&C_icon_eye, "Confirm Key Name"});
 // Step with title/text for BIP32 path
 UX_STEP_NOCB(ux_display_path_step,
              bnnn_paging,
@@ -54,9 +58,17 @@ UX_STEP_NOCB(ux_display_path_step,
 UX_STEP_NOCB(ux_display_address_step,
              bnnn_paging,
              {
-                 .title = "Address",
-                 .text = g_address,
+                 .title = "Key Name",
+                 .text =  G_context.pk_info.address_name,
              });
+// Step with title/text for address
+UX_STEP_NOCB(ux_display_lite_step,
+             bnnn_paging,
+             {
+                 .title = "Lite Identity",
+                 .text =  G_context.pk_info.lite_account,
+             });
+
 // Step with approve button
 UX_STEP_CB(ux_display_approve_step,
            pb,
@@ -84,6 +96,7 @@ UX_FLOW(ux_display_pubkey_flow,
         &ux_display_confirm_addr_step,
         &ux_display_path_step,
         &ux_display_address_step,
+        &ux_display_lite_step,
         &ux_display_approve_step,
         &ux_display_reject_step);
 
@@ -101,12 +114,23 @@ int ui_display_address() {
         return io_send_sw(SW_DISPLAY_BIP32_PATH_FAIL);
     }
 
+    //determine coin type which will determine acme address returned.
+    switch ( G_context.bip32_path[0] & 0x80000000u ) {
+
+    };
     memset(g_address, 0, sizeof(g_address));
-    uint8_t address[ADDRESS_LEN] = {0};
-    if (!address_from_pubkey(G_context.pk_info.raw_public_key, address, sizeof(address))) {
-        return io_send_sw(SW_DISPLAY_ADDRESS_FAIL);
+//    uint8_t address[ADDRESS_LEN] = {0};
+//    if (!address_from_pubkey(G_context.pk_info.raw_public_key, address, sizeof(address))) {
+//        return io_send_sw(SW_DISPLAY_ADDRESS_FAIL);
+//    }
+
+    Error e = lite_address_from_pubkey(G_context.bip32_path[1], &G_context.pk_info);
+    if (IsError(e)) {
+        return io_send_sw(SW_ENCODE_ERROR(e));//SW_DISPLAY_ADDRESS_FAIL);
     }
-    snprintf(g_address, sizeof(g_address), "0x%.*H", sizeof(address), address);
+//    snprintf(g_address, sizeof(g_address), "0x%.*H", sizeof(G_context.pk_info.lite_account),
+//             G_context.pk_info.address_name);
+//    snprintf(g_address, sizeof(g_address), "%s",    G_context.pk_info.address_name);
 
     g_validate_callback = &ui_action_validate_pubkey;
 

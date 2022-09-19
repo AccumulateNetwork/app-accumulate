@@ -233,9 +233,9 @@ ACME_API uint64_t AccountType_ID(AccountType v);
 ACME_API Error AccountType_fromString(Bytes *v, String *name);
 ACME_API Error AccountType_asString(const Bytes *v, String *out);
 ACME_API Error AccountType_marshalJSON(const Bytes *v, Marshaler *out);
-ACME_API Error AccountType_unmarshalJSON(Bytes *v, const Marshaler *in);
+ACME_API Error AccountType_unmarshalJSON(Bytes *v, Marshaler *in);
 ACME_API Error AccountType_marshalBinary(const Bytes *v, Marshaler *out);
-ACME_API Error AccountType_unmarshalBinary(Bytes *v, const Marshaler *in);
+ACME_API Error AccountType_unmarshalBinary(Bytes *v, Marshaler *in);
 AccountType_t AccountType_init(AccountType_t *v, buffer_t *buffer);
 
 #ifndef ACME_HEADER

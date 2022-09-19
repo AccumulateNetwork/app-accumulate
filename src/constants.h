@@ -1,7 +1,7 @@
 #pragma once
 
 /**
- * Instruction class of the Boilerplate application.
+ * Instruction class of the Accumulate application.
  */
 #define CLA 0xE0
 
@@ -23,12 +23,24 @@
 /**
  * Maximum transaction length (bytes).
  */
-#define MAX_TRANSACTION_LEN 510
+#ifdef TARGET_NANOS
+#define MAX_DATA_ENTRY 1
+#else
+#define MAX_DATA_ENTRY 10
+#endif
+#define MAX_SIGNATURE_HEADER_LEN 256
+
+#define MAX_TRANSACTION_LEN 1024*MAX_DATA_ENTRY //10270 //510
 
 /**
  * Maximum signature length (bytes).
  */
 #define MAX_DER_SIG_LEN 72
+
+/**
+ * Maximum signature length (bytes).
+ */
+#define MAX_ACME_LITE_ACCOUNT_LEN 61
 
 /**
  * Exponent used to convert mBOL to BOL unit (N BOL = N * 10^3 mBOL).

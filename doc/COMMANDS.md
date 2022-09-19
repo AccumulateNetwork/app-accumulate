@@ -1,4 +1,4 @@
-# Boilerplate commands
+# Accumulate commands
 
 ## Overview
 

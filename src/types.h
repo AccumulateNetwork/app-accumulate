@@ -23,7 +23,8 @@ typedef enum {
     GET_VERSION = 0x03,     /// version of the application
     GET_APP_NAME = 0x04,    /// name of the application
     GET_PUBLIC_KEY = 0x05,  /// public key of corresponding BIP32 path
-    SIGN_TX = 0x06          /// sign transaction with BIP32 path
+    SIGN_TX = 0x06,         /// sign transaction with BIP32 path
+    GET_ADDRESS = 0x07,     /// get associated address
 } command_e;
 
 /**
@@ -37,6 +38,13 @@ typedef struct {
     uint8_t lc;     /// Lenght of command data
     uint8_t *data;  /// Command data
 } command_t;
+
+typedef enum {
+    CoinTypeBtc = 0x80000000,
+    CoinTypeEth = 0x8000003c,
+    CoinTypeFct = 0x80000083,
+    CoinTypeAcme = 0x80000119
+} CoinType;
 
 /**
  * Enumeration with parsing state.
@@ -59,9 +67,14 @@ typedef enum {
  * Structure for public key context information.
  */
 typedef struct {
-    uint8_t raw_public_key[64];  /// x-coordinate (32), y-coodinate (32)
+    uint8_t raw_public_key[65];  /// v, x-coordinate (32), y-coodinate (32)
+    uint8_t public_key_length;   /// length of key, compressed / uncompressed
     uint8_t chain_code[32];      /// for public key derivation
+    char  address_name[64];
+    char  lite_account[MAX_ACME_LITE_ACCOUNT_LEN];
+    uint8_t hash[32];
 } pubkey_ctx_t;
+
 
 /**
  * Structure for transaction information context.
@@ -69,6 +82,8 @@ typedef struct {
 typedef struct {
     uint8_t raw_tx[MAX_TRANSACTION_LEN];  /// raw transaction serialized
     size_t raw_tx_len;                    /// length of raw transaction
+    uint8_t raw_siginfo[MAX_SIGNATURE_HEADER_LEN];
+    size_t raw_siginfo_len;
     transaction_t transaction;            /// structured transaction
     uint8_t m_hash[32];                   /// message hash digest
     uint8_t signature[MAX_DER_SIG_LEN];   /// transaction signature encoded in DER
