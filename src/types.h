@@ -80,10 +80,9 @@ typedef struct {
  * Structure for transaction information context.
  */
 typedef struct {
-    uint8_t raw_tx[MAX_TRANSACTION_LEN];  /// raw transaction serialized
+    uint8_t raw_tx[MAX_TRANSACTION_LEN+MAX_SIGNATURE_HEADER_LEN];  /// raw transaction serialized
     size_t raw_tx_len;                    /// length of raw transaction
-    uint8_t raw_siginfo[MAX_SIGNATURE_HEADER_LEN];
-    size_t raw_siginfo_len;
+    signer_t signer;
     transaction_t transaction;            /// structured transaction
     uint8_t m_hash[32];                   /// message hash digest
     uint8_t signature[MAX_DER_SIG_LEN];   /// transaction signature encoded in DER

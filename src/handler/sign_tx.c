@@ -76,11 +76,42 @@ int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more) {
                             .size = G_context.tx_info.raw_tx_len,
                             .offset = 0};
 
-            parser_status_e status = transaction_deserialize(&buf, &G_context.tx_info.transaction);
-            PRINTF("Parsing status: %d.\n", status);
-            if (status != PARSING_OK) {
+            //now we need to go through the transaction and identify the header, body, and hash
+            uint16_t len = 0;
+            if (!buffer_read_u16(&buf,&len, BE) ) {
+                    return io_send_sw(SW_TX_PARSING_FAIL);
+            }
+            //for now skip the signer
+            if ( !buffer_seek_cur(&buf, len) ) {
                 return io_send_sw(SW_TX_PARSING_FAIL);
             }
+
+            if ( !buffer_read_u16(&buf, &len, BE) ) {
+                return io_send_sw(SW_TX_PARSING_FAIL);
+            }
+
+            //skip the transaction body
+            if (!buffer_seek_cur(&buf, len)){
+                return io_send_sw(SW_TX_PARSING_FAIL);
+            }
+            uint8_t hlen = 0;
+            if ( !buffer_read_u8(&buf, &hlen) ) {
+                return io_send_sw(SW_TX_PARSING_FAIL);
+            }
+
+            Bytes32_t b;
+            Bytes32 cheatCode = Bytes32_new(&buf, 1);
+            Error e = Bytes32_valid(&cheatCode.data);
+            if (!IsError(e)) {
+                return io_send_sw(SW_ENCODE_ERROR(e));
+            }
+            buffer_copy(&cheatCode.data.buffer, G_context.tx_info.m_hash, sizeof(G_context.tx_info.m_hash));
+
+            //parser_status_e status = transaction_deserialize(&buf, &G_context.tx_info.transaction);
+            PRINTF("Parsing status: %d.\n", status);
+//            if (status != PARSING_OK) {
+//                return io_send_sw(SW_TX_PARSING_FAIL);
+//            }
 
             G_context.state = STATE_PARSED;
 
