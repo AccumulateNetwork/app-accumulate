@@ -193,7 +193,7 @@ int crypto_sign_message() {
 
 #ifndef _NR_cx_hash_ripemd160
 /** Missing in some SDKs, we implement it using the cxram section if needed. */
-static size_t cx_hash_ripemd160(const uint8_t *in, size_t in_len, uint8_t *out, size_t out_len) {
+size_t cx_hash_ripemd160(const uint8_t *in, size_t in_len, uint8_t *out, size_t out_len) {
     //PRINT_STACK_POINTER();
 
     if (out_len < CX_RIPEMD160_SIZE) {
