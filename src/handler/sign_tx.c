@@ -52,7 +52,7 @@ int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more) {
         }
 
         if (more) {  // more APDUs with transaction part
-            if (G_context.tx_info.raw_tx_len + cdata->size > MAX_TRANSACTION_LEN &&  //
+            if (G_context.tx_info.raw_tx_len + cdata->size > MAX_TRANSACTION_LEN ||  //
                 !buffer_move(cdata,
                              G_context.tx_info.raw_tx + G_context.tx_info.raw_tx_len,
                              cdata->size)) {
@@ -77,56 +77,60 @@ int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more) {
                             .offset = 0};
 
             //now we need to go through the transaction and identify the header, body, and hash
-            uint16_t len = 0;
-            if (!buffer_read_u16(&buf,&len, BE) ) {
-                    return io_send_sw(SW_TX_PARSING_FAIL);
+    //            uint16_t len = 0;
+    //            if (!buffer_read_u16(&buf,&len, BE) ) {
+    //                    return io_send_sw(SW_TX_PARSING_FAIL);
+    //            }
+    //            //for now skip the signer
+    //            if ( !buffer_seek_cur(&buf, len) ) {
+    //                return io_send_sw(0xB000 + (uint8_t)len);//SW_TX_PARSING_FAIL);
+    //            }
+    //
+    //            //read the transaction length
+    //            if ( !buffer_read_u16(&buf, &len, BE) ) {
+    //                return io_send_sw(0xB0CC);//SW_TX_PARSING_FAIL);
+    //            }
+    //
+    //            //skip the transaction
+    //            if (!buffer_seek_cur(&buf, len)){
+    //                return io_send_sw(len);//SW_TX_PARSING_FAIL);
+    //            }
+    //            //temporary
+    //            //read cheat code
+    //            uint8_t hlen = 0;
+    //            if ( !buffer_read_u8(&buf, &hlen) ) {
+    //                return io_send_sw(0xB0EE);//SW_TX_PARSING_FAIL);
+    //            }
+    //
+    //            if ( hlen != sizeof(G_context.tx_info.m_hash)) {
+    //                return io_send_sw(0xB000 + hlen);//SW_TX_PARSING_FAIL);
+    //            }
+    //
+            //sign this
+            if ( !buffer_move(&buf, G_context.tx_info.m_hash, sizeof(G_context.tx_info.m_hash))) {
+                return io_send_sw(0xB0F1);
             }
-            //for now skip the signer
-            if ( !buffer_seek_cur(&buf, len) ) {
-                return io_send_sw(SW_TX_PARSING_FAIL);
-            }
-
-            if ( !buffer_read_u16(&buf, &len, BE) ) {
-                return io_send_sw(SW_TX_PARSING_FAIL);
-            }
-
-            //skip the transaction body
-            if (!buffer_seek_cur(&buf, len)){
-                return io_send_sw(SW_TX_PARSING_FAIL);
-            }
-            uint8_t hlen = 0;
-            if ( !buffer_read_u8(&buf, &hlen) ) {
-                return io_send_sw(SW_TX_PARSING_FAIL);
-            }
-
-            Bytes32_t b;
-            Bytes32 cheatCode = Bytes32_new(&buf, 1);
-            Error e = Bytes32_valid(&cheatCode.data);
-            if (!IsError(e)) {
-                return io_send_sw(SW_ENCODE_ERROR(e));
-            }
-            buffer_copy(&cheatCode.data.buffer, G_context.tx_info.m_hash, sizeof(G_context.tx_info.m_hash));
 
             //parser_status_e status = transaction_deserialize(&buf, &G_context.tx_info.transaction);
             PRINTF("Parsing status: %d.\n", status);
-//            if (status != PARSING_OK) {
-//                return io_send_sw(SW_TX_PARSING_FAIL);
-//            }
+    //            if (status != PARSING_OK) {
+    //                return io_send_sw(SW_TX_PARSING_FAIL);
+    //            }
 
             G_context.state = STATE_PARSED;
 
-            //enable cheat code: copy txid to hash
-            //G_context.tx_info.m_hash
-            cx_sha3_t keccak256;
-            cx_keccak_init(&keccak256, 256);
-            cx_hash((cx_hash_t *) &keccak256,
-                    CX_LAST,
-                    G_context.tx_info.raw_tx,
-                    G_context.tx_info.raw_tx_len,
-                    G_context.tx_info.m_hash,
-                    sizeof(G_context.tx_info.m_hash));
-
-            PRINTF("Hash: %.*H\n", sizeof(G_context.tx_info.m_hash), G_context.tx_info.m_hash);
+    //            //enable cheat code: copy txid to hash
+    //            //G_context.tx_info.m_hash
+    //            cx_sha3_t keccak256;
+    //            cx_keccak_init(&keccak256, 256);
+    //            cx_hash((cx_hash_t *) &keccak256,
+    //                    CX_LAST,
+    //                    G_context.tx_info.raw_tx,
+    //                    G_context.tx_info.raw_tx_len,
+    //                    G_context.tx_info.m_hash,
+    //                    sizeof(G_context.tx_info.m_hash));
+    //
+    //            PRINTF("Hash: %.*H\n", sizeof(G_context.tx_info.m_hash), G_context.tx_info.m_hash);
 
             return ui_display_transaction();
         }

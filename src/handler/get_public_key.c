@@ -33,6 +33,7 @@
 #include "../common/buffer.h"
 #include "../ui/display.h"
 #include "../helper/send_response.h"
+#include "address.h"
 
 int handler_get_public_key(buffer_t *cdata, bool display) {
     explicit_bzero(&G_context, sizeof(G_context));
@@ -46,6 +47,17 @@ int handler_get_public_key(buffer_t *cdata, bool display) {
     if (!buffer_read_u8(cdata, &G_context.bip32_path_len) ||
         !buffer_read_bip32_path(cdata, G_context.bip32_path, (size_t) G_context.bip32_path_len)) {
         return io_send_sw(SW_WRONG_DATA_LENGTH);
+    }
+
+    uint8_t addressNameLen = 0;
+    char addressName[64] = {0};
+    if (buffer_read_u8( cdata, &addressNameLen)) {
+        if (addressNameLen > sizeof(addressName)) {
+            return io_send_sw(SW_WRONG_DATA_LENGTH);
+        }
+        if ( !buffer_move(cdata, (uint8_t*)addressName, addressNameLen)) {
+            return io_send_sw(SW_ENCODE_ERROR(ErrorCode(ErrorInvalidString)));
+        }
     }
 
     // derive private key according to BIP32 path
@@ -62,6 +74,16 @@ int handler_get_public_key(buffer_t *cdata, bool display) {
 
     if (IsError(e)) {
         return io_send_sw(SW_ENCODE_ERROR(e));
+    }
+
+    e = lite_address_from_pubkey(G_context.bip32_path[1], &G_context.pk_info);
+    if (IsError(e)) {
+        return io_send_sw(SW_ENCODE_ERROR(e));
+    }
+
+    //if we have an address name supplied to us override the name we derived.
+    if (addressNameLen > 0 ) {
+        strcpy(G_context.pk_info.address_name, addressName);
     }
 
     if (display) {

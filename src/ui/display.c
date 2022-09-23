@@ -114,24 +114,6 @@ int ui_display_address() {
         return io_send_sw(SW_DISPLAY_BIP32_PATH_FAIL);
     }
 
-    //determine coin type which will determine acme address returned.
-    switch ( G_context.bip32_path[0] & 0x80000000u ) {
-
-    };
-    memset(g_address, 0, sizeof(g_address));
-//    uint8_t address[ADDRESS_LEN] = {0};
-//    if (!address_from_pubkey(G_context.pk_info.raw_public_key, address, sizeof(address))) {
-//        return io_send_sw(SW_DISPLAY_ADDRESS_FAIL);
-//    }
-
-    Error e = lite_address_from_pubkey(G_context.bip32_path[1], &G_context.pk_info);
-    if (IsError(e)) {
-        return io_send_sw(SW_ENCODE_ERROR(e));//SW_DISPLAY_ADDRESS_FAIL);
-    }
-//    snprintf(g_address, sizeof(g_address), "0x%.*H", sizeof(G_context.pk_info.lite_account),
-//             G_context.pk_info.address_name);
-//    snprintf(g_address, sizeof(g_address), "%s",    G_context.pk_info.address_name);
-
     g_validate_callback = &ui_action_validate_pubkey;
 
     ux_flow_init(0, ux_display_pubkey_flow, NULL);
@@ -155,6 +137,20 @@ UX_STEP_NOCB(ux_display_amount_step,
                  .text = g_amount,
              });
 
+UX_STEP_NOCB(ux_display_hash_step,
+             bnnn_paging,
+             {
+                 .title = "Transaction Hash",
+                 .text = G_context.tx_info.m_hash,
+             });
+
+
+UX_FLOW(ux_display_transaction_hash_flow,
+        &ux_display_review_step,
+        &ux_display_hash_step,
+        &ux_display_approve_step,
+        &ux_display_reject_step);
+
 // FLOW to display transaction information:
 // #1 screen : eye icon + "Review Transaction"
 // #2 screen : display amount
@@ -173,24 +169,25 @@ int ui_display_transaction() {
         G_context.state = STATE_NONE;
         return io_send_sw(SW_BAD_STATE);
     }
+//
+//    memset(g_amount, 0, sizeof(g_amount));
+//    char amount[30] = {0};
+//    if (!format_fpu64(amount,
+//                      sizeof(amount),
+//                      G_context.tx_info.transaction.value,
+//                      EXPONENT_SMALLEST_UNIT)) {
+//        return io_send_sw(SW_DISPLAY_AMOUNT_FAIL);
+//    }
+//    snprintf(g_amount, sizeof(g_amount), "BOL %.*s", sizeof(amount), amount);
+//    PRINTF("Amount: %s\n", g_amount);
 
-    memset(g_amount, 0, sizeof(g_amount));
-    char amount[30] = {0};
-    if (!format_fpu64(amount,
-                      sizeof(amount),
-                      G_context.tx_info.transaction.value,
-                      EXPONENT_SMALLEST_UNIT)) {
-        return io_send_sw(SW_DISPLAY_AMOUNT_FAIL);
-    }
-    snprintf(g_amount, sizeof(g_amount), "BOL %.*s", sizeof(amount), amount);
-    PRINTF("Amount: %s\n", g_amount);
+//    memset(g_address, 0, sizeof(g_address));
+//    snprintf(g_address, sizeof(g_address), "0x%.*H", ADDRESS_LEN, G_context.tx_info.transaction.to);
 
-    memset(g_address, 0, sizeof(g_address));
-    snprintf(g_address, sizeof(g_address), "0x%.*H", ADDRESS_LEN, G_context.tx_info.transaction.to);
+    g_validate_callback = &ui_action_validate_transaction_hash;
 
-    g_validate_callback = &ui_action_validate_transaction;
-
-    ux_flow_init(0, ux_display_transaction_flow, NULL);
+    //ux_flow_init(0, ux_display_transaction_flow, NULL);
+    ux_flow_init(0, ux_display_transaction_hash_flow, NULL);
 
     return 0;
 }
