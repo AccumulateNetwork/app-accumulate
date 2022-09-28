@@ -66,7 +66,7 @@ add_library(transaction_deserialize ../src/transaction/deserialize.c)
 add_library(transaction_serialize ../src/transaction/serialize.c)
 add_library(transaction_utils ../src/transaction/utils.c)
 add_library(uint256 STATIC ../src/common/uint256.c)
-add_library(envelope STATIC ../src/common/envelope.c)
+#add_library(envelope STATIC ../src/common/envelope.c)
 add_library(encoding STATIC ../src/common/encoding/bytes32.c ../src/common/encoding/bytes64.c
         ../src/common/encoding/string.c ../src/common/encoding/varint.c ../src/common/encoding/bigint.c
         ../src/common/encoding/marshaler.c ../src/common/encoding/url.c ../src/common/encoding/uvarint.c

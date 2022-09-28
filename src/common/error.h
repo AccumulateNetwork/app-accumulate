@@ -30,6 +30,7 @@ typedef enum {
     ErrorInvalidOffset = -19,
     ErrorInvalidData = -20,
     ErrorBadKey = -21,
+    ErrorInvalidField = -22,
 } ErrorEnum;
 
 Error ErrorCode(ErrorEnum e); 

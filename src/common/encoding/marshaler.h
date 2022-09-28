@@ -18,8 +18,8 @@ Marshaler NewMarshaler(buffer_t *buffer);
 buffer_t marshalerGetEncodedBuffer(Marshaler *m);
 
 int marshalerWriteField(Marshaler *m, uint64_t field);
-//int marshalerWriteInt(Marshaler *m, const struct Int *v);
-//int marshalerWriteUInt(Marshaler *m, const struct UInt *v);
+int marshalerWriteInt(Marshaler *m, int64_t v);
+int marshalerWriteUInt(Marshaler *m, uint64_t v);
 int marshalerWriteVarInt(Marshaler *m, const struct VarInt *v);
 int marshalerWriteUVarInt(Marshaler *m, const struct UVarInt *v);
 int marshalerWriteRaw(Marshaler *m, const struct Bytes *v);

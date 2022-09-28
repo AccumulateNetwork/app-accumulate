@@ -35,7 +35,7 @@ typedef struct {
     command_e ins;  /// Instruction code
     uint8_t p1;     /// Instruction parameter 1
     uint8_t p2;     /// Instruction parameter 2
-    uint8_t lc;     /// Lenght of command data
+    uint16_t lc;     /// Lenght of command data
     uint8_t *data;  /// Command data
 } command_t;
 

@@ -164,11 +164,16 @@ UX_FLOW(ux_display_transaction_flow,
         &ux_display_approve_step,
         &ux_display_reject_step);
 
-int ui_display_transaction() {
+int ui_display_transaction(buffer_t *signerBuffer, buffer_t *transactionBuffer) {
     if (G_context.req_type != CONFIRM_TRANSACTION || G_context.state != STATE_PARSED) {
         G_context.state = STATE_NONE;
         return io_send_sw(SW_BAD_STATE);
     }
+
+    //decode the signer
+    //signerBuffer
+    //decode transaction type:
+
 //
 //    memset(g_amount, 0, sizeof(g_amount));
 //    char amount[30] = {0};

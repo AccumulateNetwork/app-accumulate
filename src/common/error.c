@@ -37,6 +37,7 @@ Error ErrorCode(ErrorEnum e) {
     {ErrorInvalidOffset, "invalid offset"},
     {ErrorInvalidData, "invalid data"},
     {ErrorBadKey, "bad key"},
+    {ErrorInvalidField, "invalid field"},
     };
     //if we have an error code greater than zero that makes it in here, then it is not indended as an error
     if ( (int)(e) >= 0 ) {

@@ -13,6 +13,7 @@
 //#include "_enums2.h"
 #include <common/protocol/enum.h>
 #include <common/protocol/types.h>
+#include <common/protocol/signatures.h>
 
 typedef struct {
    Bytes32 a;
