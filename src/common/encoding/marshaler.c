@@ -7,15 +7,31 @@ Marshaler NewMarshaler(buffer_t *buffer) {
 }
 
 Unmarshaler NewUnmarshaler(buffer_t *buffer, buffer_t *mempool) {
-    Unmarshaler init = {buffer->ptr + buffer->offset, buffer->size - buffer->offset, 0};
-    if ( mempool ) {
-        //todo: add mempool for allocation
-    }
+    Unmarshaler init = {.buffer = {buffer->ptr + buffer->offset, buffer->size - buffer->offset, 0},
+                        .mempool = {mempool->ptr + mempool->offset,mempool->size - mempool->offset,0}};
     return init;
 }
 
 int marshalerWriteField(Marshaler *m, uint64_t field) {
     return marshalerWriteUInt(m,field);
+}
+
+void *unmarshalerAlloc(Unmarshaler *m, size_t n) {
+    if ( !buffer_can_read(&m->mempool, n) ) {
+        return 0;
+    }
+    void *ret = m->mempool.ptr + m->mempool.offset;
+    m->mempool.offset += n;
+    return ret;
+}
+
+Bytes *unmarshalerNewByteBuffer(Unmarshaler *m, size_t n) {
+    if ( !buffer_can_read(&m->mempool, sizeof(Bytes)*n) ) {
+        return 0;
+    }
+    Bytes *ret = (Bytes*)(m->mempool.ptr + m->mempool.offset);
+    m->mempool.offset += sizeof(Bytes) * n;
+    return ret;
 }
 
 int marshalerWriteInt(Marshaler *m, int64_t n) {
@@ -202,7 +218,13 @@ int marshalerWriteUrl(Marshaler *m, const struct Url *v) {
     return marshalerWriteString(m, &s);
 }
 
-int unmarshalerReadInt(Marshaler *m, int64_t *n) {
+int marshalerWriteRawJson(Marshaler *m, const struct RawJson *v) {
+    CHECK_ERROR_INT(v)
+    String s = { v->data };
+    return marshalerWriteString(m, &s);
+}
+
+int unmarshalerReadInt(Unmarshaler *m, int64_t *n) {
     CHECK_ERROR_INT(m)
     CHECK_ERROR_INT(n)
 
@@ -216,7 +238,7 @@ int unmarshalerReadInt(Marshaler *m, int64_t *n) {
     return VarInt_get(&v,n).code;
 }
 
-int unmarshalerReadUInt(Marshaler *m, uint64_t *field) {
+int unmarshalerReadUInt(Unmarshaler *m, uint64_t *field) {
     CHECK_ERROR_INT(m)
     CHECK_ERROR_INT(field)
 
@@ -230,11 +252,16 @@ int unmarshalerReadUInt(Marshaler *m, uint64_t *field) {
     return UVarInt_get(&v,field).code;
 }
 
-int unmarshalerReadField(Marshaler *m, uint64_t *field) {
+int unmarshalerPeekField(Unmarshaler *m, uint64_t *field) {
+    uvarint_read(m->buffer.ptr + m->buffer.offset,m->buffer.size - m->buffer.offset,field);
+    return ErrorNone;
+}
+
+int unmarshalerReadField(Unmarshaler *m, uint64_t *field) {
     return unmarshalerReadUInt(m,field);
 }
 
-int unmarshalerReadVarInt(Marshaler *m, struct VarInt *v) {
+int unmarshalerReadVarInt(Unmarshaler *m, struct VarInt *v) {
     CHECK_ERROR_INT(m)
     CHECK_ERROR_INT(v)
 
@@ -251,7 +278,7 @@ int unmarshalerReadVarInt(Marshaler *m, struct VarInt *v) {
     return offset;
 }
 
-int unmarshalerReadUVarInt(Marshaler *m, struct UVarInt *v) {
+int unmarshalerReadUVarInt(Unmarshaler *m, struct UVarInt *v) {
     CHECK_ERROR_INT(m)
     CHECK_ERROR_INT(v)
 
@@ -267,7 +294,7 @@ int unmarshalerReadUVarInt(Marshaler *m, struct UVarInt *v) {
     return offset;
 }
 
-int unmarshalerReadBytes(Marshaler *m, struct Bytes *v) {
+int unmarshalerReadBytes(Unmarshaler *m, struct Bytes *v) {
     CHECK_ERROR_INT(m)
     CHECK_ERROR_INT(v)
 
@@ -287,7 +314,7 @@ int unmarshalerReadBytes(Marshaler *m, struct Bytes *v) {
     return (int)size;
 }
 
-int unmarshalerReadBytesRaw(Marshaler *m, struct Bytes *v) {
+int unmarshalerReadBytesRaw(Unmarshaler *m, struct Bytes *v) {
     CHECK_ERROR_INT(m)
     CHECK_ERROR_INT(v)
 
@@ -302,7 +329,7 @@ int unmarshalerReadBytesRaw(Marshaler *m, struct Bytes *v) {
     return (int)size;
 
 }
-int unmarshalerReadBytes32(Marshaler *m, struct Bytes32 *v) {
+int unmarshalerReadBytes32(Unmarshaler *m, struct Bytes32 *v) {
     CHECK_ERROR_INT(v)
     if (Bytes32_binarySize(v) != 32) {
         return ErrorInvalidObject;
@@ -310,7 +337,7 @@ int unmarshalerReadBytes32(Marshaler *m, struct Bytes32 *v) {
     return unmarshalerReadBytesRaw(m,&v->data);
 }
 
-int unmarshalerReadBytes64(Marshaler *m, struct Bytes64 *v) {
+int unmarshalerReadBytes64(Unmarshaler *m, struct Bytes64 *v) {
     CHECK_ERROR_INT(v)
     if (Bytes64_binarySize(v) != 64) {
         return ErrorInvalidObject;
@@ -318,11 +345,19 @@ int unmarshalerReadBytes64(Marshaler *m, struct Bytes64 *v) {
     return unmarshalerReadBytesRaw(m,&v->data);
 }
 
-int unmarshalerReadBigInt(Marshaler *m, struct BigInt *v) {
+int unmarshalerReadBigInt(Unmarshaler *m, struct BigInt *v) {
     CHECK_ERROR_INT(v)
     return unmarshalerReadBytes(m,&v->data);
 }
 
-int unmarshalerReadString(Marshaler *m, struct String *v) {
+int unmarshalerReadString(Unmarshaler *m, struct String *v) {
+    return unmarshalerReadBytes(m,&v->data);
+}
+
+int unmarshalerReadRawJson(Unmarshaler *m, struct RawJson *v) {
+    return unmarshalerReadBytes(m,&v->data);
+}
+
+int unmarshalerReadUrl(Unmarshaler *m, struct Url *v) {
     return unmarshalerReadBytes(m,&v->data);
 }

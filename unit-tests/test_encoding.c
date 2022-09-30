@@ -13,7 +13,9 @@
 //#include "_enums2.h"
 #include <common/protocol/enum.h>
 #include <common/protocol/types.h>
-#include <common/protocol/signatures.h>
+#include <common/protocol/transaction.h>
+#include <common/protocol/unions.h>
+//#include <common/protocol/signatures.h>
 
 typedef struct {
    Bytes32 a;
@@ -31,6 +33,26 @@ test_e init_test_e_from_buffer(buffer_t *buffer) {
     init.d = BigInt_new(buffer);
     init.e = VarInt_new(buffer);
     return init;
+}
+
+static void test_encoding_transaction(void **state) {
+
+    //PreSignature: {"type":"ed25519","publicKey":"e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11","signer":"acc://c6a629f9a65bf21159c5dfbffbc868ec3ae61ce4651108ec/ACME","signerVersion":1,"timestamp":1664460962464,"transactionHash":"2e1a5959275faaf81dadecbc7c1b27ae43f06793ff45d514f45a3afc77bd0dfd"}
+    char *PreSignature = "01020220e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11043b6163633a2f2f6336613632396639613635626632313135396335646662666662633836386563336165363163653436353131303865632f41434d45050106a0f5eaccb830082e1a5959275faaf81dadecbc7c1b27ae43f06793ff45d514f45a3afc77bd0dfd";
+    //Transaction: {"header":{"principal":"acc://c6a629f9a65bf21159c5dfbffbc868ec3ae61ce4651108ec/ACME","initiator":"cf45be0d838a5f2a1a9801b794769b95e5657bebd23de07caa6f81f4cdd2d49f","memo":"ledger test"},"body":{"type":"sendTokens","hash":"0000000000000000000000000000000000000000000000000000000000000000","to":[{"url":"acc://f9feb93a10caf2ddf1639c6ff4594fbb199c9de9cd10ca47/ACME","amount":"1000000000"}]}}
+    char *Transaction = "016b013b6163633a2f2f6336613632396639613635626632313135396335646662666662633836386563336165363163653436353131303865632f41434d4502cf45be0d838a5f2a1a9801b794769b95e5657bebd23de07caa6f81f4cdd2d49f030b6c65646765722074657374024701030443013b6163633a2f2f6639666562393361313063616632646466313633396336666634353934666262313939633964653963643130636134372f41434d4502043b9aca00";
+    char *TransactionHash = "421ed18da7d2bcf31cd58f9479ce2e7c5c316ecf72ca466c8f8b3e094f964fc7";
+
+    uint8_t transaction[1024] = {0};
+    hextobin(Transaction, strlen(Transaction), transaction, sizeof(transaction));
+
+    uint8_t arena[1024] = {0};
+    buffer_t mempool = {arena,sizeof(arena), 0};
+    buffer_t txbuffer = {transaction, sizeof(transaction), 0};
+    Unmarshaler um = NewUnmarshaler(&txbuffer,&mempool);
+    struct Transaction t;
+    int n = unmarshalerReadTransaction(&um, &t);
+
 }
 
 static void test_encoding_bytes(void **state) {
@@ -74,8 +96,10 @@ static void test_encoding_bytes(void **state) {
     int code = marshalerWriteBytes(&m, &d);
     assert_false(IsError(ErrorCode(code)));
 
+    uint8_t arena[1024] = {0};
+    buffer_t mempool = {arena,sizeof(arena), 0};
     buffer_t enc = marshalerGetEncodedBuffer(&m);
-    Unmarshaler unEqualBytesUnmarshaler = NewUnmarshaler(&enc,0);
+    Unmarshaler unEqualBytesUnmarshaler = NewUnmarshaler(&enc,&mempool);
     code = unmarshalerReadBytesRaw(&unEqualBytesUnmarshaler,&c);
 
     //should pass unmarshaling
@@ -84,7 +108,7 @@ static void test_encoding_bytes(void **state) {
     assert_false( Bytes_equal(&d, &c));
 
     //now try again.
-    Unmarshaler equalBytesUnmarshaler = NewUnmarshaler(&enc, 0);
+    Unmarshaler equalBytesUnmarshaler = NewUnmarshaler(&enc, &mempool);
     code = unmarshalerReadBytes(&equalBytesUnmarshaler, &c);
     //should pass unmarshaling
     assert_false( IsError(ErrorCode(code)) );
@@ -110,9 +134,11 @@ static void test_encoding_varint(void **state) {
     int code = marshalerWriteUVarInt(&m, &expected_uvarint);
     assert_false(IsError(ErrorCode(code)));
 
+    uint8_t arena[1024] = {0};
+    buffer_t mempool = {arena,sizeof(arena), 0};
     //test unmarshaler
     buffer_t enc = marshalerGetEncodedBuffer(&m);
-    Unmarshaler u = NewUnmarshaler(&enc, 0);
+    Unmarshaler u = NewUnmarshaler(&enc, &mempool);
     UVarInt test_uvarint_unmarshal = UVarInt_new(0);
     code = unmarshalerReadUVarInt(&u, &test_uvarint_unmarshal );
     assert_false(IsError(ErrorCode(code)));
@@ -129,7 +155,7 @@ static void test_encoding_varint(void **state) {
 
     //test the varint unmarshaler
     enc = marshalerGetEncodedBuffer(&m);
-    u = NewUnmarshaler(&enc, 0);
+    u = NewUnmarshaler(&enc, arena);
     VarInt test_varint_unmarshal = VarInt_new(0);
     code = unmarshalerReadVarInt(&u, &test_varint_unmarshal );
     assert_false(IsError(ErrorCode(code)));
@@ -178,14 +204,14 @@ static void test_encoding_bigint(void **state) {
     printf("%s\n", out);
     assert_true(equal256(&number, &bigpi2));
 
-    buffer_t mempool[1024] = {0};
-    buffer_t mempool_buffer = { &mempool, sizeof (mempool), 0};
+    buffer_t arena[1024] = {0};
+    buffer_t mempool = { &arena, sizeof (arena), 0};
 
     uint8_t marshalBuffer[1024] = {0};
     buffer_t buffer = { &marshalBuffer, sizeof (marshalBuffer), 0};
 
     //test marshaler
-    BigInt bi = BigInt_new(&mempool_buffer);
+    BigInt bi = BigInt_new(&mempool);
     BigInt_set(&bi, &number);
 
     Marshaler m = NewMarshaler(&buffer);
@@ -194,7 +220,8 @@ static void test_encoding_bigint(void **state) {
 
     //test unmarshaler
     buffer_t enc = marshalerGetEncodedBuffer(&m);
-    Unmarshaler u = NewUnmarshaler(&enc, 0);
+
+    Unmarshaler u = NewUnmarshaler(&enc, &mempool);
     BigInt pi = BigInt_new(0);
     code = unmarshalerReadBigInt(&u, &pi );
     assert_false(IsError(ErrorCode(code)));
@@ -225,7 +252,10 @@ static void test_encoding_strings(void **state) {
 
     //test unmarshaler
     buffer_t enc = marshalerGetEncodedBuffer(&m);
-    Unmarshaler u = NewUnmarshaler(&enc, 0);
+
+    uint8_t arena[1024] = {0};
+    buffer_t mempool = {arena,sizeof(arena), 0};
+    Unmarshaler u = NewUnmarshaler(&enc, &mempool);
     String test_string_unmarshal = String_new(0,0);
     code = unmarshalerReadString(&u, &test_string_unmarshal );
     assert_false(IsError(ErrorCode(code)));
@@ -242,6 +272,7 @@ int main() {
                         cmocka_unit_test(test_encoding_varint),
                         cmocka_unit_test(test_encoding_bigint),
                         cmocka_unit_test(test_encoding_strings),
+                        cmocka_unit_test(test_encoding_transaction),
     };
 
     return cmocka_run_group_tests(tests, NULL, NULL);

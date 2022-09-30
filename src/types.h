@@ -39,12 +39,11 @@ typedef struct {
     uint8_t *data;  /// Command data
 } command_t;
 
-typedef enum {
-    CoinTypeBtc = 0x80000000,
-    CoinTypeEth = 0x8000003c,
-    CoinTypeFct = 0x80000083,
-    CoinTypeAcme = 0x80000119
-} CoinType;
+typedef uint64_t CoinType;
+static const CoinType CoinTypeBtc = 0x80000000;
+static const CoinType CoinTypeEth = 0x8000003c;
+static const CoinType CoinTypeFct = 0x80000083;
+static const CoinType CoinTypeAcme = 0x80000119;
 
 /**
  * Enumeration with parsing state.

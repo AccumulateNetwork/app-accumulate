@@ -70,7 +70,9 @@ add_library(uint256 STATIC ../src/common/uint256.c)
 add_library(encoding STATIC ../src/common/encoding/bytes32.c ../src/common/encoding/bytes64.c
         ../src/common/encoding/string.c ../src/common/encoding/varint.c ../src/common/encoding/bigint.c
         ../src/common/encoding/marshaler.c ../src/common/encoding/url.c ../src/common/encoding/uvarint.c
-        ../src/common/encoding/bytes.c)
+        ../src/common/encoding/rawjson.c ../src/common/encoding/bool.c
+        ../src/common/encoding/bytes.c ../src/common/protocol/unions.c ../src/common/protocol/signatures.c
+        ../src/common/protocol/transaction.c ../src/common/protocol/enum.c)
 add_library(error STATIC ../src/common/error.c)
 add_library(sha256 STATIC ../src/common/sha256.c ../src/common/internal/testing/sha256.c)
 

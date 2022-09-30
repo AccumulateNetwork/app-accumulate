@@ -6,14 +6,6 @@
 typedef uint256_t BigInt_t;
 typedef struct BigInt {
     Bytes data;
-//    Error (*get)(const struct BigInt*, uint256_t *out);
-//    Error (*set)(struct BigInt*, const uint256_t *in);
-//
-//    int (*BinarySize)(const struct BigInt *);
-//    bool (*Equal)(const struct BigInt*, const struct BigInt*);
-//    int (*Copy)(struct String*, const struct String*);
-//    Error (*MarshalBinary)(const struct BigInt *, struct Marshaler *outData);
-//    Error (*UnmarshalBinary)(struct BigInt *,const struct Marshaler *data);
 } BigInt;
 
 BigInt BigInt_new(buffer_t *b);
