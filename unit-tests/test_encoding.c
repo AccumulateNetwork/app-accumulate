@@ -15,7 +15,7 @@
 #include <common/protocol/types.h>
 #include <common/protocol/transaction.h>
 #include <common/protocol/unions.h>
-//#include <common/protocol/signatures.h>
+#include <common/protocol/signatures.h>
 
 typedef struct {
    Bytes32 a;
@@ -52,6 +52,24 @@ static void test_encoding_transaction(void **state) {
     Unmarshaler um = NewUnmarshaler(&txbuffer,&mempool);
     struct Transaction t;
     int n = unmarshalerReadTransaction(&um, &t);
+    assert_false(IsError(ErrorCode(n)));
+
+    int expectedLen = strlen(Transaction)/2;
+    assert_true(expectedLen == n);
+
+    //now test out the Signature processor
+    uint8_t preSignature[1024] = {0};
+    hextobin(PreSignature, strlen(PreSignature), preSignature, sizeof(preSignature));
+
+    buffer_t sigbuffer = { preSignature, sizeof(preSignature), 0 };
+    um = NewUnmarshaler(&sigbuffer, &mempool);
+    Signature s;
+
+    n = unmarshalerReadSignature(&um, &s);
+    assert_false(IsError(ErrorCode(n)));
+
+    expectedLen = strlen(PreSignature)/2;
+    assert_true(expectedLen == n);
 
 }
 
@@ -100,7 +118,7 @@ static void test_encoding_bytes(void **state) {
     buffer_t mempool = {arena,sizeof(arena), 0};
     buffer_t enc = marshalerGetEncodedBuffer(&m);
     Unmarshaler unEqualBytesUnmarshaler = NewUnmarshaler(&enc,&mempool);
-    code = unmarshalerReadBytesRaw(&unEqualBytesUnmarshaler,&c);
+    code = unmarshalerReadBytesRaw(&unEqualBytesUnmarshaler,&c, c.buffer.size-c.buffer.offset);
 
     //should pass unmarshaling
     assert_false( IsError(ErrorCode(code)) );

@@ -45,7 +45,7 @@ int unmarshalerReadField(Unmarshaler *m, uint64_t *field);
 int unmarshalerReadVarInt(Unmarshaler *m, struct VarInt *v);
 int unmarshalerReadUVarInt(Unmarshaler *m, struct UVarInt *v);
 int unmarshalerReadBytes(Unmarshaler *m, struct Bytes *v);
-int unmarshalerReadBytesRaw(Unmarshaler *m, struct Bytes *v);
+int unmarshalerReadBytesRaw(Unmarshaler *m, struct Bytes *v, size_t size);
 int unmarshalerReadBytes32(Unmarshaler *m, struct Bytes32 *v);
 int unmarshalerReadBytes64(Unmarshaler *m, struct Bytes64 *v);
 int unmarshalerReadBigInt(Unmarshaler *m, struct BigInt *v);
