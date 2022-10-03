@@ -44,6 +44,10 @@ static char g_address[MAX_ACME_LITE_ACCOUNT_LEN];
 //static char g_lite_account[MAX_ACME_LITE_ACCOUNT_LEN];
 
 
+// display stepped screens
+unsigned int ux_step;
+unsigned int ux_step_count;
+
 
 // Step with icon and text
 UX_STEP_NOCB(ux_display_confirm_addr_step, pn, {&C_icon_eye, "Confirm Key Name"});
@@ -122,12 +126,20 @@ int ui_display_address() {
 }
 
 // Step with icon and text
-UX_STEP_NOCB(ux_display_review_step,
+UX_STEP_NOCB(ux_display_review_send_tokens_step,
              pnn,
              {
                  &C_icon_eye,
                  "Review",
-                 "Transaction",
+                 "Send Tokens",
+             });
+
+UX_STEP_NOCB(ux_display_review_add_credits_step,
+             pnn,
+             {
+                 &C_icon_eye,
+                 "Review",
+                 "Add Credits",
              });
 // Step with title/text for amount
 UX_STEP_NOCB(ux_display_amount_step,
@@ -145,9 +157,16 @@ UX_STEP_NOCB(ux_display_hash_step,
              });
 
 
-UX_FLOW(ux_display_transaction_hash_flow,
-        &ux_display_review_step,
-        &ux_display_hash_step,
+// FLOW to display transaction information:
+// #1 screen : eye icon + "Review Transaction"
+// #2 screen : display amount
+// #3 screen : display destination address
+// #4 screen : approve button
+// #5 screen : reject button
+UX_FLOW(ux_display_send_tokens_flow,
+        &ux_display_review_send_tokens_step,
+        &ux_display_address_step,
+        &ux_display_amount_step,
         &ux_display_approve_step,
         &ux_display_reject_step);
 
@@ -157,14 +176,30 @@ UX_FLOW(ux_display_transaction_hash_flow,
 // #3 screen : display destination address
 // #4 screen : approve button
 // #5 screen : reject button
-UX_FLOW(ux_display_transaction_flow,
-        &ux_display_review_step,
+UX_FLOW(ux_display_add_credits_flow,
+        &ux_display_review_add_credits_step,
         &ux_display_address_step,
         &ux_display_amount_step,
         &ux_display_approve_step,
         &ux_display_reject_step);
 
-int ui_display_transaction(buffer_t *signerBuffer, buffer_t *transactionBuffer) {
+int setDisplayAmount(Url *url, BigInt *amount) {
+    CHECK_ERROR_INT(url)
+    CHECK_ERROR_INT(amount)
+
+    uint256_t i;
+    readu256BE(amount->data.buffer.ptr+amount->data.buffer.offset, &i);
+    if ( !tostring256(&i, 10, g_amount,sizeof (g_amount))) {
+        return ErrorInvalidBigInt;
+    }
+    explicit_bzero(g_address, sizeof(g_address));
+    Error e = Url_get(url,g_address, sizeof (g_address)-1);
+    if (IsError(e)) {
+        return e.code;
+    }
+}
+
+int ui_display_transaction(Signature *signer, Transaction *transaction) {
     if (G_context.req_type != CONFIRM_TRANSACTION || G_context.state != STATE_PARSED) {
         G_context.state = STATE_NONE;
         return io_send_sw(SW_BAD_STATE);
@@ -173,6 +208,36 @@ int ui_display_transaction(buffer_t *signerBuffer, buffer_t *transactionBuffer) 
     //decode the signer
     //signerBuffer
     //decode transaction type:
+    switch (transaction->Body._u->Type) {
+        case TransactionTypeAddCredits: {
+            AddCredits *c = (AddCredits*)(&transaction->Body);
+            int e = setDisplayAmount(&c->Recipient, &c->Amount);
+            if (IsError(ErrorCode(e))) {
+                return e;
+            }
+            g_validate_callback = &ui_action_validate_transaction_hash;
+            ux_flow_init(0, ux_display_add_credits_flow, NULL);
+            break;
+        }
+        case TransactionTypeSendTokens: {
+            SendTokens *s = (SendTokens*)(&transaction->Body);
+            if ( s->To_length > 1 || s->To_length == 0 ) {
+                return SW_DISPLAY_AMOUNT_FAIL;
+            }
+
+            int e = setDisplayAmount(&s->To[0].Url, &s->To[0].Amount);
+            if (IsError(ErrorCode(e))) {
+                return e;
+            }
+
+            g_validate_callback = &ui_action_validate_transaction_hash;
+            ux_flow_init(0, ux_display_send_tokens_flow, NULL);
+            break;
+        }
+        default:
+            return ErrorTypeNotFound;
+    };
+
 
 //
 //    memset(g_amount, 0, sizeof(g_amount));
@@ -189,10 +254,9 @@ int ui_display_transaction(buffer_t *signerBuffer, buffer_t *transactionBuffer) 
 //    memset(g_address, 0, sizeof(g_address));
 //    snprintf(g_address, sizeof(g_address), "0x%.*H", ADDRESS_LEN, G_context.tx_info.transaction.to);
 
-    g_validate_callback = &ui_action_validate_transaction_hash;
+    //g_validate_callback = &ui_action_validate_transaction_hash;
 
     //ux_flow_init(0, ux_display_transaction_flow, NULL);
-    ux_flow_init(0, ux_display_transaction_hash_flow, NULL);
 
     return 0;
 }

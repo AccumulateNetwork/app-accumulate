@@ -2,6 +2,7 @@
 
 #include <stdbool.h>  // bool
 #include "common/buffer.h"
+#include "common/protocol/transaction.h"
 
 /**
  * Callback to reuse action with approve/reject in step FLOW.
@@ -22,4 +23,4 @@ int ui_display_address(void);
  * @return 0 if success, negative integer otherwise.
  *
  */
-int ui_display_transaction(buffer_t *signerBuffer, buffer_t *transactionBuffer);
+int ui_display_transaction(Signature *s, Transaction *t);

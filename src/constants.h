@@ -25,8 +25,10 @@
  */
 #ifdef TARGET_NANOS
 #define MAX_DATA_ENTRY 1
+#define ARENA_SIZE 512
 #else
 #define MAX_DATA_ENTRY 10
+#define ARENA_SIZE 4096
 #endif
 #define MAX_SIGNATURE_HEADER_LEN 256
 

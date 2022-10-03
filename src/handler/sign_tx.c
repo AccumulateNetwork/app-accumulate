@@ -118,6 +118,19 @@ int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more) {
             return io_send_sw(0xB0F1);
         }
 
+        buffer_t mempool = {G_context.tx_info.arena, ARENA_SIZE, 0};
+        Unmarshaler m = NewUnmarshaler(&signerBuffer, &mempool);
+        int e = unmarshalerReadSignature(&m, &G_context.tx_info.signer);
+        if (IsError(ErrorCode(e))) {
+            return io_send_sw(SW_ENCODE_ERROR(ErrorCode(e)));
+        }
+
+        m = NewUnmarshaler(&transactionBuffer, &mempool);
+        e = unmarshalerReadTransaction(&m, &G_context.tx_info.transaction);
+        if (IsError(ErrorCode(e))) {
+            return io_send_sw(SW_ENCODE_ERROR(ErrorCode(e)));
+        }
+
         //parser_status_e status = transaction_deserialize(&buf, &G_context.tx_info.transaction);
         PRINTF("Parsing status: %d.\n", status);
 //            if (status != PARSING_OK) {
@@ -139,7 +152,7 @@ int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more) {
 //
 //            PRINTF("Hash: %.*H\n", sizeof(G_context.tx_info.m_hash), G_context.tx_info.m_hash);
 
-        return ui_display_transaction();
+        return ui_display_transaction(&G_context.tx_info.signer, &G_context.tx_info.transaction);
     }
 
     return 0;

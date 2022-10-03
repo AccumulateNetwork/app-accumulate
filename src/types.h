@@ -6,6 +6,8 @@
 #include "constants.h"
 #include "transaction/types.h"
 #include "common/bip32.h"
+#include "common/protocol/transaction.h"
+#include "common/protocol/unions.h"
 
 /**
  * Enumeration for the status of IO.
@@ -81,8 +83,11 @@ typedef struct {
 typedef struct {
     uint8_t raw_tx[MAX_TRANSACTION_LEN+MAX_SIGNATURE_HEADER_LEN];  /// raw transaction serialized
     size_t raw_tx_len;                    /// length of raw transaction
-    signer_t signer;
-    transaction_t transaction;            /// structured transaction
+    uint8_t arena[ARENA_SIZE];
+    Signature signer;
+    Transaction transaction;
+    signer_t signer2;
+    transaction_t transaction2;            /// structured transaction
     uint8_t m_hash[32];                   /// message hash digest
     uint8_t signature[MAX_DER_SIG_LEN];   /// transaction signature encoded in DER
     uint8_t signature_len;                /// length of transaction signature
