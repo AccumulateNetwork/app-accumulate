@@ -38,6 +38,7 @@ Error ErrorCode(ErrorEnum e) {
     {ErrorInvalidData, "invalid data"},
     {ErrorBadKey, "bad key"},
     {ErrorInvalidField, "invalid field"},
+    {ErrorExpectingType, "expecting type"},
     };
     //if we have an error code greater than zero that makes it in here, then it is not indended as an error
     if ( (int)(e) >= 0 ) {

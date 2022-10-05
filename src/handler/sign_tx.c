@@ -52,7 +52,7 @@ int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more) {
                          raw_tx_len)) {
             return io_send_sw(SW_WRONG_TX_LENGTH);
         }
-
+        PRINTF("Checkpoint A\n");
         G_context.tx_info.raw_tx_len = raw_tx_len;
         return io_send_sw(SW_OK);
     } else {  // parse transaction
@@ -60,6 +60,8 @@ int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more) {
             return io_send_sw(SW_BAD_STATE);
         }
 
+        static int a = 0;
+        PRINTF("Checkpoint B:%d\n", a++);
         if (G_context.tx_info.raw_tx_len + cdata->size > MAX_TRANSACTION_LEN ||  //
             !buffer_move(cdata,
                          G_context.tx_info.raw_tx + G_context.tx_info.raw_tx_len,
@@ -74,21 +76,22 @@ int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more) {
             return io_send_sw(SW_OK);
         }
 
+        PRINTF("Checkpoint C: %d\n", G_context.tx_info.raw_tx_len);
         // we have received all the APDU's so let's parse and sign
         buffer_t buf = {.ptr = G_context.tx_info.raw_tx,
                         .size = G_context.tx_info.raw_tx_len,
                         .offset = 0};
 
-        //now we need to go through the transaction and identify the header, body, and hash
+        // now we need to go through the transaction and identify the header, body, and hash
         uint16_t len = 0;
         if (!buffer_read_u16(&buf, &len, BE)) {
             return io_send_sw(SW_TX_PARSING_FAIL);
         }
 
         // set the signer buffer
-        buffer_t signerBuffer = {.ptr = buf.ptr + buf.offset, .size = len, .offset = 0 };
+        buffer_t signerBuffer = {.ptr = buf.ptr + buf.offset, .size = len, .offset = 0};
         if (!buffer_seek_cur(&buf, len)) {
-            return io_send_sw(SW_TX_PARSING_FAIL);
+            return io_send_sw(SW_WRONG_TX_LENGTH);
         }
 
         // read the transaction length
@@ -97,7 +100,7 @@ int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more) {
         }
 
         // set the transaction buffer
-        buffer_t transactionBuffer = {.ptr = buf.ptr + buf.offset, .size = len, .offset = 0 };
+        buffer_t transactionBuffer = {.ptr = buf.ptr + buf.offset, .size = len, .offset = 0};
         if (!buffer_seek_cur(&buf, len)) {
             return io_send_sw(SW_TX_PARSING_FAIL);
         }
@@ -113,46 +116,66 @@ int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more) {
             return io_send_sw(0xB000 + hlen);  // SW_TX_PARSING_FAIL);
         }
 
-        //sign this
-        if ( !buffer_move(&buf, G_context.tx_info.m_hash, sizeof(G_context.tx_info.m_hash))) {
+        // sign this
+        if (!buffer_move(&buf, G_context.tx_info.m_hash, sizeof(G_context.tx_info.m_hash))) {
             return io_send_sw(0xB0F1);
         }
-
-        buffer_t mempool = {G_context.tx_info.arena, ARENA_SIZE, 0};
-        Unmarshaler m = NewUnmarshaler(&signerBuffer, &mempool);
-        int e = unmarshalerReadSignature(&m, &G_context.tx_info.signer);
-        if (IsError(ErrorCode(e))) {
-            return io_send_sw(SW_ENCODE_ERROR(ErrorCode(e)));
-        }
-
-        m = NewUnmarshaler(&transactionBuffer, &mempool);
-        e = unmarshalerReadTransaction(&m, &G_context.tx_info.transaction);
-        if (IsError(ErrorCode(e))) {
-            return io_send_sw(SW_ENCODE_ERROR(ErrorCode(e)));
-        }
-
-        //parser_status_e status = transaction_deserialize(&buf, &G_context.tx_info.transaction);
-        PRINTF("Parsing status: %d.\n", status);
-//            if (status != PARSING_OK) {
-//                return io_send_sw(SW_TX_PARSING_FAIL);
+//
+//        uint8_t arena[ARENA_SIZE] = {0};
+//        buffer_t mempool = {arena, ARENA_SIZE, 0};
+//        explicit_bzero(arena, ARENA_SIZE);
+//        {
+//            // we have signer buffer, now process it
+//            Unmarshaler m = NewUnmarshaler(&signerBuffer, &mempool);
+//            // int e = unmarshalerReadSignature(&m, &G_context.tx_info.signer);
+//            int e = unmarshalerReadED25519Signature(&m, &G_context.tx_info.edSig);
+//            if (IsError(ErrorCode(e))) {
+//                return io_send_sw(SW_ENCODE_ERROR(ErrorCode(e)));
 //            }
+//        }
+        {
+            Transaction tx;
+//            TransactionHeader header;
+//            TokenRecipient tok;
+//            SendTokens s = {.To_length = 1, .To = &tok, .Type = TransactionTypeSendTokens};
+//
+//            s.To_length = 1;
+//            s.To = &tok;
+//            tx.Body._SendTokens = &s;
+//
+//            buffer_seek_cur(&transactionBuffer, 1);
+//            uint64_t size = 0;
+//            int b = uvarint_read(transactionBuffer.ptr+transactionBuffer.offset,transactionBuffer.size - transactionBuffer.offset, &size);
+//            buffer_seek_cur(&transactionBuffer, b);
+//            buffer_seek_cur(&transactionBuffer, size);
+//
+//            buffer_seek_cur(&transactionBuffer, 1);
+//            size = 0;
+//            b = uvarint_read(transactionBuffer.ptr+transactionBuffer.offset,transactionBuffer.size - transactionBuffer.offset, &size);
+//            buffer_seek_cur(&transactionBuffer, b);
+//            buffer_seek_cur(&transactionBuffer, size);
+            uint8_t arena[ARENA_SIZE] = {0};
+            buffer_t mempool = {arena, ARENA_SIZE, 0};
+            explicit_bzero(arena, ARENA_SIZE);
+
+            Unmarshaler m = NewUnmarshaler(&transactionBuffer, &mempool);
+            int e = unmarshalerReadTransaction(&m, &tx);
+            if (IsError(ErrorCode(e))) {
+                return io_send_sw(0xBAC0);
+            }
+
+            Signature signer;
+            m = NewUnmarshaler(&signerBuffer, &mempool);
+            e = unmarshalerReadSignature(&m, &signer);
+            if (IsError(ErrorCode(e))) {
+                return io_send_sw(0xBACC);
+            }
+        }
+        io_send_sw(0xBAD0);
 
         G_context.state = STATE_PARSED;
 
-//            //enable cheat code: copy txid to hash
-//            //G_context.tx_info.m_hash
-//            cx_sha3_t keccak256;
-//            cx_keccak_init(&keccak256, 256);
-//            cx_hash((cx_hash_t *) &keccak256,
-//                    CX_LAST,
-//                    G_context.tx_info.raw_tx,
-//                    G_context.tx_info.raw_tx_len,
-//                    G_context.tx_info.m_hash,
-//                    sizeof(G_context.tx_info.m_hash));
-//
-//            PRINTF("Hash: %.*H\n", sizeof(G_context.tx_info.m_hash), G_context.tx_info.m_hash);
-
-        return ui_display_transaction(&G_context.tx_info.signer, &G_context.tx_info.transaction);
+        return 0;//ui_display_transaction(&G_context.tx_info.signer, &G_context.tx_info.transaction);
     }
 
     return 0;

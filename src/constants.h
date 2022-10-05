@@ -1,5 +1,7 @@
 #pragma once
 
+#include <bolos_target.h>
+
 /**
  * Instruction class of the Accumulate application.
  */
@@ -32,7 +34,7 @@
 #endif
 #define MAX_SIGNATURE_HEADER_LEN 256
 
-#define MAX_TRANSACTION_LEN 1024*MAX_DATA_ENTRY //10270 //510
+#define MAX_TRANSACTION_LEN 512*MAX_DATA_ENTRY //10270 //510
 
 /**
  * Maximum signature length (bytes).

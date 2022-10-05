@@ -205,10 +205,11 @@ int ui_display_transaction(Signature *signer, Transaction *transaction) {
         return io_send_sw(SW_BAD_STATE);
     }
 
+    const int addCredits =  TransactionTypeAddCredits;
     //decode the signer
     //signerBuffer
     //decode transaction type:
-    switch (transaction->Body._u->Type) {
+    switch ((int)transaction->Body._u->Type) {
         case TransactionTypeAddCredits: {
             AddCredits *c = (AddCredits*)(&transaction->Body);
             int e = setDisplayAmount(&c->Recipient, &c->Amount);

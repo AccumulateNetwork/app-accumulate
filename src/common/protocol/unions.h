@@ -7,7 +7,6 @@
 
 typedef struct {
         TransactionType Type;
-        Bytes data;
 } TransactionTypeUnion;
 
 typedef union {
@@ -19,7 +18,6 @@ typedef union {
 
 typedef struct {
         SignatureType Type;
-        Bytes data;
 } SignatureTypeUnion;
 
 typedef union {

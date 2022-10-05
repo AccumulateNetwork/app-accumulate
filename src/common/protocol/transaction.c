@@ -314,7 +314,7 @@ ACME_API int marshalerWriteAddCredits(Marshaler *m,const AddCredits*v) {
 /// JSON Unmarshaling
 
 
-static AddCredits AddCredits_init(AddCredits *v) {
+AddCredits AddCredits_init(AddCredits *v) {
     AddCredits init;
     memset((void*)&init, 0, sizeof(init));
 
@@ -394,7 +394,7 @@ ACME_API int unmarshalerReadEnvelope(Unmarshaler *m, Envelope *v) {
     if ( field == 1 )
     {
 
-        Unmarshaler m2 = NewUnmarshaler(&m->buffer,&m->mempool);
+        Unmarshaler m2 = NewUnmarshaler(&m->buffer,m->mempool);
         v->Signatures_length = 0;
         while ( field == 1 ) {
             b = unmarshalerReadField(&m2, &field);
@@ -486,7 +486,7 @@ ACME_API int unmarshalerReadEnvelope(Unmarshaler *m, Envelope *v) {
     if ( field == 3 )
     {
 
-        Unmarshaler m2 = NewUnmarshaler(&m->buffer,&m->mempool);
+        Unmarshaler m2 = NewUnmarshaler(&m->buffer,m->mempool);
         v->Transaction_length = 0;
         while ( field == 3 ) {
             b = unmarshalerReadField(&m2, &field);
@@ -665,7 +665,7 @@ ACME_API int marshalerWriteEnvelope(Marshaler *m,const Envelope*v) {
 /// JSON Unmarshaling
 
 
-static Envelope Envelope_init(Envelope *v) {
+Envelope Envelope_init(Envelope *v) {
     Envelope init;
     memset((void*)&init, 0, sizeof(init));
 
@@ -738,8 +738,96 @@ ACME_API int unmarshalerReadSendTokens(Unmarshaler *m, SendTokens *v) {
     int n = 0;
     int b = 0;
     uint64_t field = 0;
+    v->Type = TransactionTypeSendTokens;
 
-    uint64_t unionType = TransactionTypeSendTokens;
+    while ( b != m->buffer.size - m->buffer.offset ) {
+        if ( m->buffer.offset == m->buffer.size ) {
+            return n;
+        }
+        b = unmarshalerPeekField(m,&field);
+        if ( IsError(ErrorCode(b))) {
+            return b;
+        }
+        switch ( field ) {
+            case 1: {
+                if ( !buffer_seek_cur(&m->buffer,1) ) {
+                    return ErrorBufferTooSmall;
+                }
+                n += 1;
+
+                uint64_t type = 0;
+                b = uvarint_read(m->buffer.ptr+m->buffer.offset, m->buffer.size - m->buffer.offset, &type);
+                if ( !buffer_seek_cur(&m->buffer,b) ) {
+                    return ErrorBufferTooSmall;
+                }
+                if ( type != v->Type ) {
+                    return ErrorInvalidObject;
+                }
+                n += b;
+
+                break;
+            }
+            case 2: {
+                if ( !buffer_seek_cur(&m->buffer,1) ) {
+                    return ErrorBufferTooSmall;
+                }
+                n += 1;
+
+                if ( !buffer_seek_cur(&m->buffer,32) ) {
+                    return ErrorBufferTooSmall;
+                }
+                n += 32;
+                break;
+            }
+            case 3: {
+                if ( !buffer_seek_cur(&m->buffer,1) ) {
+                    return ErrorBufferTooSmall;
+                }
+                n += 1;
+                uint64_t size = 0;
+                b = uvarint_read(m->buffer.ptr+m->buffer.offset, m->buffer.size - m->buffer.offset, &size);
+                if ( !buffer_seek_cur(&m->buffer,b) ) {
+                    return ErrorBufferTooSmall;
+                }
+                n += b;
+
+                if ( !buffer_seek_cur(&m->buffer,size) ) {
+                    return ErrorBufferTooSmall;
+                }
+                n += b;
+
+                break;
+            }
+            case 4: {
+                //Unmarshaler m2 = NewUnmarshaler(&m->buffer,m->mempool);
+                while ( field == 4 ) {
+                    b = unmarshalerReadField(m, &field);
+                    if ( IsError(ErrorCode(b))) {
+                        return b;
+                    }
+                    n += 1;
+
+                    uint64_t size = 0;
+                    b = uvarint_read(m->buffer.ptr+m->buffer.offset, m->buffer.size - m->buffer.offset, &size);
+                    if ( !buffer_seek_cur(&m->buffer,b) ) {
+                        return ErrorBufferTooSmall;
+                    }
+                    n += b;
+
+                    //skip the object
+                    buffer_seek_cur(&m->buffer, size);
+                    n += size;
+                    field = 0;
+                    unmarshalerPeekField(m, &field);
+                }
+                return n;
+                //break;
+            }
+            default:
+                return n;
+        }
+    }
+#if 0
     if ( m->buffer.offset == m->buffer.size ) {
         return n;
     }
@@ -779,6 +867,8 @@ ACME_API int unmarshalerReadSendTokens(Unmarshaler *m, SendTokens *v) {
     }
     if ( field == 2 )
     {
+    //    buffer_seek_cur(&m->buffer,33);
+    //    n += 33;
         b = unmarshalerReadField(m, &field);
         if ( IsError(ErrorCode(b))) {
             return b;
@@ -827,8 +917,9 @@ ACME_API int unmarshalerReadSendTokens(Unmarshaler *m, SendTokens *v) {
     }
     if ( field == 4 )
     {
+        return ErrorParameterNil;
 
-        Unmarshaler m2 = NewUnmarshaler(&m->buffer,&m->mempool);
+        Unmarshaler m2 = NewUnmarshaler(&m->buffer,m->mempool);
         v->To_length = 0;
         while ( field == 4 ) {
             b = unmarshalerReadField(&m2, &field);
@@ -886,7 +977,7 @@ ACME_API int unmarshalerReadSendTokens(Unmarshaler *m, SendTokens *v) {
         }
 
     }
-
+#endif
     return n;
 }
 
@@ -1029,7 +1120,7 @@ ACME_API int marshalerWriteSendTokens(Marshaler *m,const SendTokens*v) {
 /// JSON Unmarshaling
 
 
-static SendTokens SendTokens_init(SendTokens *v) {
+SendTokens SendTokens_init(SendTokens *v) {
     SendTokens init;
     memset((void*)&init, 0, sizeof(init));
 
@@ -1226,7 +1317,7 @@ ACME_API int marshalerWriteTokenRecipient(Marshaler *m,const TokenRecipient*v) {
 /// JSON Unmarshaling
 
 
-static TokenRecipient TokenRecipient_init(TokenRecipient *v) {
+TokenRecipient TokenRecipient_init(TokenRecipient *v) {
     TokenRecipient init;
     memset((void*)&init, 0, sizeof(init));
 
@@ -1441,7 +1532,7 @@ ACME_API int marshalerWriteTransaction(Marshaler *m,const Transaction*v) {
 /// JSON Unmarshaling
 
 
-static Transaction Transaction_init(Transaction *v) {
+Transaction Transaction_init(Transaction *v) {
     Transaction init;
     memset((void*)&init, 0, sizeof(init));
 
@@ -1770,7 +1861,7 @@ ACME_API int marshalerWriteTransactionHeader(Marshaler *m,const TransactionHeade
 /// JSON Unmarshaling
 
 
-static TransactionHeader TransactionHeader_init(TransactionHeader *v) {
+TransactionHeader TransactionHeader_init(TransactionHeader *v) {
     TransactionHeader init;
     memset((void*)&init, 0, sizeof(init));
 
@@ -2246,7 +2337,7 @@ ACME_API int unmarshalerReadTransactionStatus(Unmarshaler *m, TransactionStatus 
     if ( field == 7 )
     {
 
-        Unmarshaler m2 = NewUnmarshaler(&m->buffer,&m->mempool);
+        Unmarshaler m2 = NewUnmarshaler(&m->buffer,m->mempool);
         v->Signers_length = 0;
         while ( field == 7 ) {
             b = unmarshalerReadField(&m2, &field);
@@ -2314,7 +2405,7 @@ ACME_API int unmarshalerReadTransactionStatus(Unmarshaler *m, TransactionStatus 
     if ( field == 8 )
     {
 
-        Unmarshaler m2 = NewUnmarshaler(&m->buffer,&m->mempool);
+        Unmarshaler m2 = NewUnmarshaler(&m->buffer,m->mempool);
         v->AnchorSigners_length = 0;
         while ( field == 8 ) {
             b = unmarshalerReadField(&m2, &field);
@@ -3107,7 +3198,7 @@ ACME_API int marshalerWriteTransactionStatus(Marshaler *m,const TransactionStatu
 /// JSON Unmarshaling
 
 
-static TransactionStatus TransactionStatus_init(TransactionStatus *v) {
+TransactionStatus TransactionStatus_init(TransactionStatus *v) {
     TransactionStatus init;
     memset((void*)&init, 0, sizeof(init));
 

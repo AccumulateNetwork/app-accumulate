@@ -11,7 +11,7 @@ typedef struct Marshaler {
 
 typedef struct Unmarshaler {
     buffer_t buffer;
-    buffer_t mempool; //mempool to store pointers and stuff
+    buffer_t *mempool; //mempool to store pointers and stuff
 } Unmarshaler;
 
 Marshaler NewMarshaler(buffer_t *buffer);
@@ -52,5 +52,5 @@ int unmarshalerReadBigInt(Unmarshaler *m, struct BigInt *v);
 int unmarshalerReadString(Unmarshaler *m, struct String *v);
 int unmarshalerReadRawJson(Unmarshaler *m, struct RawJson *v);
 int unmarshalerReadUrl(Unmarshaler *m, struct Url *v);
-
+int unmarshalerReadByte(Unmarshaler *m, uint8_t *v);
 

@@ -34,11 +34,65 @@ test_e init_test_e_from_buffer(buffer_t *buffer) {
     init.e = VarInt_new(buffer);
     return init;
 }
+static void test_encoding_apdu(void **state) {
+
+    char *apdu_payload = "008b01020220e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11043b6163633a2f2f6336613632396639613635626632313135396335646662666662633836386563336165363163653436353131303865632f41434d450501069ca3e4b4ba3008c4dcfc1b86ccdd0cd7937fcb2619a2735b59f8119a43cd7d396690b5c017bf0400b6016b013b6163633a2f2f6336613632396639613635626632313135396335646662666662633836386563336165363163653436353131303865632f41434d45022aa4dd0e234834061b2ec1402b95e7888af941f6d47d3a5d82e15789c47c82c9030b6c65646765722074657374024701030443013b6163633a2f2f6639666562393361313063616632646466313633396336666634353934666262313939633964653963643130636134372f41434d4502043b9aca002036fbe60414509eb11b04b900d8d69191e456fac7b33a74842af7272968c308e5";
+    uint8_t raw_tx[1024] = {0};
+    hextobin(apdu_payload, strlen(apdu_payload), raw_tx, sizeof(raw_tx));
+
+    int raw_tx_len = strlen(apdu_payload)/2;
+    // we have received all the APDU's so let's parse and sign
+    buffer_t buf = {.ptr = raw_tx,
+            .size = raw_tx_len,
+            .offset = 0};
+
+    // now we need to go through the transaction and identify the header, body, and hash
+    uint16_t len = 0;
+    assert_true(buffer_read_u16(&buf, &len, BE));
+
+
+    // set the signer buffer
+    buffer_t signerBuffer = {.ptr = buf.ptr + buf.offset, .size = len, .offset = 0};
+    assert_true(buffer_seek_cur(&buf, len));
+
+    // read the transaction length
+    assert_true(buffer_read_u16(&buf, &len, BE));
+
+    // set the transaction buffer
+    buffer_t transactionBuffer = {.ptr = buf.ptr + buf.offset, .size = len, .offset = 0};
+    assert_true(buffer_seek_cur(&buf, len));
+
+    // temporary
+    // read cheat code
+    uint8_t hlen = 0;
+    assert_true(buffer_read_u8(&buf, &hlen));
+
+    uint8_t hash[32] = {0};
+    assert_false(hlen != sizeof(hash));
+
+    // sign this
+    assert_true(buffer_move(&buf, hash, sizeof(hash)));
+
+    uint8_t arena[ARENA_SIZE] = {0};
+    buffer_t mempool = {arena, ARENA_SIZE, 0};
+    explicit_bzero(arena, ARENA_SIZE);
+
+    Transaction tx;
+    Unmarshaler m = NewUnmarshaler(&transactionBuffer, &mempool);
+    int e = unmarshalerReadTransaction(&m, &tx);
+    assert_false(IsError(ErrorCode(e)));
+
+    Signature signer;
+    m = NewUnmarshaler(&signerBuffer, &mempool);
+    e = unmarshalerReadSignature(&m, &signer);
+    assert_false(IsError(ErrorCode(e)));
+}
 
 static void test_encoding_transaction(void **state) {
 
     //PreSignature: {"type":"ed25519","publicKey":"e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11","signer":"acc://c6a629f9a65bf21159c5dfbffbc868ec3ae61ce4651108ec/ACME","signerVersion":1,"timestamp":1664460962464,"transactionHash":"2e1a5959275faaf81dadecbc7c1b27ae43f06793ff45d514f45a3afc77bd0dfd"}
     char *PreSignature = "01020220e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11043b6163633a2f2f6336613632396639613635626632313135396335646662666662633836386563336165363163653436353131303865632f41434d45050106a0f5eaccb830082e1a5959275faaf81dadecbc7c1b27ae43f06793ff45d514f45a3afc77bd0dfd";
+    char *PreSignature2 = "01020220e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11043b6163633a2f2f6336613632396639613635626632313135396335646662666662633836386563336165363163653436353131303865632f41434d450501068489f5adba3008981c8ae4417483e896ab9004e75102dd3c2eebe755937ec6e17b9d83f4044895";
     //Transaction: {"header":{"principal":"acc://c6a629f9a65bf21159c5dfbffbc868ec3ae61ce4651108ec/ACME","initiator":"cf45be0d838a5f2a1a9801b794769b95e5657bebd23de07caa6f81f4cdd2d49f","memo":"ledger test"},"body":{"type":"sendTokens","hash":"0000000000000000000000000000000000000000000000000000000000000000","to":[{"url":"acc://f9feb93a10caf2ddf1639c6ff4594fbb199c9de9cd10ca47/ACME","amount":"1000000000"}]}}
     char *Transaction = "016b013b6163633a2f2f6336613632396639613635626632313135396335646662666662633836386563336165363163653436353131303865632f41434d4502cf45be0d838a5f2a1a9801b794769b95e5657bebd23de07caa6f81f4cdd2d49f030b6c65646765722074657374024701030443013b6163633a2f2f6639666562393361313063616632646466313633396336666634353934666262313939633964653963643130636134372f41434d4502043b9aca00";
     char *TransactionHash = "421ed18da7d2bcf31cd58f9479ce2e7c5c316ecf72ca466c8f8b3e094f964fc7";
@@ -47,6 +101,8 @@ static void test_encoding_transaction(void **state) {
     hextobin(Transaction, strlen(Transaction), transaction, sizeof(transaction));
 
     uint8_t arena[1024] = {0};
+
+    memset(&arena, 0, sizeof(arena));
     buffer_t mempool = {arena,sizeof(arena), 0};
     buffer_t txbuffer = {transaction, sizeof(transaction), 0};
     Unmarshaler um = NewUnmarshaler(&txbuffer,&mempool);
@@ -59,13 +115,14 @@ static void test_encoding_transaction(void **state) {
 
     //now test out the Signature processor
     uint8_t preSignature[1024] = {0};
-    hextobin(PreSignature, strlen(PreSignature), preSignature, sizeof(preSignature));
+    hextobin(PreSignature2, strlen(PreSignature), preSignature, sizeof(preSignature));
 
     buffer_t sigbuffer = { preSignature, sizeof(preSignature), 0 };
     um = NewUnmarshaler(&sigbuffer, &mempool);
     Signature s;
+    ED25519Signature ed;
 
-    n = unmarshalerReadSignature(&um, &s);
+    n = unmarshalerReadED25519Signature(&um, &ed);//unmarshalerReadSignature(&um, &s);
     assert_false(IsError(ErrorCode(n)));
 
     expectedLen = strlen(PreSignature)/2;
@@ -290,7 +347,7 @@ int main() {
                         cmocka_unit_test(test_encoding_varint),
                         cmocka_unit_test(test_encoding_bigint),
                         cmocka_unit_test(test_encoding_strings),
-                        cmocka_unit_test(test_encoding_transaction),
+                        cmocka_unit_test(test_encoding_apdu), //cmocka_unit_test(test_encoding_transaction),
     };
 
     return cmocka_run_group_tests(tests, NULL, NULL);

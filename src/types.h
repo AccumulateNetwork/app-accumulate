@@ -7,6 +7,7 @@
 #include "transaction/types.h"
 #include "common/bip32.h"
 #include "common/protocol/transaction.h"
+#include "common/protocol/signatures.h"
 #include "common/protocol/unions.h"
 
 /**
@@ -27,6 +28,7 @@ typedef enum {
     GET_PUBLIC_KEY = 0x05,  /// public key of corresponding BIP32 path
     SIGN_TX = 0x06,         /// sign transaction with BIP32 path
     GET_ADDRESS = 0x07,     /// get associated address
+    DEBUG_TX = 0x08,         /// sign transaction with BIP32 path
 } command_e;
 
 /**
@@ -37,7 +39,7 @@ typedef struct {
     command_e ins;  /// Instruction code
     uint8_t p1;     /// Instruction parameter 1
     uint8_t p2;     /// Instruction parameter 2
-    uint16_t lc;     /// Lenght of command data
+    uint16_t lc;     /// Length of command data
     uint8_t *data;  /// Command data
 } command_t;
 
@@ -76,18 +78,18 @@ typedef struct {
     uint8_t hash[32];
 } pubkey_ctx_t;
 
-
 /**
  * Structure for transaction information context.
  */
 typedef struct {
-    uint8_t raw_tx[MAX_TRANSACTION_LEN+MAX_SIGNATURE_HEADER_LEN];  /// raw transaction serialized
+    uint8_t raw_tx[MAX_TRANSACTION_LEN /*+MAX_SIGNATURE_HEADER_LEN*/];  /// raw transaction serialized
     size_t raw_tx_len;                    /// length of raw transaction
     uint8_t arena[ARENA_SIZE];
+    ED25519Signature edSig;
     Signature signer;
     Transaction transaction;
-    signer_t signer2;
-    transaction_t transaction2;            /// structured transaction
+    //signer_t signer2;
+    //transaction_t transaction2;            /// structured transaction
     uint8_t m_hash[32];                   /// message hash digest
     uint8_t signature[MAX_DER_SIG_LEN];   /// transaction signature encoded in DER
     uint8_t signature_len;                /// length of transaction signature

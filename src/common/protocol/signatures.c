@@ -1,9 +1,12 @@
 
+#include <string.h>
+
 #include "common/protocol/unions.h"
 #include "common/protocol/signatures.h"
 #include "common/protocol/transaction.h"
 
 #define _ACCUMULATE_TRANSACTION_SOURCE_
+
 
 
 #ifdef _ACCUMULATE_TRANSACTION_SOURCE_
@@ -118,7 +121,6 @@ ACME_API int unmarshalerReadBTCLegacySignature(Unmarshaler *m, BTCLegacySignatur
         if ( type != unionType ) {
             return ErrorInvalidObject;
         }
-        n += b;
 
         n += b;
     }
@@ -266,7 +268,7 @@ ACME_API int unmarshalerReadBTCLegacySignature(Unmarshaler *m, BTCLegacySignatur
         }
         n += b;
         Unmarshaler m2 = {.buffer.ptr = m->buffer.ptr + m->buffer.offset, .buffer.size = size, .buffer.offset = 0,
-                          .mempool = m->mempool};
+                .mempool = m->mempool};
         b = unmarshalerReadVoteType(&m2, a);
         if ( IsError(ErrorCode(b))) {
             return b;
@@ -569,13 +571,13 @@ static BTCLegacySignature BTCLegacySignature_init(BTCLegacySignature *v) {
     BTCLegacySignature init;
     memset((void*)&init, 0, sizeof(init));
 
-    //    init.GetType = BTCLegacySignature_type;
-    //    init.BinarySize = BTCLegacySignature_binarySize;
-    //    init.Equal = BTCLegacySignature_equal;
+//    init.GetType = BTCLegacySignature_type;
+//    init.BinarySize = BTCLegacySignature_binarySize;
+//    init.Equal = BTCLegacySignature_equal;
     //init.Copy = BTCLegacySignature_copy;
-    //    init.MarshalBinary = BTCLegacySignature_marshalBinary;
-    //    init.UnmarshalBinary = BTCLegacySignature_unmarshalBinary;
-    //
+//    init.MarshalBinary = BTCLegacySignature_marshalBinary;
+//    init.UnmarshalBinary = BTCLegacySignature_unmarshalBinary;
+//
 
     if ( v ) {
         *v = init;
@@ -690,7 +692,6 @@ ACME_API int unmarshalerReadBTCSignature(Unmarshaler *m, BTCSignature *v) {
         if ( type != unionType ) {
             return ErrorInvalidObject;
         }
-        n += b;
 
         n += b;
     }
@@ -838,7 +839,7 @@ ACME_API int unmarshalerReadBTCSignature(Unmarshaler *m, BTCSignature *v) {
         }
         n += b;
         Unmarshaler m2 = {.buffer.ptr = m->buffer.ptr + m->buffer.offset, .buffer.size = size, .buffer.offset = 0,
-                          .mempool = m->mempool};
+                .mempool = m->mempool};
         b = unmarshalerReadVoteType(&m2, a);
         if ( IsError(ErrorCode(b))) {
             return b;
@@ -1141,13 +1142,13 @@ static BTCSignature BTCSignature_init(BTCSignature *v) {
     BTCSignature init;
     memset((void*)&init, 0, sizeof(init));
 
-    //    init.GetType = BTCSignature_type;
-    //    init.BinarySize = BTCSignature_binarySize;
-    //    init.Equal = BTCSignature_equal;
+//    init.GetType = BTCSignature_type;
+//    init.BinarySize = BTCSignature_binarySize;
+//    init.Equal = BTCSignature_equal;
     //init.Copy = BTCSignature_copy;
-    //    init.MarshalBinary = BTCSignature_marshalBinary;
-    //    init.UnmarshalBinary = BTCSignature_unmarshalBinary;
-    //
+//    init.MarshalBinary = BTCSignature_marshalBinary;
+//    init.UnmarshalBinary = BTCSignature_unmarshalBinary;
+//
 
     if ( v ) {
         *v = init;
@@ -1163,27 +1164,27 @@ SignatureType Delegated_type(void) { return SignatureTypeDelegated; }
 
 /// Comparisons
 bool DelegatedSignature_equal(const DelegatedSignature *v, const DelegatedSignature *u) {
-    {
-        const SignatureType *a = &v->Type;
-        const SignatureType *b = &u->Type;
-        if ( !SignatureType_equal(a,b) ) {
-            return false;
+        {
+            const SignatureType *a = &v->Type;
+            const SignatureType *b = &u->Type;
+            if ( !SignatureType_equal(a,b) ) {
+                return false;
+            }
         }
-    }
-    {
-        const Signature *a = &v->Signature;
-        const Signature *b = &u->Signature;
-        if ( !Signature_equal(a,b) ) {
-            return false;
+        {
+            const Signature *a = &v->Signature;
+            const Signature *b = &u->Signature;
+            if ( !Signature_equal(a,b) ) {
+                return false;
+            }
         }
-    }
-    {
-        const Url* a = &v->Delegator;
-        const Url* b = &u->Delegator;
-        if ( !Url_equal(a,b) ) {
-            return false;
+        {
+            const Url* a = &v->Delegator;
+            const Url* b = &u->Delegator;
+            if ( !Url_equal(a,b) ) {
+                return false;
+            }
         }
-    }
 
     return true;
 }
@@ -1194,7 +1195,7 @@ bool DelegatedSignature_equal(const DelegatedSignature *v, const DelegatedSignat
 /// Binary Unmarshalers
 // UnmarshalBinary unmarshals the delegated signature from bytes as a unsigned varint.
 ACME_API int unmarshalerReadDelegatedSignature(Unmarshaler *m, DelegatedSignature *v) {
-    CHECK_ERROR_INT(m)
+	CHECK_ERROR_INT(m)
     CHECK_ERROR_INT(v)
     int n = 0;
     int b = 0;
@@ -1206,7 +1207,7 @@ ACME_API int unmarshalerReadDelegatedSignature(Unmarshaler *m, DelegatedSignatur
     }
     b = unmarshalerPeekField(m,&field);
     if ( IsError(ErrorCode(b))) {
-        return b;
+            return b;
     }
     if ( field == 1 )
     {
@@ -1227,7 +1228,6 @@ ACME_API int unmarshalerReadDelegatedSignature(Unmarshaler *m, DelegatedSignatur
         if ( type != unionType ) {
             return ErrorInvalidObject;
         }
-        n += b;
 
         n += b;
     }
@@ -1236,7 +1236,7 @@ ACME_API int unmarshalerReadDelegatedSignature(Unmarshaler *m, DelegatedSignatur
     }
     b = unmarshalerPeekField(m,&field);
     if ( IsError(ErrorCode(b))) {
-        return b;
+            return b;
     }
     if ( field == 2 )
     {
@@ -1269,7 +1269,7 @@ ACME_API int unmarshalerReadDelegatedSignature(Unmarshaler *m, DelegatedSignatur
     }
     b = unmarshalerPeekField(m,&field);
     if ( IsError(ErrorCode(b))) {
-        return b;
+            return b;
     }
     if ( field == 3 )
     {
@@ -1289,7 +1289,7 @@ ACME_API int unmarshalerReadDelegatedSignature(Unmarshaler *m, DelegatedSignatur
         n += b;
     }
 
-    return n;
+	return n;
 }
 
 
@@ -1304,90 +1304,90 @@ ACME_API int marshalerWriteDelegatedSignature(Marshaler *m,const DelegatedSignat
         return ErrorInvalidObject;
     }
 
-    {
-        const SignatureType *a = &v->Type;
+        {
+            const SignatureType *a = &v->Type;
 
-        b = marshalerWriteField(m, 1);
-        if ( IsError(ErrorCode(b))) {
-            return b;
-        }
-        b = marshalerWriteSignatureType(m,*a);
-        if ( IsError(ErrorCode(b))) {
-            return b;
-        }
+            b = marshalerWriteField(m, 1);
+            if ( IsError(ErrorCode(b))) {
+                return b;
+            }
+            b = marshalerWriteSignatureType(m,*a);
+            if ( IsError(ErrorCode(b))) {
+                return b;
+            }
 
-        n += b;
-    }
-    {
-        const Signature *a = &v->Signature;
+            n += b;
+        }
+        {
+            const Signature *a = &v->Signature;
 
-        b = marshalerWriteField(m, 2);
-        if ( IsError(ErrorCode(b))) {
-            return b;
-        }
+            b = marshalerWriteField(m, 2);
+            if ( IsError(ErrorCode(b))) {
+                return b;
+            }
 
-        buffer_t offsetBuffer = m->buffer;
-        if ( !buffer_seek_cur(&offsetBuffer, sizeof(size_t))) {
-            return ErrorBufferTooSmall;
-        }
-        Marshaler m2 = NewMarshaler(&offsetBuffer);//create a temporary marshaler that will compute size
-        //need to identify what the size of the following will be and write those bytes.
-        int size = marshalerWriteSignature(&m2, a);
-        if ( IsError(ErrorCode(b))) {
-            return b;
-        }
+            buffer_t offsetBuffer = m->buffer;
+            if ( !buffer_seek_cur(&offsetBuffer, sizeof(size_t))) {
+                return ErrorBufferTooSmall;
+            }
+            Marshaler m2 = NewMarshaler(&offsetBuffer);//create a temporary marshaler that will compute size
+            //need to identify what the size of the following will be and write those bytes.
+            int size = marshalerWriteSignature(&m2, a);
+            if ( IsError(ErrorCode(b))) {
+                return b;
+            }
 
-        //write size of what is to follow
-        b = marshalerWriteUInt(m, (uint64_t)size);
-        if ( IsError(ErrorCode(b))) {
-            return b;
-        }
+            //write size of what is to follow
+            b = marshalerWriteUInt(m, (uint64_t)size);
+            if ( IsError(ErrorCode(b))) {
+                return b;
+            }
 
-        //now copy the contents into the marshal buffer to prevent having to remarshal
-        if (!buffer_move(&m->buffer, offsetBuffer.ptr + offsetBuffer.offset, size)) {
-            return ErrorBadCopy;
-        }
-        if ( IsError(ErrorCode(b))) {
-            return b;
-        }
+            //now copy the contents into the marshal buffer to prevent having to remarshal
+            if (!buffer_move(&m->buffer, offsetBuffer.ptr + offsetBuffer.offset, size)) {
+                return ErrorBadCopy;
+            }
+            if ( IsError(ErrorCode(b))) {
+                return b;
+            }
 
-        n += b;
-    }
-    {
-        const Url* a = &v->Delegator;
+            n += b;
+        }
+        {
+            const Url* a = &v->Delegator;
 
-        b = marshalerWriteField(m, 3);
-        if ( IsError(ErrorCode(b))) {
-            return b;
-        }
+            b = marshalerWriteField(m, 3);
+            if ( IsError(ErrorCode(b))) {
+                return b;
+            }
 
-        buffer_t offsetBuffer = m->buffer;
-        if ( !buffer_seek_cur(&offsetBuffer, sizeof(size_t))) {
-            return ErrorBufferTooSmall;
-        }
-        Marshaler m2 = NewMarshaler(&offsetBuffer);//create a temporary marshaler that will compute size
-        //need to identify what the size of the following will be and write those bytes.
-        int size = marshalerWriteUrl(&m2, a);
-        if ( IsError(ErrorCode(b))) {
-            return b;
-        }
+            buffer_t offsetBuffer = m->buffer;
+            if ( !buffer_seek_cur(&offsetBuffer, sizeof(size_t))) {
+                return ErrorBufferTooSmall;
+            }
+            Marshaler m2 = NewMarshaler(&offsetBuffer);//create a temporary marshaler that will compute size
+            //need to identify what the size of the following will be and write those bytes.
+            int size = marshalerWriteUrl(&m2, a);
+            if ( IsError(ErrorCode(b))) {
+                return b;
+            }
 
-        //write size of what is to follow
-        b = marshalerWriteUInt(m, (uint64_t)size);
-        if ( IsError(ErrorCode(b))) {
-            return b;
-        }
+            //write size of what is to follow
+            b = marshalerWriteUInt(m, (uint64_t)size);
+            if ( IsError(ErrorCode(b))) {
+                return b;
+            }
 
-        //now copy the contents into the marshal buffer to prevent having to remarshal
-        if (!buffer_move(&m->buffer, offsetBuffer.ptr + offsetBuffer.offset, size)) {
-            return ErrorBadCopy;
-        }
-        if ( IsError(ErrorCode(b))) {
-            return b;
-        }
+            //now copy the contents into the marshal buffer to prevent having to remarshal
+            if (!buffer_move(&m->buffer, offsetBuffer.ptr + offsetBuffer.offset, size)) {
+                return ErrorBadCopy;
+            }
+            if ( IsError(ErrorCode(b))) {
+                return b;
+            }
 
-        n += b;
-    }
+            n += b;
+        }
 
 
     return n;
@@ -1404,13 +1404,13 @@ static DelegatedSignature DelegatedSignature_init(DelegatedSignature *v) {
     DelegatedSignature init;
     memset((void*)&init, 0, sizeof(init));
 
-    //    init.GetType = DelegatedSignature_type;
-    //    init.BinarySize = DelegatedSignature_binarySize;
-    //    init.Equal = DelegatedSignature_equal;
+//    init.GetType = DelegatedSignature_type;
+//    init.BinarySize = DelegatedSignature_binarySize;
+//    init.Equal = DelegatedSignature_equal;
     //init.Copy = DelegatedSignature_copy;
-    //    init.MarshalBinary = DelegatedSignature_marshalBinary;
-    //    init.UnmarshalBinary = DelegatedSignature_unmarshalBinary;
-    //
+//    init.MarshalBinary = DelegatedSignature_marshalBinary;
+//    init.UnmarshalBinary = DelegatedSignature_unmarshalBinary;
+//
 
     if ( v ) {
         *v = init;
@@ -1525,7 +1525,6 @@ ACME_API int unmarshalerReadED25519Signature(Unmarshaler *m, ED25519Signature *v
         if ( type != unionType ) {
             return ErrorInvalidObject;
         }
-        n += b;
 
         n += b;
     }
@@ -1673,7 +1672,7 @@ ACME_API int unmarshalerReadED25519Signature(Unmarshaler *m, ED25519Signature *v
         }
         n += b;
         Unmarshaler m2 = {.buffer.ptr = m->buffer.ptr + m->buffer.offset, .buffer.size = size, .buffer.offset = 0,
-                          .mempool = m->mempool};
+                .mempool = m->mempool};
         b = unmarshalerReadVoteType(&m2, a);
         if ( IsError(ErrorCode(b))) {
             return b;
@@ -1976,13 +1975,13 @@ static ED25519Signature ED25519Signature_init(ED25519Signature *v) {
     ED25519Signature init;
     memset((void*)&init, 0, sizeof(init));
 
-    //    init.GetType = ED25519Signature_type;
-    //    init.BinarySize = ED25519Signature_binarySize;
-    //    init.Equal = ED25519Signature_equal;
+//    init.GetType = ED25519Signature_type;
+//    init.BinarySize = ED25519Signature_binarySize;
+//    init.Equal = ED25519Signature_equal;
     //init.Copy = ED25519Signature_copy;
-    //    init.MarshalBinary = ED25519Signature_marshalBinary;
-    //    init.UnmarshalBinary = ED25519Signature_unmarshalBinary;
-    //
+//    init.MarshalBinary = ED25519Signature_marshalBinary;
+//    init.UnmarshalBinary = ED25519Signature_unmarshalBinary;
+//
 
     if ( v ) {
         *v = init;
@@ -2097,7 +2096,6 @@ ACME_API int unmarshalerReadETHSignature(Unmarshaler *m, ETHSignature *v) {
         if ( type != unionType ) {
             return ErrorInvalidObject;
         }
-        n += b;
 
         n += b;
     }
@@ -2245,7 +2243,7 @@ ACME_API int unmarshalerReadETHSignature(Unmarshaler *m, ETHSignature *v) {
         }
         n += b;
         Unmarshaler m2 = {.buffer.ptr = m->buffer.ptr + m->buffer.offset, .buffer.size = size, .buffer.offset = 0,
-                          .mempool = m->mempool};
+                .mempool = m->mempool};
         b = unmarshalerReadVoteType(&m2, a);
         if ( IsError(ErrorCode(b))) {
             return b;
@@ -2548,13 +2546,13 @@ static ETHSignature ETHSignature_init(ETHSignature *v) {
     ETHSignature init;
     memset((void*)&init, 0, sizeof(init));
 
-    //    init.GetType = ETHSignature_type;
-    //    init.BinarySize = ETHSignature_binarySize;
-    //    init.Equal = ETHSignature_equal;
+//    init.GetType = ETHSignature_type;
+//    init.BinarySize = ETHSignature_binarySize;
+//    init.Equal = ETHSignature_equal;
     //init.Copy = ETHSignature_copy;
-    //    init.MarshalBinary = ETHSignature_marshalBinary;
-    //    init.UnmarshalBinary = ETHSignature_unmarshalBinary;
-    //
+//    init.MarshalBinary = ETHSignature_marshalBinary;
+//    init.UnmarshalBinary = ETHSignature_unmarshalBinary;
+//
 
     if ( v ) {
         *v = init;
@@ -2634,7 +2632,6 @@ ACME_API int unmarshalerReadInternalSignature(Unmarshaler *m, InternalSignature 
         if ( type != unionType ) {
             return ErrorInvalidObject;
         }
-        n += b;
 
         n += b;
     }
@@ -2802,13 +2799,13 @@ static InternalSignature InternalSignature_init(InternalSignature *v) {
     InternalSignature init;
     memset((void*)&init, 0, sizeof(init));
 
-    //    init.GetType = InternalSignature_type;
-    //    init.BinarySize = InternalSignature_binarySize;
-    //    init.Equal = InternalSignature_equal;
+//    init.GetType = InternalSignature_type;
+//    init.BinarySize = InternalSignature_binarySize;
+//    init.Equal = InternalSignature_equal;
     //init.Copy = InternalSignature_copy;
-    //    init.MarshalBinary = InternalSignature_marshalBinary;
-    //    init.UnmarshalBinary = InternalSignature_unmarshalBinary;
-    //
+//    init.MarshalBinary = InternalSignature_marshalBinary;
+//    init.UnmarshalBinary = InternalSignature_unmarshalBinary;
+//
 
     if ( v ) {
         *v = init;
@@ -2923,7 +2920,6 @@ ACME_API int unmarshalerReadLegacyED25519Signature(Unmarshaler *m, LegacyED25519
         if ( type != unionType ) {
             return ErrorInvalidObject;
         }
-        n += b;
 
         n += b;
     }
@@ -3071,7 +3067,7 @@ ACME_API int unmarshalerReadLegacyED25519Signature(Unmarshaler *m, LegacyED25519
         }
         n += b;
         Unmarshaler m2 = {.buffer.ptr = m->buffer.ptr + m->buffer.offset, .buffer.size = size, .buffer.offset = 0,
-                          .mempool = m->mempool};
+                .mempool = m->mempool};
         b = unmarshalerReadVoteType(&m2, a);
         if ( IsError(ErrorCode(b))) {
             return b;
@@ -3374,13 +3370,13 @@ static LegacyED25519Signature LegacyED25519Signature_init(LegacyED25519Signature
     LegacyED25519Signature init;
     memset((void*)&init, 0, sizeof(init));
 
-    //    init.GetType = LegacyED25519Signature_type;
-    //    init.BinarySize = LegacyED25519Signature_binarySize;
-    //    init.Equal = LegacyED25519Signature_equal;
+//    init.GetType = LegacyED25519Signature_type;
+//    init.BinarySize = LegacyED25519Signature_binarySize;
+//    init.Equal = LegacyED25519Signature_equal;
     //init.Copy = LegacyED25519Signature_copy;
-    //    init.MarshalBinary = LegacyED25519Signature_marshalBinary;
-    //    init.UnmarshalBinary = LegacyED25519Signature_unmarshalBinary;
-    //
+//    init.MarshalBinary = LegacyED25519Signature_marshalBinary;
+//    init.UnmarshalBinary = LegacyED25519Signature_unmarshalBinary;
+//
 
     if ( v ) {
         *v = init;
@@ -3474,7 +3470,6 @@ ACME_API int unmarshalerReadPartitionSignature(Unmarshaler *m, PartitionSignatur
         if ( type != unionType ) {
             return ErrorInvalidObject;
         }
-        n += b;
 
         n += b;
     }
@@ -3760,13 +3755,13 @@ static PartitionSignature PartitionSignature_init(PartitionSignature *v) {
     PartitionSignature init;
     memset((void*)&init, 0, sizeof(init));
 
-    //    init.GetType = PartitionSignature_type;
-    //    init.BinarySize = PartitionSignature_binarySize;
-    //    init.Equal = PartitionSignature_equal;
+//    init.GetType = PartitionSignature_type;
+//    init.BinarySize = PartitionSignature_binarySize;
+//    init.Equal = PartitionSignature_equal;
     //init.Copy = PartitionSignature_copy;
-    //    init.MarshalBinary = PartitionSignature_marshalBinary;
-    //    init.UnmarshalBinary = PartitionSignature_unmarshalBinary;
-    //
+//    init.MarshalBinary = PartitionSignature_marshalBinary;
+//    init.UnmarshalBinary = PartitionSignature_unmarshalBinary;
+//
 
     if ( v ) {
         *v = init;
@@ -3881,7 +3876,6 @@ ACME_API int unmarshalerReadRCD1Signature(Unmarshaler *m, RCD1Signature *v) {
         if ( type != unionType ) {
             return ErrorInvalidObject;
         }
-        n += b;
 
         n += b;
     }
@@ -4029,7 +4023,7 @@ ACME_API int unmarshalerReadRCD1Signature(Unmarshaler *m, RCD1Signature *v) {
         }
         n += b;
         Unmarshaler m2 = {.buffer.ptr = m->buffer.ptr + m->buffer.offset, .buffer.size = size, .buffer.offset = 0,
-                          .mempool = m->mempool};
+                .mempool = m->mempool};
         b = unmarshalerReadVoteType(&m2, a);
         if ( IsError(ErrorCode(b))) {
             return b;
@@ -4332,13 +4326,13 @@ static RCD1Signature RCD1Signature_init(RCD1Signature *v) {
     RCD1Signature init;
     memset((void*)&init, 0, sizeof(init));
 
-    //    init.GetType = RCD1Signature_type;
-    //    init.BinarySize = RCD1Signature_binarySize;
-    //    init.Equal = RCD1Signature_equal;
+//    init.GetType = RCD1Signature_type;
+//    init.BinarySize = RCD1Signature_binarySize;
+//    init.Equal = RCD1Signature_equal;
     //init.Copy = RCD1Signature_copy;
-    //    init.MarshalBinary = RCD1Signature_marshalBinary;
-    //    init.UnmarshalBinary = RCD1Signature_unmarshalBinary;
-    //
+//    init.MarshalBinary = RCD1Signature_marshalBinary;
+//    init.UnmarshalBinary = RCD1Signature_unmarshalBinary;
+//
 
     if ( v ) {
         *v = init;
@@ -4354,34 +4348,34 @@ SignatureType Receipt_type(void) { return SignatureTypeReceipt; }
 
 /// Comparisons
 bool ReceiptSignature_equal(const ReceiptSignature *v, const ReceiptSignature *u) {
-    {
-        const SignatureType *a = &v->Type;
-        const SignatureType *b = &u->Type;
-        if ( !SignatureType_equal(a,b) ) {
-            return false;
+        {
+            const SignatureType *a = &v->Type;
+            const SignatureType *b = &u->Type;
+            if ( !SignatureType_equal(a,b) ) {
+                return false;
+            }
         }
-    }
-    {
-        const Url* a = &v->SourceNetwork;
-        const Url* b = &u->SourceNetwork;
-        if ( !Url_equal(a,b) ) {
-            return false;
+        {
+            const Url* a = &v->SourceNetwork;
+            const Url* b = &u->SourceNetwork;
+            if ( !Url_equal(a,b) ) {
+                return false;
+            }
         }
-    }
-    {
-        const Receipt *a = &v->Proof;
-        const Receipt *b = &u->Proof;
-        if ( !Receipt_equal(a,b) ) {
-            return false;
+        {
+            const Receipt *a = &v->Proof;
+            const Receipt *b = &u->Proof;
+            if ( !Receipt_equal(a,b) ) {
+                return false;
+            }
         }
-    }
-    {
-        const Bytes32 *a = &v->TransactionHash;
-        const Bytes32 *b = &u->TransactionHash;
-        if ( !Bytes32_equal(a,b) ) {
-            return false;
+        {
+            const Bytes32 *a = &v->TransactionHash;
+            const Bytes32 *b = &u->TransactionHash;
+            if ( !Bytes32_equal(a,b) ) {
+                return false;
+            }
         }
-    }
 
     return true;
 }
@@ -4392,7 +4386,7 @@ bool ReceiptSignature_equal(const ReceiptSignature *v, const ReceiptSignature *u
 /// Binary Unmarshalers
 // UnmarshalBinary unmarshals the receipt signature from bytes as a unsigned varint.
 ACME_API int unmarshalerReadReceiptSignature(Unmarshaler *m, ReceiptSignature *v) {
-    CHECK_ERROR_INT(m)
+	CHECK_ERROR_INT(m)
     CHECK_ERROR_INT(v)
     int n = 0;
     int b = 0;
@@ -4404,7 +4398,7 @@ ACME_API int unmarshalerReadReceiptSignature(Unmarshaler *m, ReceiptSignature *v
     }
     b = unmarshalerPeekField(m,&field);
     if ( IsError(ErrorCode(b))) {
-        return b;
+            return b;
     }
     if ( field == 1 )
     {
@@ -4425,7 +4419,6 @@ ACME_API int unmarshalerReadReceiptSignature(Unmarshaler *m, ReceiptSignature *v
         if ( type != unionType ) {
             return ErrorInvalidObject;
         }
-        n += b;
 
         n += b;
     }
@@ -4434,7 +4427,7 @@ ACME_API int unmarshalerReadReceiptSignature(Unmarshaler *m, ReceiptSignature *v
     }
     b = unmarshalerPeekField(m,&field);
     if ( IsError(ErrorCode(b))) {
-        return b;
+            return b;
     }
     if ( field == 2 )
     {
@@ -4458,7 +4451,7 @@ ACME_API int unmarshalerReadReceiptSignature(Unmarshaler *m, ReceiptSignature *v
     }
     b = unmarshalerPeekField(m,&field);
     if ( IsError(ErrorCode(b))) {
-        return b;
+            return b;
     }
     if ( field == 3 )
     {
@@ -4491,7 +4484,7 @@ ACME_API int unmarshalerReadReceiptSignature(Unmarshaler *m, ReceiptSignature *v
     }
     b = unmarshalerPeekField(m,&field);
     if ( IsError(ErrorCode(b))) {
-        return b;
+            return b;
     }
     if ( field == 4 )
     {
@@ -4511,7 +4504,7 @@ ACME_API int unmarshalerReadReceiptSignature(Unmarshaler *m, ReceiptSignature *v
         n += b;
     }
 
-    return n;
+	return n;
 }
 
 
@@ -4526,125 +4519,125 @@ ACME_API int marshalerWriteReceiptSignature(Marshaler *m,const ReceiptSignature*
         return ErrorInvalidObject;
     }
 
-    {
-        const SignatureType *a = &v->Type;
+        {
+            const SignatureType *a = &v->Type;
 
-        b = marshalerWriteField(m, 1);
-        if ( IsError(ErrorCode(b))) {
-            return b;
-        }
-        b = marshalerWriteSignatureType(m,*a);
-        if ( IsError(ErrorCode(b))) {
-            return b;
-        }
+            b = marshalerWriteField(m, 1);
+            if ( IsError(ErrorCode(b))) {
+                return b;
+            }
+            b = marshalerWriteSignatureType(m,*a);
+            if ( IsError(ErrorCode(b))) {
+                return b;
+            }
 
-        n += b;
-    }
-    {
-        const Url* a = &v->SourceNetwork;
+            n += b;
+        }
+        {
+            const Url* a = &v->SourceNetwork;
 
-        b = marshalerWriteField(m, 2);
-        if ( IsError(ErrorCode(b))) {
-            return b;
-        }
+            b = marshalerWriteField(m, 2);
+            if ( IsError(ErrorCode(b))) {
+                return b;
+            }
 
-        buffer_t offsetBuffer = m->buffer;
-        if ( !buffer_seek_cur(&offsetBuffer, sizeof(size_t))) {
-            return ErrorBufferTooSmall;
-        }
-        Marshaler m2 = NewMarshaler(&offsetBuffer);//create a temporary marshaler that will compute size
-        //need to identify what the size of the following will be and write those bytes.
-        int size = marshalerWriteUrl(&m2, a);
-        if ( IsError(ErrorCode(b))) {
-            return b;
-        }
+            buffer_t offsetBuffer = m->buffer;
+            if ( !buffer_seek_cur(&offsetBuffer, sizeof(size_t))) {
+                return ErrorBufferTooSmall;
+            }
+            Marshaler m2 = NewMarshaler(&offsetBuffer);//create a temporary marshaler that will compute size
+            //need to identify what the size of the following will be and write those bytes.
+            int size = marshalerWriteUrl(&m2, a);
+            if ( IsError(ErrorCode(b))) {
+                return b;
+            }
 
-        //write size of what is to follow
-        b = marshalerWriteUInt(m, (uint64_t)size);
-        if ( IsError(ErrorCode(b))) {
-            return b;
-        }
+            //write size of what is to follow
+            b = marshalerWriteUInt(m, (uint64_t)size);
+            if ( IsError(ErrorCode(b))) {
+                return b;
+            }
 
-        //now copy the contents into the marshal buffer to prevent having to remarshal
-        if (!buffer_move(&m->buffer, offsetBuffer.ptr + offsetBuffer.offset, size)) {
-            return ErrorBadCopy;
-        }
-        if ( IsError(ErrorCode(b))) {
-            return b;
-        }
+            //now copy the contents into the marshal buffer to prevent having to remarshal
+            if (!buffer_move(&m->buffer, offsetBuffer.ptr + offsetBuffer.offset, size)) {
+                return ErrorBadCopy;
+            }
+            if ( IsError(ErrorCode(b))) {
+                return b;
+            }
 
-        n += b;
-    }
-    {
-        const Receipt *a = &v->Proof;
+            n += b;
+        }
+        {
+            const Receipt *a = &v->Proof;
 
-        b = marshalerWriteField(m, 3);
-        if ( IsError(ErrorCode(b))) {
-            return b;
-        }
+            b = marshalerWriteField(m, 3);
+            if ( IsError(ErrorCode(b))) {
+                return b;
+            }
 
-        buffer_t offsetBuffer = m->buffer;
-        if ( !buffer_seek_cur(&offsetBuffer, sizeof(size_t))) {
-            return ErrorBufferTooSmall;
-        }
-        Marshaler m2 = NewMarshaler(&offsetBuffer);//create a temporary marshaler that will compute size
-        //need to identify what the size of the following will be and write those bytes.
-        int size = marshalerWriteReceipt(&m2, a);
-        if ( IsError(ErrorCode(b))) {
-            return b;
-        }
+            buffer_t offsetBuffer = m->buffer;
+            if ( !buffer_seek_cur(&offsetBuffer, sizeof(size_t))) {
+                return ErrorBufferTooSmall;
+            }
+            Marshaler m2 = NewMarshaler(&offsetBuffer);//create a temporary marshaler that will compute size
+            //need to identify what the size of the following will be and write those bytes.
+            int size = marshalerWriteReceipt(&m2, a);
+            if ( IsError(ErrorCode(b))) {
+                return b;
+            }
 
-        //write size of what is to follow
-        b = marshalerWriteUInt(m, (uint64_t)size);
-        if ( IsError(ErrorCode(b))) {
-            return b;
-        }
+            //write size of what is to follow
+            b = marshalerWriteUInt(m, (uint64_t)size);
+            if ( IsError(ErrorCode(b))) {
+                return b;
+            }
 
-        //now copy the contents into the marshal buffer to prevent having to remarshal
-        if (!buffer_move(&m->buffer, offsetBuffer.ptr + offsetBuffer.offset, size)) {
-            return ErrorBadCopy;
-        }
-        if ( IsError(ErrorCode(b))) {
-            return b;
-        }
+            //now copy the contents into the marshal buffer to prevent having to remarshal
+            if (!buffer_move(&m->buffer, offsetBuffer.ptr + offsetBuffer.offset, size)) {
+                return ErrorBadCopy;
+            }
+            if ( IsError(ErrorCode(b))) {
+                return b;
+            }
 
-        n += b;
-    }
-    {
-        const Bytes32 *a = &v->TransactionHash;
+            n += b;
+        }
+        {
+            const Bytes32 *a = &v->TransactionHash;
 
-        b = marshalerWriteField(m, 4);
-        if ( IsError(ErrorCode(b))) {
-            return b;
-        }
+            b = marshalerWriteField(m, 4);
+            if ( IsError(ErrorCode(b))) {
+                return b;
+            }
 
-        buffer_t offsetBuffer = m->buffer;
-        if ( !buffer_seek_cur(&offsetBuffer, sizeof(size_t))) {
-            return ErrorBufferTooSmall;
-        }
-        Marshaler m2 = NewMarshaler(&offsetBuffer);//create a temporary marshaler that will compute size
-        //need to identify what the size of the following will be and write those bytes.
-        int size = marshalerWriteBytes32(&m2, a);
-        if ( IsError(ErrorCode(b))) {
-            return b;
-        }
+            buffer_t offsetBuffer = m->buffer;
+            if ( !buffer_seek_cur(&offsetBuffer, sizeof(size_t))) {
+                return ErrorBufferTooSmall;
+            }
+            Marshaler m2 = NewMarshaler(&offsetBuffer);//create a temporary marshaler that will compute size
+            //need to identify what the size of the following will be and write those bytes.
+            int size = marshalerWriteBytes32(&m2, a);
+            if ( IsError(ErrorCode(b))) {
+                return b;
+            }
 
-        //write size of what is to follow
-        b = marshalerWriteUInt(m, (uint64_t)size);
-        if ( IsError(ErrorCode(b))) {
-            return b;
-        }
+            //write size of what is to follow
+            b = marshalerWriteUInt(m, (uint64_t)size);
+            if ( IsError(ErrorCode(b))) {
+                return b;
+            }
 
-        //now copy the contents into the marshal buffer to prevent having to remarshal
-        if (!buffer_move(&m->buffer, offsetBuffer.ptr + offsetBuffer.offset, size)) {
-            return ErrorBadCopy;
-        }
-        if ( IsError(ErrorCode(b))) {
-            return b;
-        }
+            //now copy the contents into the marshal buffer to prevent having to remarshal
+            if (!buffer_move(&m->buffer, offsetBuffer.ptr + offsetBuffer.offset, size)) {
+                return ErrorBadCopy;
+            }
+            if ( IsError(ErrorCode(b))) {
+                return b;
+            }
 
-        n += b;
-    }
+            n += b;
+        }
 
 
     return n;
@@ -4661,13 +4654,13 @@ static ReceiptSignature ReceiptSignature_init(ReceiptSignature *v) {
     ReceiptSignature init;
     memset((void*)&init, 0, sizeof(init));
 
-    //    init.GetType = ReceiptSignature_type;
-    //    init.BinarySize = ReceiptSignature_binarySize;
-    //    init.Equal = ReceiptSignature_equal;
+//    init.GetType = ReceiptSignature_type;
+//    init.BinarySize = ReceiptSignature_binarySize;
+//    init.Equal = ReceiptSignature_equal;
     //init.Copy = ReceiptSignature_copy;
-    //    init.MarshalBinary = ReceiptSignature_marshalBinary;
-    //    init.UnmarshalBinary = ReceiptSignature_unmarshalBinary;
-    //
+//    init.MarshalBinary = ReceiptSignature_marshalBinary;
+//    init.UnmarshalBinary = ReceiptSignature_unmarshalBinary;
+//
 
     if ( v ) {
         *v = init;
@@ -4683,27 +4676,27 @@ SignatureType Remote_type(void) { return SignatureTypeRemote; }
 
 /// Comparisons
 bool RemoteSignature_equal(const RemoteSignature *v, const RemoteSignature *u) {
-    {
-        const SignatureType *a = &v->Type;
-        const SignatureType *b = &u->Type;
-        if ( !SignatureType_equal(a,b) ) {
-            return false;
+        {
+            const SignatureType *a = &v->Type;
+            const SignatureType *b = &u->Type;
+            if ( !SignatureType_equal(a,b) ) {
+                return false;
+            }
         }
-    }
-    {
-        const Url* a = &v->Destination;
-        const Url* b = &u->Destination;
-        if ( !Url_equal(a,b) ) {
-            return false;
+        {
+            const Url* a = &v->Destination;
+            const Url* b = &u->Destination;
+            if ( !Url_equal(a,b) ) {
+                return false;
+            }
         }
-    }
-    {
-        const Signature *a = &v->Signature;
-        const Signature *b = &u->Signature;
-        if ( !Signature_equal(a,b) ) {
-            return false;
+        {
+            const Signature *a = &v->Signature;
+            const Signature *b = &u->Signature;
+            if ( !Signature_equal(a,b) ) {
+                return false;
+            }
         }
-    }
 
     return true;
 }
@@ -4714,7 +4707,7 @@ bool RemoteSignature_equal(const RemoteSignature *v, const RemoteSignature *u) {
 /// Binary Unmarshalers
 // UnmarshalBinary unmarshals the remote signature from bytes as a unsigned varint.
 ACME_API int unmarshalerReadRemoteSignature(Unmarshaler *m, RemoteSignature *v) {
-    CHECK_ERROR_INT(m)
+	CHECK_ERROR_INT(m)
     CHECK_ERROR_INT(v)
     int n = 0;
     int b = 0;
@@ -4726,7 +4719,7 @@ ACME_API int unmarshalerReadRemoteSignature(Unmarshaler *m, RemoteSignature *v) 
     }
     b = unmarshalerPeekField(m,&field);
     if ( IsError(ErrorCode(b))) {
-        return b;
+            return b;
     }
     if ( field == 1 )
     {
@@ -4747,7 +4740,6 @@ ACME_API int unmarshalerReadRemoteSignature(Unmarshaler *m, RemoteSignature *v) 
         if ( type != unionType ) {
             return ErrorInvalidObject;
         }
-        n += b;
 
         n += b;
     }
@@ -4756,7 +4748,7 @@ ACME_API int unmarshalerReadRemoteSignature(Unmarshaler *m, RemoteSignature *v) 
     }
     b = unmarshalerPeekField(m,&field);
     if ( IsError(ErrorCode(b))) {
-        return b;
+            return b;
     }
     if ( field == 2 )
     {
@@ -4780,7 +4772,7 @@ ACME_API int unmarshalerReadRemoteSignature(Unmarshaler *m, RemoteSignature *v) 
     }
     b = unmarshalerPeekField(m,&field);
     if ( IsError(ErrorCode(b))) {
-        return b;
+            return b;
     }
     if ( field == 3 )
     {
@@ -4809,7 +4801,7 @@ ACME_API int unmarshalerReadRemoteSignature(Unmarshaler *m, RemoteSignature *v) 
         n += b;
     }
 
-    return n;
+	return n;
 }
 
 
@@ -4824,90 +4816,90 @@ ACME_API int marshalerWriteRemoteSignature(Marshaler *m,const RemoteSignature*v)
         return ErrorInvalidObject;
     }
 
-    {
-        const SignatureType *a = &v->Type;
+        {
+            const SignatureType *a = &v->Type;
 
-        b = marshalerWriteField(m, 1);
-        if ( IsError(ErrorCode(b))) {
-            return b;
-        }
-        b = marshalerWriteSignatureType(m,*a);
-        if ( IsError(ErrorCode(b))) {
-            return b;
-        }
+            b = marshalerWriteField(m, 1);
+            if ( IsError(ErrorCode(b))) {
+                return b;
+            }
+            b = marshalerWriteSignatureType(m,*a);
+            if ( IsError(ErrorCode(b))) {
+                return b;
+            }
 
-        n += b;
-    }
-    {
-        const Url* a = &v->Destination;
+            n += b;
+        }
+        {
+            const Url* a = &v->Destination;
 
-        b = marshalerWriteField(m, 2);
-        if ( IsError(ErrorCode(b))) {
-            return b;
-        }
+            b = marshalerWriteField(m, 2);
+            if ( IsError(ErrorCode(b))) {
+                return b;
+            }
 
-        buffer_t offsetBuffer = m->buffer;
-        if ( !buffer_seek_cur(&offsetBuffer, sizeof(size_t))) {
-            return ErrorBufferTooSmall;
-        }
-        Marshaler m2 = NewMarshaler(&offsetBuffer);//create a temporary marshaler that will compute size
-        //need to identify what the size of the following will be and write those bytes.
-        int size = marshalerWriteUrl(&m2, a);
-        if ( IsError(ErrorCode(b))) {
-            return b;
-        }
+            buffer_t offsetBuffer = m->buffer;
+            if ( !buffer_seek_cur(&offsetBuffer, sizeof(size_t))) {
+                return ErrorBufferTooSmall;
+            }
+            Marshaler m2 = NewMarshaler(&offsetBuffer);//create a temporary marshaler that will compute size
+            //need to identify what the size of the following will be and write those bytes.
+            int size = marshalerWriteUrl(&m2, a);
+            if ( IsError(ErrorCode(b))) {
+                return b;
+            }
 
-        //write size of what is to follow
-        b = marshalerWriteUInt(m, (uint64_t)size);
-        if ( IsError(ErrorCode(b))) {
-            return b;
-        }
+            //write size of what is to follow
+            b = marshalerWriteUInt(m, (uint64_t)size);
+            if ( IsError(ErrorCode(b))) {
+                return b;
+            }
 
-        //now copy the contents into the marshal buffer to prevent having to remarshal
-        if (!buffer_move(&m->buffer, offsetBuffer.ptr + offsetBuffer.offset, size)) {
-            return ErrorBadCopy;
-        }
-        if ( IsError(ErrorCode(b))) {
-            return b;
-        }
+            //now copy the contents into the marshal buffer to prevent having to remarshal
+            if (!buffer_move(&m->buffer, offsetBuffer.ptr + offsetBuffer.offset, size)) {
+                return ErrorBadCopy;
+            }
+            if ( IsError(ErrorCode(b))) {
+                return b;
+            }
 
-        n += b;
-    }
-    {
-        const Signature *a = &v->Signature;
+            n += b;
+        }
+        {
+            const Signature *a = &v->Signature;
 
-        b = marshalerWriteField(m, 3);
-        if ( IsError(ErrorCode(b))) {
-            return b;
-        }
+            b = marshalerWriteField(m, 3);
+            if ( IsError(ErrorCode(b))) {
+                return b;
+            }
 
-        buffer_t offsetBuffer = m->buffer;
-        if ( !buffer_seek_cur(&offsetBuffer, sizeof(size_t))) {
-            return ErrorBufferTooSmall;
-        }
-        Marshaler m2 = NewMarshaler(&offsetBuffer);//create a temporary marshaler that will compute size
-        //need to identify what the size of the following will be and write those bytes.
-        int size = marshalerWriteSignature(&m2, a);
-        if ( IsError(ErrorCode(b))) {
-            return b;
-        }
+            buffer_t offsetBuffer = m->buffer;
+            if ( !buffer_seek_cur(&offsetBuffer, sizeof(size_t))) {
+                return ErrorBufferTooSmall;
+            }
+            Marshaler m2 = NewMarshaler(&offsetBuffer);//create a temporary marshaler that will compute size
+            //need to identify what the size of the following will be and write those bytes.
+            int size = marshalerWriteSignature(&m2, a);
+            if ( IsError(ErrorCode(b))) {
+                return b;
+            }
 
-        //write size of what is to follow
-        b = marshalerWriteUInt(m, (uint64_t)size);
-        if ( IsError(ErrorCode(b))) {
-            return b;
-        }
+            //write size of what is to follow
+            b = marshalerWriteUInt(m, (uint64_t)size);
+            if ( IsError(ErrorCode(b))) {
+                return b;
+            }
 
-        //now copy the contents into the marshal buffer to prevent having to remarshal
-        if (!buffer_move(&m->buffer, offsetBuffer.ptr + offsetBuffer.offset, size)) {
-            return ErrorBadCopy;
-        }
-        if ( IsError(ErrorCode(b))) {
-            return b;
-        }
+            //now copy the contents into the marshal buffer to prevent having to remarshal
+            if (!buffer_move(&m->buffer, offsetBuffer.ptr + offsetBuffer.offset, size)) {
+                return ErrorBadCopy;
+            }
+            if ( IsError(ErrorCode(b))) {
+                return b;
+            }
 
-        n += b;
-    }
+            n += b;
+        }
 
 
     return n;
@@ -4924,13 +4916,13 @@ static RemoteSignature RemoteSignature_init(RemoteSignature *v) {
     RemoteSignature init;
     memset((void*)&init, 0, sizeof(init));
 
-    //    init.GetType = RemoteSignature_type;
-    //    init.BinarySize = RemoteSignature_binarySize;
-    //    init.Equal = RemoteSignature_equal;
+//    init.GetType = RemoteSignature_type;
+//    init.BinarySize = RemoteSignature_binarySize;
+//    init.Equal = RemoteSignature_equal;
     //init.Copy = RemoteSignature_copy;
-    //    init.MarshalBinary = RemoteSignature_marshalBinary;
-    //    init.UnmarshalBinary = RemoteSignature_unmarshalBinary;
-    //
+//    init.MarshalBinary = RemoteSignature_marshalBinary;
+//    init.UnmarshalBinary = RemoteSignature_unmarshalBinary;
+//
 
     if ( v ) {
         *v = init;
@@ -4946,45 +4938,45 @@ SignatureType Set_type(void) { return SignatureTypeSet; }
 
 /// Comparisons
 bool SignatureSet_equal(const SignatureSet *v, const SignatureSet *u) {
-    {
-        const SignatureType *a = &v->Type;
-        const SignatureType *b = &u->Type;
-        if ( !SignatureType_equal(a,b) ) {
-            return false;
-        }
-    }
-    {
-        const VoteType *a = &v->Vote;
-        const VoteType *b = &u->Vote;
-        if ( !VoteType_equal(a,b) ) {
-            return false;
-        }
-    }
-    {
-        const Url* a = &v->Signer;
-        const Url* b = &u->Signer;
-        if ( !Url_equal(a,b) ) {
-            return false;
-        }
-    }
-    {
-        const Bytes32 *a = &v->TransactionHash;
-        const Bytes32 *b = &u->TransactionHash;
-        if ( !Bytes32_equal(a,b) ) {
-            return false;
-        }
-    }
-    if ( v->Signatures_length == u->Signatures_length ) {
-        for ( size_t i = 0; i < v->Signatures_length; ++i ) {
-            const Signature* a = &v->Signatures[i];
-            const Signature* b = &u->Signatures[i];
-            if ( !Signature_equal(a, b) ) {
+        {
+            const SignatureType *a = &v->Type;
+            const SignatureType *b = &u->Type;
+            if ( !SignatureType_equal(a,b) ) {
                 return false;
             }
         }
-    } else {
-        return false;
-    }
+        {
+            const VoteType *a = &v->Vote;
+            const VoteType *b = &u->Vote;
+            if ( !VoteType_equal(a,b) ) {
+                return false;
+            }
+        }
+        {
+            const Url* a = &v->Signer;
+            const Url* b = &u->Signer;
+            if ( !Url_equal(a,b) ) {
+                return false;
+            }
+        }
+        {
+            const Bytes32 *a = &v->TransactionHash;
+            const Bytes32 *b = &u->TransactionHash;
+            if ( !Bytes32_equal(a,b) ) {
+                return false;
+            }
+        }
+        if ( v->Signatures_length == u->Signatures_length ) {
+            for ( size_t i = 0; i < v->Signatures_length; ++i ) {
+                const Signature* a = &v->Signatures[i];
+                const Signature* b = &u->Signatures[i];
+                if ( !Signature_equal(a, b) ) {
+                    return false;
+                }
+            }
+        } else {
+            return false;
+        }
 
     return true;
 }
@@ -4995,7 +4987,7 @@ bool SignatureSet_equal(const SignatureSet *v, const SignatureSet *u) {
 /// Binary Unmarshalers
 // UnmarshalBinary unmarshals the signature set from bytes as a unsigned varint.
 ACME_API int unmarshalerReadSignatureSet(Unmarshaler *m, SignatureSet *v) {
-    CHECK_ERROR_INT(m)
+	CHECK_ERROR_INT(m)
     CHECK_ERROR_INT(v)
     int n = 0;
     int b = 0;
@@ -5007,7 +4999,7 @@ ACME_API int unmarshalerReadSignatureSet(Unmarshaler *m, SignatureSet *v) {
     }
     b = unmarshalerPeekField(m,&field);
     if ( IsError(ErrorCode(b))) {
-        return b;
+            return b;
     }
     if ( field == 1 )
     {
@@ -5028,7 +5020,6 @@ ACME_API int unmarshalerReadSignatureSet(Unmarshaler *m, SignatureSet *v) {
         if ( type != unionType ) {
             return ErrorInvalidObject;
         }
-        n += b;
 
         n += b;
     }
@@ -5037,7 +5028,7 @@ ACME_API int unmarshalerReadSignatureSet(Unmarshaler *m, SignatureSet *v) {
     }
     b = unmarshalerPeekField(m,&field);
     if ( IsError(ErrorCode(b))) {
-        return b;
+            return b;
     }
     if ( field == 2 )
     {
@@ -5070,7 +5061,7 @@ ACME_API int unmarshalerReadSignatureSet(Unmarshaler *m, SignatureSet *v) {
     }
     b = unmarshalerPeekField(m,&field);
     if ( IsError(ErrorCode(b))) {
-        return b;
+            return b;
     }
     if ( field == 3 )
     {
@@ -5094,7 +5085,7 @@ ACME_API int unmarshalerReadSignatureSet(Unmarshaler *m, SignatureSet *v) {
     }
     b = unmarshalerPeekField(m,&field);
     if ( IsError(ErrorCode(b))) {
-        return b;
+            return b;
     }
     if ( field == 4 )
     {
@@ -5118,12 +5109,12 @@ ACME_API int unmarshalerReadSignatureSet(Unmarshaler *m, SignatureSet *v) {
     }
     b = unmarshalerPeekField(m,&field);
     if ( IsError(ErrorCode(b))) {
-        return b;
+            return b;
     }
     if ( field == 5 )
     {
 
-        Unmarshaler m2 = NewUnmarshaler(&m->buffer,&m->mempool);
+        Unmarshaler m2 = NewUnmarshaler(&m->buffer,m->mempool);
         v->Signatures_length = 0;
         while ( field == 5 ) {
             b = unmarshalerReadField(&m2, &field);
@@ -5179,10 +5170,9 @@ ACME_API int unmarshalerReadSignatureSet(Unmarshaler *m, SignatureSet *v) {
             b += (int)size-b;
             n += b;
         }
-
     }
 
-    return n;
+	return n;
 }
 
 
@@ -5197,135 +5187,135 @@ ACME_API int marshalerWriteSignatureSet(Marshaler *m,const SignatureSet*v) {
         return ErrorInvalidObject;
     }
 
-    {
-        const SignatureType *a = &v->Type;
+        {
+            const SignatureType *a = &v->Type;
 
-        b = marshalerWriteField(m, 1);
-        if ( IsError(ErrorCode(b))) {
-            return b;
-        }
-        b = marshalerWriteSignatureType(m,*a);
-        if ( IsError(ErrorCode(b))) {
-            return b;
-        }
+            b = marshalerWriteField(m, 1);
+            if ( IsError(ErrorCode(b))) {
+                return b;
+            }
+            b = marshalerWriteSignatureType(m,*a);
+            if ( IsError(ErrorCode(b))) {
+                return b;
+            }
 
-        n += b;
-    }
-    {
-        const VoteType *a = &v->Vote;
+            n += b;
+        }
+        {
+            const VoteType *a = &v->Vote;
 
-        b = marshalerWriteField(m, 2);
-        if ( IsError(ErrorCode(b))) {
-            return b;
-        }
-        b = marshalerWriteVoteType(m,*a);
-        if ( IsError(ErrorCode(b))) {
-            return b;
-        }
+            b = marshalerWriteField(m, 2);
+            if ( IsError(ErrorCode(b))) {
+                return b;
+            }
+            b = marshalerWriteVoteType(m,*a);
+            if ( IsError(ErrorCode(b))) {
+                return b;
+            }
 
-        n += b;
-    }
-    {
-        const Url* a = &v->Signer;
+            n += b;
+        }
+        {
+            const Url* a = &v->Signer;
 
-        b = marshalerWriteField(m, 3);
-        if ( IsError(ErrorCode(b))) {
-            return b;
-        }
+            b = marshalerWriteField(m, 3);
+            if ( IsError(ErrorCode(b))) {
+                return b;
+            }
 
-        buffer_t offsetBuffer = m->buffer;
-        if ( !buffer_seek_cur(&offsetBuffer, sizeof(size_t))) {
-            return ErrorBufferTooSmall;
-        }
-        Marshaler m2 = NewMarshaler(&offsetBuffer);//create a temporary marshaler that will compute size
-        //need to identify what the size of the following will be and write those bytes.
-        int size = marshalerWriteUrl(&m2, a);
-        if ( IsError(ErrorCode(b))) {
-            return b;
-        }
+            buffer_t offsetBuffer = m->buffer;
+            if ( !buffer_seek_cur(&offsetBuffer, sizeof(size_t))) {
+                return ErrorBufferTooSmall;
+            }
+            Marshaler m2 = NewMarshaler(&offsetBuffer);//create a temporary marshaler that will compute size
+            //need to identify what the size of the following will be and write those bytes.
+            int size = marshalerWriteUrl(&m2, a);
+            if ( IsError(ErrorCode(b))) {
+                return b;
+            }
 
-        //write size of what is to follow
-        b = marshalerWriteUInt(m, (uint64_t)size);
-        if ( IsError(ErrorCode(b))) {
-            return b;
-        }
+            //write size of what is to follow
+            b = marshalerWriteUInt(m, (uint64_t)size);
+            if ( IsError(ErrorCode(b))) {
+                return b;
+            }
 
-        //now copy the contents into the marshal buffer to prevent having to remarshal
-        if (!buffer_move(&m->buffer, offsetBuffer.ptr + offsetBuffer.offset, size)) {
-            return ErrorBadCopy;
-        }
-        if ( IsError(ErrorCode(b))) {
-            return b;
-        }
+            //now copy the contents into the marshal buffer to prevent having to remarshal
+            if (!buffer_move(&m->buffer, offsetBuffer.ptr + offsetBuffer.offset, size)) {
+                return ErrorBadCopy;
+            }
+            if ( IsError(ErrorCode(b))) {
+                return b;
+            }
 
-        n += b;
-    }
-    {
-        const Bytes32 *a = &v->TransactionHash;
+            n += b;
+        }
+        {
+            const Bytes32 *a = &v->TransactionHash;
 
-        b = marshalerWriteField(m, 4);
-        if ( IsError(ErrorCode(b))) {
-            return b;
-        }
+            b = marshalerWriteField(m, 4);
+            if ( IsError(ErrorCode(b))) {
+                return b;
+            }
 
-        buffer_t offsetBuffer = m->buffer;
-        if ( !buffer_seek_cur(&offsetBuffer, sizeof(size_t))) {
-            return ErrorBufferTooSmall;
-        }
-        Marshaler m2 = NewMarshaler(&offsetBuffer);//create a temporary marshaler that will compute size
-        //need to identify what the size of the following will be and write those bytes.
-        int size = marshalerWriteBytes32(&m2, a);
-        if ( IsError(ErrorCode(b))) {
-            return b;
-        }
+            buffer_t offsetBuffer = m->buffer;
+            if ( !buffer_seek_cur(&offsetBuffer, sizeof(size_t))) {
+                return ErrorBufferTooSmall;
+            }
+            Marshaler m2 = NewMarshaler(&offsetBuffer);//create a temporary marshaler that will compute size
+            //need to identify what the size of the following will be and write those bytes.
+            int size = marshalerWriteBytes32(&m2, a);
+            if ( IsError(ErrorCode(b))) {
+                return b;
+            }
 
-        //write size of what is to follow
-        b = marshalerWriteUInt(m, (uint64_t)size);
-        if ( IsError(ErrorCode(b))) {
-            return b;
-        }
+            //write size of what is to follow
+            b = marshalerWriteUInt(m, (uint64_t)size);
+            if ( IsError(ErrorCode(b))) {
+                return b;
+            }
 
-        //now copy the contents into the marshal buffer to prevent having to remarshal
-        if (!buffer_move(&m->buffer, offsetBuffer.ptr + offsetBuffer.offset, size)) {
-            return ErrorBadCopy;
-        }
-        if ( IsError(ErrorCode(b))) {
-            return b;
-        }
+            //now copy the contents into the marshal buffer to prevent having to remarshal
+            if (!buffer_move(&m->buffer, offsetBuffer.ptr + offsetBuffer.offset, size)) {
+                return ErrorBadCopy;
+            }
+            if ( IsError(ErrorCode(b))) {
+                return b;
+            }
 
-        n += b;
-    }
-    for ( size_t i = 0; i < v->Signatures_length; ++i ) {
-        const Signature *a = &v->Signatures[i];
-        b = marshalerWriteField(m, 5);
-        if ( IsError(ErrorCode(b))) {
-            return b;
+            n += b;
         }
+        for ( size_t i = 0; i < v->Signatures_length; ++i ) {
+            const Signature *a = &v->Signatures[i];
+            b = marshalerWriteField(m, 5);
+            if ( IsError(ErrorCode(b))) {
+                return b;
+            }
 
-        buffer_t offsetBuffer = m->buffer;
-        if ( !buffer_seek_cur(&offsetBuffer, sizeof(size_t))) {
-            return ErrorBufferTooSmall;
-        }
-        Marshaler m2 = NewMarshaler(&offsetBuffer);//create a temporary marshaler that will compute size
-        //need to identify what the size of the following will be and write those bytes.
-        int size = marshalerWriteSignature(&m2, a);
-        if ( IsError(ErrorCode(b))) {
-            return b;
-        }
+            buffer_t offsetBuffer = m->buffer;
+            if ( !buffer_seek_cur(&offsetBuffer, sizeof(size_t))) {
+                return ErrorBufferTooSmall;
+            }
+            Marshaler m2 = NewMarshaler(&offsetBuffer);//create a temporary marshaler that will compute size
+            //need to identify what the size of the following will be and write those bytes.
+            int size = marshalerWriteSignature(&m2, a);
+            if ( IsError(ErrorCode(b))) {
+                return b;
+            }
 
-        //write size of what is to follow
-        b = marshalerWriteUInt(m, (uint64_t)size);
-        if ( IsError(ErrorCode(b))) {
-            return b;
-        }
+            //write size of what is to follow
+            b = marshalerWriteUInt(m, (uint64_t)size);
+            if ( IsError(ErrorCode(b))) {
+                return b;
+            }
 
-        //now copy the contents into the marshal buffer to prevent having to remarshal
-        if (!buffer_move(&m->buffer, offsetBuffer.ptr + offsetBuffer.offset, size)) {
-            return ErrorBadCopy;
-        }
+            //now copy the contents into the marshal buffer to prevent having to remarshal
+            if (!buffer_move(&m->buffer, offsetBuffer.ptr + offsetBuffer.offset, size)) {
+                return ErrorBadCopy;
+            }
 
-        n += b;
-    }
+            n += b;
+        }
 
 
     return n;
@@ -5342,13 +5332,13 @@ static SignatureSet SignatureSet_init(SignatureSet *v) {
     SignatureSet init;
     memset((void*)&init, 0, sizeof(init));
 
-    //    init.GetType = SignatureSet_type;
-    //    init.BinarySize = SignatureSet_binarySize;
-    //    init.Equal = SignatureSet_equal;
+//    init.GetType = SignatureSet_type;
+//    init.BinarySize = SignatureSet_binarySize;
+//    init.Equal = SignatureSet_equal;
     //init.Copy = SignatureSet_copy;
-    //    init.MarshalBinary = SignatureSet_marshalBinary;
-    //    init.UnmarshalBinary = SignatureSet_unmarshalBinary;
-    //
+//    init.MarshalBinary = SignatureSet_marshalBinary;
+//    init.UnmarshalBinary = SignatureSet_unmarshalBinary;
+//
 
     if ( v ) {
         *v = init;
