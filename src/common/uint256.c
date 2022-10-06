@@ -27,6 +27,20 @@
 
 static const char HEXDIGITS[] = "0123456789abcdef";
 
+int buffer_readu256BE(buffer_t *b, uint256_t *target) {
+    uint8_t fillBytes[32] = {};
+    size_t bsize = b->size-b->offset ;
+    if ( bsize > sizeof (fillBytes)) {
+        return -1;
+    }
+    for ( size_t i = bsize-1, j = 0; i >= 0; i--, j++ ) {
+        fillBytes[i] = b->ptr[b->offset+j];
+    }
+    readu256BE(fillBytes, target);
+    return bsize;
+}
+
+
 static uint64_t readUint64BE(uint8_t *buffer) {
     return (((uint64_t)buffer[0]) << 56) | (((uint64_t)buffer[1]) << 48) |
            (((uint64_t)buffer[2]) << 40) | (((uint64_t)buffer[3]) << 32) |

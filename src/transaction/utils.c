@@ -213,7 +213,7 @@ int parse_transaction(uint8_t *raw_tx, uint16_t raw_tx_len, Signature *signer, T
     format_hex(hash, 32, outbuf, sizeof(outbuf));
     PRINTF("HASH %s\n", outbuf);
 
-return ErrorNone;
+//return ErrorNone;
 
     PRINTF("pre transaction parse A\n");
 
@@ -257,21 +257,20 @@ return ErrorNone;
 
         uint64_t size = 0;
         b = unmarshalerReadUInt(m,&size);
-        if ( IsError(ErrorCode(b)) ) {
-            return b;
-        }
+        CHECK_ERROR_CODE(b);
 
         buffer_seek_cur(&m->buffer, size);
         PRINTF("READING HEADER \n");
-        //
-        //            n += b;
-        //            Unmarshaler m2 = {.buffer.ptr = m->buffer.ptr + m->buffer.offset, .buffer.size = size, .buffer.offset = 0,
-        //                              .mempool = m->mempool};
-        //            b = unmarshalerReadTransactionHeader(&m2, &v->Header);
-        //            if ( IsError(ErrorCode(b))) {
-        //                return b;
-        //            }
-        //            buffer_seek_cur(&m->buffer, b);
+//        {
+//                    n += b;
+//                    Unmarshaler m2 = {.buffer.ptr = m->buffer.ptr + m->buffer.offset, .buffer.size = size, .buffer.offset = 0,
+//                                      .mempool = m->mempool};
+//                    b = unmarshalerReadTransactionHeader(&m2, &v->Header);
+//                    if ( IsError(ErrorCode(b))) {
+//                        return b;
+//                    }
+//                    buffer_seek_cur(&m->buffer, b);
+//        }
         PRINTF("Done READ Header \n");
 
 
@@ -295,7 +294,7 @@ return ErrorNone;
                               .buffer.size = size,
                               .buffer.offset = 0,
                               .mempool = m->mempool};
-            b = unmarshalerReadTransactionBody(&m3, &v->Body);
+            b = readTransactionBody(&m3, &v->Body);
             CHECK_ERROR_CODE(b);
         }
         buffer_seek_cur(&m->buffer, b);

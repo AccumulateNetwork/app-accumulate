@@ -63,7 +63,7 @@ UX_STEP_NOCB(ux_display_address_step,
              bnnn_paging,
              {
                  .title = "Key Name",
-                 .text =  G_context.pk_info.address_name,
+                 .text =  g_address,
              });
 // Step with title/text for address
 UX_STEP_NOCB(ux_display_lite_step,
@@ -118,6 +118,7 @@ int ui_display_address() {
         return io_send_sw(SW_DISPLAY_BIP32_PATH_FAIL);
     }
 
+    strncpy(g_address, G_context.pk_info.address_name, sizeof (G_context.pk_info.address_name));
     g_validate_callback = &ui_action_validate_pubkey;
 
     ux_flow_init(0, ux_display_pubkey_flow, NULL);
@@ -195,7 +196,8 @@ int setDisplayAmount(Url *url, BigInt *amount) {
     CHECK_ERROR_INT(amount)
 
     uint256_t i;
-    readu256BE(amount->data.buffer.ptr+amount->data.buffer.offset, &i);
+    frombytes256(amount->data.buffer.ptr+amount->data.buffer.offset,
+                 amount->data.buffer.size - amount->data.buffer.offset,&i);
     if ( !tostring256(&i, 10, g_amount,sizeof (g_amount))) {
         return ErrorInvalidBigInt;
     }
@@ -214,15 +216,15 @@ int ui_display_transaction(Signature *signer, Transaction *transaction) {
         G_context.state = STATE_NONE;
         return io_send_sw(SW_BAD_STATE);
     }
-    format_hex(G_context.tx_info.m_hash, sizeof(G_context.tx_info.m_hash), g_address, sizeof(g_address));
-    PRINTF("checkpoint pre display tx 2 %s\n", g_address);
+//    format_hex(G_context.tx_info.m_hash, sizeof(G_context.tx_info.m_hash), g_address, sizeof(g_address));
+//    PRINTF("checkpoint pre display tx 2 %s\n", g_address);
 //
 //    memset(g_address, 0, sizeof(g_address));
 //    snprintf(g_address, sizeof(g_address), "0x%.*H", 32, G_context.tx_info.m_hash);
-    g_validate_callback = &ui_action_validate_transaction_hash;
-    ux_flow_init(0, ux_display_transaction_hash_flow, NULL);
+//    g_validate_callback = &ui_action_validate_transaction_hash;
+//    ux_flow_init(0, ux_display_transaction_hash_flow, NULL);
 
-    return 0;
+//    return 0;
     //decode the signer
     //signerBuffer
     //decode transaction type:
@@ -245,15 +247,22 @@ int ui_display_transaction(Signature *signer, Transaction *transaction) {
                        PRINTF("SendTokens tx\n");
             SendTokens *s = transaction->Body._SendTokens;
             if ( s->To_length > 1 || s->To_length == 0 ) {
+
+                PRINTF("SendTokens tx amount failing\n");
                 return SW_DISPLAY_AMOUNT_FAIL;
             }
 
-
+            PRINTF("URL : %.*s" , s->To[0].Url.data.buffer.size - s->To[0].Url.data.buffer.offset,
+                   s->To[0].Url.data.buffer.ptr+s->To[0].Url.data.buffer.offset);
             int e = setDisplayAmount(&s->To[0].Url, &s->To[0].Amount);
             if (IsError(ErrorCode(e))) {
+
+                PRINTF("SendTokens tx set Display Amount failed\n");
                 return e;
             }
 
+            snprintf(g_address,sizeof (g_address), "%.*s", s->To[0].Url.data.buffer.size - s->To[0].Url.data.buffer.offset,
+                     s->To[0].Url.data.buffer.ptr+s->To[0].Url.data.buffer.offset);
             g_validate_callback = &ui_action_validate_transaction_hash;
             ux_flow_init(0, ux_display_send_tokens_flow, NULL);
             break;

@@ -95,7 +95,10 @@ int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more) {
 #endif
         G_context.state = STATE_PARSED;
 
-        return ui_display_transaction(&signer, &G_context.tx_info.transaction);
+        e = ui_display_transaction(&signer, &G_context.tx_info.transaction);
+        if ( IsErrorCode(e)) {
+            io_send_sw(SW_ENCODE_ERROR(ErrorCode(e)));
+        }
     }
 
     return 0;
