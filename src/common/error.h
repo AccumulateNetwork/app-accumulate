@@ -32,9 +32,10 @@ typedef enum {
     ErrorBadKey = -21,
     ErrorInvalidField = -22,
     ErrorExpectingType = -23,
+    ErrorMaxError = -24,
 } ErrorEnum;
 
-Error ErrorCode(ErrorEnum e); 
+Error ErrorCode(int e);
 Error Error_init(Error *e);
 bool IsError(Error e);
 bool IsErrorCode(int e);

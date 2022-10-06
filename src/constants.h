@@ -2,6 +2,7 @@
 
 #include <bolos_target.h>
 
+
 /**
  * Instruction class of the Accumulate application.
  */
@@ -26,12 +27,12 @@
  * Maximum transaction length (bytes).
  */
 #ifdef TARGET_NANOS
-#define MAX_DATA_ENTRY 1 //the nano s can only support smaller transactions
+#define MAX_DATA_ENTRY 2 //the nano s can only support smaller transactions
 #else
-#define MAX_DATA_ENTRY 20+10 //accumulate accepts a max size 20kb transaction + padding for arena
+#define MAX_DATA_ENTRY 40+20 //accumulate accepts a max size 20kb transaction + padding for arena
 #endif
 
-#define MAX_TRANSACTION_LEN 1024*MAX_DATA_ENTRY //10270 //510
+#define MAX_TRANSACTION_LEN 512*MAX_DATA_ENTRY //10270 //510
 
 /**
  * Maximum signature length (bytes).

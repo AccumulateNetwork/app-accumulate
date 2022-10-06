@@ -21,6 +21,7 @@
 #include "utils.h"
 #include "types.h"
 #include "common/sha256.h"
+#include "common/format.h"
 
 #ifndef PRINTF
 #define PRINTF
@@ -148,12 +149,8 @@ Error MerkleFieldHash(buffer_t **marshaledFieldBuffers, int numFieldBuffers) {
 }
 
 #endif
-#include "common/format.h"
 int parse_transaction(uint8_t *raw_tx, uint16_t raw_tx_len, Signature *signer, Transaction *transaction, buffer_t *arena,
                       uint8_t *hash, uint8_t hash_len) {
-    Unmarshaler transactionMarshaler;
-    Unmarshaler signerMarshaler;
-
     PRINTF("checkpoint parse A\n");
     // we have received all the APDU's so let's parse and sign
     buffer_t buf = {.ptr = raw_tx,
@@ -168,33 +165,46 @@ int parse_transaction(uint8_t *raw_tx, uint16_t raw_tx_len, Signature *signer, T
 
     PRINTF("checkpoint parse B\n");
     // set the signer buffer
-    signerMarshaler.buffer.ptr = buf.ptr + buf.offset;
-    signerMarshaler.buffer.size = len;
-    signerMarshaler.buffer.offset = 0;
+    {
+        Unmarshaler signerUnmarshaler = {.buffer.ptr = buf.ptr + buf.offset,
+                                       .buffer.size = len,
+                                       .buffer.offset = 0,
+                                       .mempool = arena};
+        PRINTF("pre signer parse \n");
+        CHECK_ERROR_CODE(readSignature(&signerUnmarshaler, signer));
+        PRINTF("post signature parse \n");
+    }
+
     if (!buffer_seek_cur(&buf, len))  {
+        PRINTF("signer buffer too small\n");
         return ErrorBufferTooSmall;
     }
 
     // read the transaction length
     if (!buffer_read_u16(&buf, &len, BE)) {
+        PRINTF("cannot read 16 byte transaction length\n");
         return ErrorBufferTooSmall;
     }
 
     PRINTF("checkpoint parse C\n");
     // set the transaction buffer
-    transactionMarshaler.buffer.ptr = buf.ptr + buf.offset;
-    transactionMarshaler.buffer.offset = 0;
-    transactionMarshaler.buffer.size = len;
-
-    if (!buffer_seek_cur(&buf, len)) {
-        return ErrorBufferTooSmall;
+    {
+        Unmarshaler transactionUnmarshaler = {.buffer.ptr = buf.ptr + buf.offset,
+                                            .buffer.size = len,
+                                            .buffer.offset = 0,
+                                            .mempool = arena};
+        CHECK_ERROR_CODE(readTransaction(&transactionUnmarshaler, transaction));
     }
 
+        if (!buffer_seek_cur(&buf, len)) {
+            PRINTF("cannot advance transaction buffer %d bytes\n", len);
+            return ErrorBufferTooSmall;
+        }
     PRINTF("checkpoint parse D\n");
-    // temporary
-    // read cheat code
+
     uint8_t hlen = 0;
     if (!buffer_read_u8(&buf, &hlen)) {
+        PRINTF("cannot read 8 byte transaction hash\n");
         return ErrorBufferTooSmall;
     }
 
@@ -205,41 +215,30 @@ int parse_transaction(uint8_t *raw_tx, uint16_t raw_tx_len, Signature *signer, T
     PRINTF("checkpoint parse D\n");
     // sign this
     if (!buffer_move(&buf, hash, hash_len)) {
+        PRINTF("cannot read transaction hash\n");
         return ErrorBufferTooSmall;
     }
 
     char outbuf[65] = {0};
 
     format_hex(hash, 32, outbuf, sizeof(outbuf));
-    PRINTF("HASH %s\n", outbuf);
+    PRINTF("External HASH %s\n", outbuf);
 
-//return ErrorNone;
+    format_hex(signer->_u->TransactionHash.data.buffer.ptr+signer->_u->TransactionHash.data.buffer.offset,
+               signer->_u->TransactionHash.data.buffer.size-signer->_u->TransactionHash.data.buffer.offset,
+               outbuf, sizeof(outbuf));
+    PRINTF("Transaction HASH %s\n", outbuf);
 
     PRINTF("pre transaction parse A\n");
 
     //configure the arena
     int e = ErrorNone;
 
-    transactionMarshaler.mempool = arena;
-    //
-    //    uint64_t field = 0;
-    //    unmarshalerReadField(&signerMarshaler, &field);
-    //
-    //    uint64_t size =0;
-    //    int n = uvarint_read(signerMarshaler.buffer.ptr+signerMarshaler.buffer.offset,signerMarshaler.buffer.size-signerMarshaler.buffer.offset,&size);
-    //    buffer_seek_cur(&signerMarshaler.buffer,n);
-    //
-    //    e = unmarshalerReadED25519Signature(&signerMarshaler, signer->_ED25519Signature);
-    //    if (!IsError(ErrorCode(e))) {
-    //        return e;
-    //    }
 
-    Unmarshaler *m = &transactionMarshaler;
-    Transaction  *v = transaction;
-
-    //signerMarshaler.mempool = &G_context.tx_info.arena;
     PRINTF("DO TRANSACTION MAGIC\n");
-#if 1
+#if 0
+Unmarshaler *m = &transactionMarshaler;
+Transaction  *v = transaction;
     {
         PRINTF("READ TRANSACTION \n");
         int n = 0;
@@ -259,18 +258,18 @@ int parse_transaction(uint8_t *raw_tx, uint16_t raw_tx_len, Signature *signer, T
         b = unmarshalerReadUInt(m,&size);
         CHECK_ERROR_CODE(b);
 
-        buffer_seek_cur(&m->buffer, size);
+        //buffer_seek_cur(&m->buffer, size);
         PRINTF("READING HEADER \n");
-//        {
-//                    n += b;
-//                    Unmarshaler m2 = {.buffer.ptr = m->buffer.ptr + m->buffer.offset, .buffer.size = size, .buffer.offset = 0,
-//                                      .mempool = m->mempool};
-//                    b = unmarshalerReadTransactionHeader(&m2, &v->Header);
-//                    if ( IsError(ErrorCode(b))) {
-//                        return b;
-//                    }
-//                    buffer_seek_cur(&m->buffer, b);
-//        }
+        {
+            n += b;
+            Unmarshaler m2 = {.buffer.ptr = m->buffer.ptr + m->buffer.offset, .buffer.size = size, .buffer.offset = 0,
+                              .mempool = m->mempool};
+            b = unmarshalerReadTransactionHeader(&m2, &v->Header);
+            if ( IsError(ErrorCode(b))) {
+                return b;
+            }
+            buffer_seek_cur(&m->buffer, b);
+        }
         PRINTF("Done READ Header \n");
 
 
@@ -303,15 +302,12 @@ int parse_transaction(uint8_t *raw_tx, uint16_t raw_tx_len, Signature *signer, T
     }
 
 #else
-    e = unmarshalerReadTransaction(&transactionMarshaler, transaction);
-    if (!IsError(ErrorCode(e))) {
-        return e;
-    }
+
 #endif
 
     PRINTF("post transaction parse A\n");
 
-    PRINTF("post transaction address %p", (void*)transaction->Body._SendTokens);
+    PRINTF("post transaction address %p\n", (void*)transaction->Body._SendTokens);
 
 
     return ErrorNone;
@@ -353,18 +349,19 @@ int readTransactionBody(Unmarshaler *m, TransactionBody *v) {
 
     PRINTF("READ  TRANSACTION BODY type %d\n", type);
     switch ( type ) {
-//#if _WANT_AddCredits_
-//        case TransactionTypeAddCredits:
-//            b = newAddCredits(m, v);
-//            CHECK_ERROR_CODE(b);
-//
-//            b = unmarshalerReadAddCredits(m, v->_AddCredits);
-//            CHECK_ERROR_CODE(b);
-//
-//            n += b;
-//            break;
-//#endif
-#if _WANT_SendTokens_
+        case TransactionTypeAddCredits:
+            PRINTF("Allocate AddCredits\n");
+            v->_AddCredits = (AddCredits *)unmarshalerAlloc(m, sizeof(AddCredits));
+            CHECK_ERROR_INT(v->_AddCredits);
+
+            b = readAddCredits(m, v->_AddCredits);
+            CHECK_ERROR_CODE(b);
+
+            n += b;
+            //todo: compute body hash
+
+            break;
+
         case TransactionTypeSendTokens:
 
             PRINTF("Allocate Send Tokens\n");
@@ -376,138 +373,15 @@ int readTransactionBody(Unmarshaler *m, TransactionBody *v) {
             b = readSendTokens(m, v->_SendTokens);
             CHECK_ERROR_CODE(b);
 
-                        PRINTF("Unmarshal Read Send Tokens Complete\n");
+            PRINTF("Unmarshal Read Send Tokens Complete\n");
             n += b;
+            //todo: compute body hash
+
             break;
-#endif
+
         default:
             n = ErrorNotImplemented;
     };
-    return n;
-}
 
-int readSendTokens(Unmarshaler *m, SendTokens *v) {
-    int n = 0;
-    int b = 0;
-    uint64_t field = 0;
-    v->Type = TransactionTypeSendTokens;
-
-    while ( b != (int)(m->buffer.size - m->buffer.offset) ) {
-        if ( m->buffer.offset == m->buffer.size ) {
-            return n;
-        }
-        b = unmarshalerPeekField(m,&field);
-        CHECK_ERROR_CODE(b);
-
-        switch ( field ) {
-            case 1: {
-                if ( !buffer_seek_cur(&m->buffer,1) ) {
-                    return ErrorBufferTooSmall;
-                }
-                n += 1;
-
-                uint64_t type = 0;
-                b = buffer_read_uvarint(&m->buffer, &type);
-                CHECK_ERROR_CODE(b);
-
-                if ( type != v->Type ) {
-                    return ErrorInvalidObject;
-                }
-                n += b;
-
-                break;
-            }
-            case 2: {
-                if ( !buffer_seek_cur(&m->buffer,1) ) {
-                    return ErrorBufferTooSmall;
-                }
-                n += 1;
-
-                if ( !buffer_seek_cur(&m->buffer,32) ) {
-                    return ErrorBufferTooSmall;
-                }
-                n += 32;
-                break;
-            }
-            case 3: {
-                if ( !buffer_seek_cur(&m->buffer,1) ) {
-                    return ErrorBufferTooSmall;
-                }
-                n += 1;
-                uint64_t size = 0;
-                b = buffer_read_uvarint(&m->buffer, &size);
-                CHECK_ERROR_CODE(b);
-                n += b;
-
-                //skip the buffer, don't need
-                if ( !buffer_seek_cur(&m->buffer,size) ) {
-                    return ErrorBufferTooSmall;
-                }
-                n += b;
-
-                break;
-            }
-            case 4: {
-                Unmarshaler m2 = {.buffer = m->buffer, .mempool = m->mempool};
-                v->To_length = 0;
-                while ( field == 4 ) {
-                    b = unmarshalerReadField(&m2, &field);
-                    CHECK_ERROR_CODE(b);
-
-                    uint64_t size = 0;
-                    b = unmarshalerReadUInt(&m2,&size);
-                    CHECK_ERROR_CODE(b);
-                    //skip the object
-                    buffer_seek_cur(&m2.buffer, size);
-
-                    v->To_length++;
-                    field = 0;
-                    unmarshalerPeekField(&m2, &field);
-                }
-                //now unmarshal for real...
-                v->To = (TokenRecipient*)unmarshalerAlloc(m, v->To_length*sizeof(TokenRecipient));
-                for ( size_t i = 0; i < v->To_length; ++i ) {
-                    TokenRecipient *a = &v->To[i];
-
-                    b = unmarshalerReadField(m, &field);
-                    if (IsError(ErrorCode(b))) {
-                        return b;
-                    }
-                    if (field != 4) {
-                        return ErrorInvalidField;
-                    }
-                    n += b;
-                    uint64_t size = 0;
-                    b = unmarshalerReadUInt(m, &size);
-                    CHECK_ERROR_CODE(b);
-
-                    n += b;
-                    {
-                        Unmarshaler m3 = {.buffer.ptr = m->buffer.ptr + m->buffer.offset,
-                                          .buffer.size = size,
-                                          .buffer.offset = 0,
-                                          .mempool = m->mempool};
-                        b = unmarshalerReadTokenRecipient(&m3, &v->To[i]);
-                        CHECK_ERROR_CODE(b);
-                    }
-                    buffer_seek_cur(&m->buffer, b);
-                    if ( b > (int)size ) {
-                        return ErrorInvalidObject;
-                    }
-
-                    int skip = (int)size - b;
-                    if ( !buffer_seek_cur(&m->buffer, skip) ) {
-                        return ErrorInvalidObject;
-                    }
-                    b += (int)size-b;
-                    n += b;
-                }
-                return n;
-                //break;
-            }
-            default:
-                return n;
-        }
-    }
     return n;
 }

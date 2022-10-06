@@ -40,6 +40,7 @@ static action_validate_cb g_validate_callback;
 static char g_amount[30];
 static char g_bip32_path[60];
 static char g_address[MAX_ACME_LITE_ACCOUNT_LEN];
+static buffer_t g_signer;
 //static char g_address_name[64];
 //static char g_lite_account[MAX_ACME_LITE_ACCOUNT_LEN];
 
@@ -71,6 +72,13 @@ UX_STEP_NOCB(ux_display_lite_step,
              {
                  .title = "Lite Identity",
                  .text =  G_context.pk_info.lite_account,
+             });
+
+UX_STEP_NOCB(ux_display_signer_url,
+             bnnn_paging,
+             {
+                 .title = "Lite Identity",
+                 .text =  g_signer.ptr+g_signer.offset,
              });
 
 // Step with approve button

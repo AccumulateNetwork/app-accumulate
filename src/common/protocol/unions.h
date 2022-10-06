@@ -18,25 +18,25 @@ typedef union {
 } TransactionBody;
 
 
+//common signature struct
 typedef struct {
         SignatureType Type;
+        Bytes PublicKey;  //`json:"publicKey,omitempty" form:"publicKey" query:"publicKey" validate:"required"`
+        Bytes Signature;  //`json:"signature,omitempty" form:"signature" query:"signature" validate:"required"`
+        Url Signer;  //`json:"signer,omitempty" form:"signer" query:"signer" validate:"required"`
+        UVarInt SignerVersion;  //`json:"signerVersion,omitempty" form:"signerVersion" query:"signerVersion" validate:"required"`
+        UVarInt Timestamp;  //`json:"timestamp,omitempty" form:"timestamp" query:"timestamp"`
+        VoteType Vote;  //`json:"vote,omitempty" form:"vote" query:"vote"`
+        Bytes32 TransactionHash;  //`json:"transactionHash,omitempty" form:"transactionHash" query:"transactionHash"`
 } SignatureTypeUnion;
 
 typedef union {
         SignatureTypeUnion *_u;
-        struct BTCLegacySignature *_BTCLegacySignature;
         struct BTCSignature *_BTCSignature;
-        struct DelegatedSignature *_DelegatedSignature;
         struct ED25519Signature *_ED25519Signature;
         struct ETHSignature *_ETHSignature;
-        struct InternalSignature *_InternalSignature;
-        struct LegacyED25519Signature *_LegacyED25519Signature;
-        struct PartitionSignature *_PartitionSignature;
         struct RCD1Signature *_RCD1Signature;
-        struct ReceiptSignature *_ReceiptSignature;
-        struct RemoteSignature *_RemoteSignature;
-        struct SignatureSet *_SignatureSet;
-} Signature;
+ } Signature;
 
 bool TransactionBody_equal(const TransactionBody *a,const TransactionBody *b);
 //bool TransactionType_equal(const TransactionType *a, const TransactionType *b);

@@ -16,7 +16,7 @@ bool IsErrorCode(int e) {
     return ErrorCode(e).code != ErrorNone;
 }
 
-Error ErrorCode(ErrorEnum e) {
+Error ErrorCode(int e) {
 
     static Error errors[] = {
 #ifdef WANT_TEXT
@@ -71,16 +71,16 @@ Error ErrorCode(ErrorEnum e) {
         {ErrorExpectingType, {0}},
 #endif
     };
-    //if we have an error code greater than zero that makes it in here, then it is not indended as an error
+    //if we have an error code greater than zero that makes it in here, then it is not intended as an error
     if ( (int)(e) >= 0 ) {
         return errors[ErrorNone];
     }
 
     //if we have an enum error that wasn't included in the list, then we have an error
-    if ( abs(e) > (int)sizeof(errors) ) {
+    if ( abs((int)e) >= (int)abs(ErrorMaxError) ) {
         return errors[abs(ErrorInvalidEnum)];
     }
 
-    return errors[abs(e)];
+    return errors[abs((int)e)];
 }
 
