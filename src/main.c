@@ -35,7 +35,6 @@ ux_state_t G_ux;
 bolos_ux_params_t G_ux_params;
 global_ctx_t G_context;
 
-void init_canary();
 
 /**
  * Handle APDU command received and send back APDU response using handlers.
@@ -116,7 +115,6 @@ void app_exit() {
  */
 __attribute__((section(".boot"))) int main() {
     __asm volatile("cpsie i");
-    init_canary();
     os_boot();
 
     for (;;) {
