@@ -29,6 +29,8 @@
 #include "apdu/parser.h"
 #include "apdu/dispatcher.h"
 
+void init_canary();
+
 uint8_t G_io_seproxyhal_spi_buffer[IO_SEPROXYHAL_BUFFER_SIZE_B];
 io_state_e G_io_state;
 ux_state_t G_ux;
@@ -109,13 +111,12 @@ void app_exit() {
     }
     END_TRY_L(exit);
 }
-
 /**
  * Main loop to setup USB, Bluetooth, UI and launch app_main().
  */
 __attribute__((section(".boot"))) int main() {
     __asm volatile("cpsie i");
-
+    init_canary();
     os_boot();
 
     for (;;) {

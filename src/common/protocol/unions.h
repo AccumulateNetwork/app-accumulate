@@ -4,7 +4,9 @@
 #include <common/protocol/enum.h>
 #include <common/encoding/encoding.h>
 #include <common/encoding/marshaler.h>
-
+#ifndef PRINTF
+#define PRINTF
+#endif
 typedef struct {
         TransactionType Type;
 } TransactionTypeUnion;

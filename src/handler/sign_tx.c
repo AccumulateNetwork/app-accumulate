@@ -31,6 +31,7 @@
 #include "../common/buffer.h"
 #include "../transaction/types.h"
 #include "../transaction/deserialize.h"
+#include "../transaction/utils.h"
 
 int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more) {
     if (chunk == 0) {  // first APDU, parse BIP32 path
@@ -76,106 +77,25 @@ int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more) {
             return io_send_sw(SW_OK);
         }
 
-        PRINTF("Checkpoint C: %d\n", G_context.tx_info.raw_tx_len);
-        // we have received all the APDU's so let's parse and sign
-        buffer_t buf = {.ptr = G_context.tx_info.raw_tx,
-                        .size = G_context.tx_info.raw_tx_len,
-                        .offset = 0};
+        PRINTF("checkpoint parse C\n");
+        Signature signer;
+#if 1
+        G_context.tx_info.arena.ptr = G_context.tx_info.raw_tx + G_context.tx_info.raw_tx_len;
+        G_context.tx_info.arena.offset = 0;
+        G_context.tx_info.arena.size = sizeof(G_context.tx_info.raw_tx) - G_context.tx_info.raw_tx_len;
 
-        // now we need to go through the transaction and identify the header, body, and hash
-        uint16_t len = 0;
-        if (!buffer_read_u16(&buf, &len, BE)) {
-            return io_send_sw(SW_TX_PARSING_FAIL);
+        //signer._ED25519Signature = &G_context.tx_info.edsig;
+        int e = parse_transaction(G_context.tx_info.raw_tx, G_context.tx_info.raw_tx_len,
+                          &signer, &G_context.tx_info.transaction, &G_context.tx_info.arena,
+                                  G_context.tx_info.m_hash, sizeof(G_context.tx_info.m_hash));
+        if ( IsError(ErrorCode(e))) {
+            return io_send_sw(SW_ENCODE_ERROR(ErrorCode(e)));
         }
-
-        // set the signer buffer
-        buffer_t signerBuffer = {.ptr = buf.ptr + buf.offset, .size = len, .offset = 0};
-        if (!buffer_seek_cur(&buf, len)) {
-            return io_send_sw(SW_WRONG_TX_LENGTH);
-        }
-
-        // read the transaction length
-        if (!buffer_read_u16(&buf, &len, BE)) {
-            return io_send_sw(SW_TX_PARSING_FAIL);
-        }
-
-        // set the transaction buffer
-        buffer_t transactionBuffer = {.ptr = buf.ptr + buf.offset, .size = len, .offset = 0};
-        if (!buffer_seek_cur(&buf, len)) {
-            return io_send_sw(SW_TX_PARSING_FAIL);
-        }
-
-        // temporary
-        // read cheat code
-        uint8_t hlen = 0;
-        if (!buffer_read_u8(&buf, &hlen)) {
-            return io_send_sw(0xB0EE);  // SW_TX_PARSING_FAIL);
-        }
-
-        if (hlen != sizeof(G_context.tx_info.m_hash)) {
-            return io_send_sw(0xB000 + hlen);  // SW_TX_PARSING_FAIL);
-        }
-
-        // sign this
-        if (!buffer_move(&buf, G_context.tx_info.m_hash, sizeof(G_context.tx_info.m_hash))) {
-            return io_send_sw(0xB0F1);
-        }
-//
-//        uint8_t arena[ARENA_SIZE] = {0};
-//        buffer_t mempool = {arena, ARENA_SIZE, 0};
-//        explicit_bzero(arena, ARENA_SIZE);
-//        {
-//            // we have signer buffer, now process it
-//            Unmarshaler m = NewUnmarshaler(&signerBuffer, &mempool);
-//            // int e = unmarshalerReadSignature(&m, &G_context.tx_info.signer);
-//            int e = unmarshalerReadED25519Signature(&m, &G_context.tx_info.edSig);
-//            if (IsError(ErrorCode(e))) {
-//                return io_send_sw(SW_ENCODE_ERROR(ErrorCode(e)));
-//            }
-//        }
-        {
-            Transaction tx;
-//            TransactionHeader header;
-//            TokenRecipient tok;
-//            SendTokens s = {.To_length = 1, .To = &tok, .Type = TransactionTypeSendTokens};
-//
-//            s.To_length = 1;
-//            s.To = &tok;
-//            tx.Body._SendTokens = &s;
-//
-//            buffer_seek_cur(&transactionBuffer, 1);
-//            uint64_t size = 0;
-//            int b = uvarint_read(transactionBuffer.ptr+transactionBuffer.offset,transactionBuffer.size - transactionBuffer.offset, &size);
-//            buffer_seek_cur(&transactionBuffer, b);
-//            buffer_seek_cur(&transactionBuffer, size);
-//
-//            buffer_seek_cur(&transactionBuffer, 1);
-//            size = 0;
-//            b = uvarint_read(transactionBuffer.ptr+transactionBuffer.offset,transactionBuffer.size - transactionBuffer.offset, &size);
-//            buffer_seek_cur(&transactionBuffer, b);
-//            buffer_seek_cur(&transactionBuffer, size);
-            uint8_t arena[ARENA_SIZE] = {0};
-            buffer_t mempool = {arena, ARENA_SIZE, 0};
-            explicit_bzero(arena, ARENA_SIZE);
-
-            Unmarshaler m = NewUnmarshaler(&transactionBuffer, &mempool);
-            int e = unmarshalerReadTransaction(&m, &tx);
-            if (IsError(ErrorCode(e))) {
-                return io_send_sw(0xBAC0);
-            }
-
-            Signature signer;
-            m = NewUnmarshaler(&signerBuffer, &mempool);
-            e = unmarshalerReadSignature(&m, &signer);
-            if (IsError(ErrorCode(e))) {
-                return io_send_sw(0xBACC);
-            }
-        }
-        io_send_sw(0xBAD0);
-
+        PRINTF("checkpoint post parse C\n");
+#endif
         G_context.state = STATE_PARSED;
 
-        return 0;//ui_display_transaction(&G_context.tx_info.signer, &G_context.tx_info.transaction);
+        return ui_display_transaction(&signer, &G_context.tx_info.transaction);
     }
 
     return 0;

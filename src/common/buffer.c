@@ -102,18 +102,18 @@ bool buffer_read_u32(buffer_t *buffer, uint32_t *value, endianness_t endianness)
     return true;
 }
 
-bool buffer_read_varint(buffer_t *buffer, int64_t *value) {
+int buffer_read_varint(buffer_t *buffer, int64_t *value) {
     int length = varint_read(buffer->ptr + buffer->offset, buffer->size - buffer->offset, value);
 
     if (length < 0) {
         *value = 0;
 
-        return false;
+        return length;
     }
 
     buffer_seek_cur(buffer, (size_t) length);
 
-    return true;
+    return length;
 }
 
 bool buffer_read_u64(buffer_t *buffer, uint64_t *value, endianness_t endianness) {
@@ -131,18 +131,18 @@ bool buffer_read_u64(buffer_t *buffer, uint64_t *value, endianness_t endianness)
     return true;
 }
 
-bool buffer_read_uvarint(buffer_t *buffer, uint64_t *value) {
+int buffer_read_uvarint(buffer_t *buffer, uint64_t *value) {
     int length = uvarint_read(buffer->ptr + buffer->offset, buffer->size - buffer->offset, value);
 
     if (length < 0) {
         *value = 0;
 
-        return false;
+        return length;
     }
 
     buffer_seek_cur(buffer, (size_t) length);
 
-    return true;
+    return length;
 }
 
 bool buffer_read_bip32_path(buffer_t *buffer, uint32_t *out, size_t out_len) {
@@ -177,20 +177,6 @@ bool buffer_move(buffer_t *buffer, uint8_t *out, size_t out_len) {
 
     return true;
 }
-//#include <stdlib.h>
-//int hextobin(const char *v, uint8_t *s, int n) {
-//    int i;
-//    char _t[3];
-//    unsigned char *p = v;
-//    n = strlen(v)/2;
-//    for (i=0; i<n; ++i) {
-//        memcpy(_t, p, 2);
-//        _t[2] = '\0';
-//        s[i] = (int)strtol(_t, NULL, 16);
-//        p += 2;
-//    }
-//    return n/2;
-//}
 
 int hextobin(const char *hexStr, int hexLen, uint8_t *output, int outputLen) {
     size_t len = hexLen;
@@ -199,7 +185,7 @@ int hextobin(const char *hexStr, int hexLen, uint8_t *output, int outputLen) {
     }
     const char offset = 'a' - 'A';
     size_t finalLen = len / 2;
-    if ( outputLen < finalLen ) {
+    if ( outputLen < (int) finalLen ) {
         return -1;
     }
     for (size_t inIdx = 0, outIdx = 0; outIdx < finalLen; inIdx += 2, outIdx++) {

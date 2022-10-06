@@ -219,28 +219,20 @@ int marshalerWriteString(Marshaler *m, const struct String *v) {
 }
 
 int marshalerWriteUrl(Marshaler *m, const struct Url *v) {
-    CHECK_ERROR_INT(v)
     return marshalerWriteBytes(m, &v->data);
 }
 
 int marshalerWriteRawJson(Marshaler *m, const struct RawJson *v) {
-    CHECK_ERROR_INT(v)
     return marshalerWriteBytes(m, &v->data);
 }
 
 int unmarshalerReadInt(Unmarshaler *m, int64_t *n) {
-    CHECK_ERROR_INT(m)
-    CHECK_ERROR_INT(n)
-
     int offset = varint_read(m->buffer.ptr + m->buffer.offset,m->buffer.size - m->buffer.offset,n);
     m->buffer.offset += offset;
     return offset;
 }
 
 int unmarshalerReadByte(Unmarshaler *m, uint8_t *field) {
-    CHECK_ERROR_INT(m)
-    CHECK_ERROR_INT(field)
-
     if (!buffer_can_read(&m->buffer, 1)) {
         return ErrorBufferTooSmall;
     }
@@ -250,12 +242,7 @@ int unmarshalerReadByte(Unmarshaler *m, uint8_t *field) {
 }
 
 int unmarshalerReadUInt(Unmarshaler *m, uint64_t *field) {
-    CHECK_ERROR_INT(m)
-    CHECK_ERROR_INT(field)
-
-    int offset = uvarint_read(m->buffer.ptr + m->buffer.offset,m->buffer.size - m->buffer.offset,field);
-    m->buffer.offset += offset;
-    return offset;
+    return buffer_read_uvarint(&m->buffer, field);
 }
 
 int unmarshalerPeekField(Unmarshaler *m, uint64_t *field) {
@@ -271,9 +258,6 @@ int unmarshalerReadField(Unmarshaler *m, uint64_t *field) {
 }
 
 int unmarshalerReadVarInt(Unmarshaler *m, struct VarInt *v) {
-    CHECK_ERROR_INT(m)
-    CHECK_ERROR_INT(v)
-
     int64_t n = 0;
     int offset = varint_read(m->buffer.ptr + m->buffer.offset,m->buffer.size - m->buffer.offset,&n);
 
@@ -286,22 +270,20 @@ int unmarshalerReadVarInt(Unmarshaler *m, struct VarInt *v) {
 }
 
 int unmarshalerReadUVarInt(Unmarshaler *m, struct UVarInt *v) {
-    CHECK_ERROR_INT(m)
-    CHECK_ERROR_INT(v)
-
     uint64_t n = 0;
-    int offset = uvarint_read(m->buffer.ptr + m->buffer.offset,m->buffer.size - m->buffer.offset,&n);
 
     v->data.buffer.ptr = m->buffer.ptr + m->buffer.offset;
-    v->data.buffer.size = offset; //store the number of bytes this takes up.
     v->data.buffer.offset = 0;
-    m->buffer.offset += offset;
+    int offset = buffer_read_uvarint(&m->buffer,&n);
+    if ( offset < 0 ) {
+        return ErrorUVarIntRead;
+    }
+    v->data.buffer.size = offset;
+
     return offset;
 }
 
 int unmarshalerReadBytes(Unmarshaler *m, struct Bytes *v) {
-    CHECK_ERROR_INT(m)
-    CHECK_ERROR_INT(v)
     uint64_t size = 0;
     int a = unmarshalerReadUInt(m, &size);
     if (IsError(ErrorCode(a))) {
@@ -316,9 +298,6 @@ int unmarshalerReadBytes(Unmarshaler *m, struct Bytes *v) {
 }
 
 int unmarshalerReadBytesRaw(Unmarshaler *m, struct Bytes *v, size_t size) {
-    CHECK_ERROR_INT(m)
-    CHECK_ERROR_INT(v)
-
     if ( !buffer_can_read(&m->buffer, size ) ) {
         return ErrorParameterInsufficientData;
     }
@@ -326,23 +305,20 @@ int unmarshalerReadBytesRaw(Unmarshaler *m, struct Bytes *v, size_t size) {
     v->buffer.ptr = m->buffer.ptr + m->buffer.offset;
     v->buffer.offset = 0;
     v->buffer.size = size;
-    m->buffer.offset += size;
 
+    buffer_seek_cur(&m->buffer, size);
     return (int)size;
 
 }
 int unmarshalerReadBytes32(Unmarshaler *m, struct Bytes32 *v) {
-    CHECK_ERROR_INT(v)
     return unmarshalerReadBytesRaw(m,&v->data, 32);
 }
 
 int unmarshalerReadBytes64(Unmarshaler *m, struct Bytes64 *v) {
-    CHECK_ERROR_INT(v)
     return unmarshalerReadBytesRaw(m,&v->data, 64);
 }
 
 int unmarshalerReadBigInt(Unmarshaler *m, struct BigInt *v) {
-    CHECK_ERROR_INT(v)
     return unmarshalerReadBytes(m,&v->data);
 }
 

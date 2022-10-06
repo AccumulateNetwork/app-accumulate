@@ -17,6 +17,7 @@
 
 // Adapted from https://github.com/calccrypto/uint256_t
 
+#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <memory.h>
@@ -70,8 +71,8 @@ void writeu128BE(uint128_t *source, uint8_t *buffer) {
 }
 
 void writeu256BE(uint256_t *source, uint8_t *buffer) {
-    writeu64BE(source, buffer);
-    writeu64BE(source + 16, buffer + 8);
+    writeu128BE(&UPPER_P(source), buffer);
+    writeu128BE(&LOWER_P(source), buffer + 16);
 }
 
 bool zero128(uint128_t *number) {
@@ -541,9 +542,6 @@ static void reverseString(char *str, uint32_t length) {
     }
 }
 
-bool fromString256(const char *in, uint256_t *out) {
-
-}
 
 bool tostring128(uint128_t *number, uint32_t baseParam, char *out,
                  uint32_t outLength) {
@@ -613,7 +611,7 @@ int tobytes256(uint256_t *number, uint8_t *out, uint32_t outLength) {
 }
 
 int fromstring256(const char *in, size_t inLen, uint256_t *number) {
-    int bytesConsumed = 0;
+    size_t bytesConsumed = 0;
     clear256(number);
 
     uint256_t number2;
@@ -642,7 +640,7 @@ int fromstring256(const char *in, size_t inLen, uint256_t *number) {
         ++bytesConsumed;
     }
 
-    return bytesConsumed;
+    return (int)bytesConsumed;
 }
 
 int frombytes256(const uint8_t *in, size_t inLen, uint256_t *number) {

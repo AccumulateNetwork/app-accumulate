@@ -16,6 +16,7 @@
 #include <common/protocol/transaction.h>
 #include <common/protocol/unions.h>
 #include <common/protocol/signatures.h>
+#include <transaction/utils.h>
 
 typedef struct {
    Bytes32 a;
@@ -37,8 +38,17 @@ test_e init_test_e_from_buffer(buffer_t *buffer) {
 static void test_encoding_apdu(void **state) {
 
     char *apdu_payload = "008b01020220e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11043b6163633a2f2f6336613632396639613635626632313135396335646662666662633836386563336165363163653436353131303865632f41434d450501069ca3e4b4ba3008c4dcfc1b86ccdd0cd7937fcb2619a2735b59f8119a43cd7d396690b5c017bf0400b6016b013b6163633a2f2f6336613632396639613635626632313135396335646662666662633836386563336165363163653436353131303865632f41434d45022aa4dd0e234834061b2ec1402b95e7888af941f6d47d3a5d82e15789c47c82c9030b6c65646765722074657374024701030443013b6163633a2f2f6639666562393361313063616632646466313633396336666634353934666262313939633964653963643130636134372f41434d4502043b9aca002036fbe60414509eb11b04b900d8d69191e456fac7b33a74842af7272968c308e5";
-    uint8_t raw_tx[1024] = {0};
+    uint8_t raw_tx[600] = {0};
     hextobin(apdu_payload, strlen(apdu_payload), raw_tx, sizeof(raw_tx));
+
+    printf("G_context.tx_info.raw_tx_len = 0;\n");
+    for ( int i = 0; i < strlen(apdu_payload)/2; i++) {
+        printf("G_context.tx_info.raw_tx[G_context.tx_info.raw_tx_len++] = 0x%x;  ",raw_tx[i]);
+        if ( i % 20 == 0 ) {
+            printf("\n");
+        }
+    }
+    printf("\n");
 
     int raw_tx_len = strlen(apdu_payload)/2;
     // we have received all the APDU's so let's parse and sign
@@ -46,6 +56,14 @@ static void test_encoding_apdu(void **state) {
             .size = raw_tx_len,
             .offset = 0};
 
+    buffer_t arena = {.ptr = raw_tx + raw_tx_len, .size = sizeof(raw_tx) - raw_tx_len, 0};
+
+    Signature signer;
+    Transaction transaction;
+    uint8_t hash[32] = {0};
+    int e = parse_transaction(raw_tx, raw_tx_len, &signer, &transaction, &arena,hash, sizeof(hash));
+    assert_false(IsError(ErrorCode(e)));
+#if 0
     // now we need to go through the transaction and identify the header, body, and hash
     uint16_t len = 0;
     assert_true(buffer_read_u16(&buf, &len, BE));
@@ -86,6 +104,7 @@ static void test_encoding_apdu(void **state) {
     m = NewUnmarshaler(&signerBuffer, &mempool);
     e = unmarshalerReadSignature(&m, &signer);
     assert_false(IsError(ErrorCode(e)));
+#endif
 }
 
 static void test_encoding_transaction(void **state) {

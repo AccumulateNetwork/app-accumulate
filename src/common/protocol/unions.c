@@ -6,7 +6,14 @@
 
 #define _ACCUMULATE_UNION_SOURCE_
 
-
+//typedef union {
+//    SignatureTypeUnion _u;
+//    struct BTCSignature _BTCSignature;
+//    struct ED25519Signature _ED25519Signature;
+//    struct ETHSignature _ETHSignature;
+//    struct RCD1Signature _RCD1Signature;
+//} Signature_t;
+//Signature_t gSignature;
 #ifdef _ACCUMULATE_UNION_SOURCE_
 
 //EqualTransactionBody is used to compare the values of the union
@@ -46,6 +53,7 @@ int newAddCredits(Unmarshaler *m, TransactionBody *v) {
 #if _WANT_SendTokens_
 int newSendTokens(Unmarshaler *m, TransactionBody *v) {
     v->_SendTokens = (SendTokens*)unmarshalerAlloc(m, sizeof(SendTokens));
+    PRINTF("allocate SEND TOKENS %p size %d\n", v->_SendTokens, sizeof(SendTokens));
     CHECK_ERROR_INT(v->_SendTokens)
     return ErrorNone;
 }
@@ -57,7 +65,7 @@ int unmarshalerReadTransactionBody(Unmarshaler *m, TransactionBody *v) {
     int n = 0;
     uint64_t field = 0;
     uint64_t type = 0;
-
+    PRINTF("ENTERING READ TRANSACTION BODY\n");
     int b = unmarshalerReadField(m, &field);
     if ( IsError(ErrorCode(b))) {
         return b;
@@ -68,11 +76,14 @@ int unmarshalerReadTransactionBody(Unmarshaler *m, TransactionBody *v) {
     }
     n += b;
 
+        PRINTF("DONE READ FIELD\n");
     b = unmarshalerReadUInt(m, &type);
     if ( IsError(ErrorCode(b))) {
         return b;
     }
     n += b;
+
+    PRINTF("READ  TRANSACTION BODY type %d\n", type);
     switch ( type ) {
 #if _WANT_AddCredits_
         case TransactionTypeAddCredits:
@@ -89,10 +100,14 @@ int unmarshalerReadTransactionBody(Unmarshaler *m, TransactionBody *v) {
 #endif
 #if _WANT_SendTokens_
         case TransactionTypeSendTokens:
+
+            PRINTF("Allocate Send Tokens\n");
             b = newSendTokens(m, v);
             if ( IsError(ErrorCode(b))) {
                 return b;
             }
+
+            PRINTF("Unmarshal Read Send TOkens\n");
             b = unmarshalerReadSendTokens(m, v->_SendTokens);
             if ( IsError(ErrorCode(b))) {
                 return b;
@@ -327,10 +342,11 @@ int unmarshalerReadSignature(Unmarshaler *m, Signature *v) {
 #endif
 #if _WANT_BTCSignature_
         case SignatureTypeBTC:
-            b = newBTCSignature(m, v);
-            if ( IsError(ErrorCode(b))) {
-                return b;
-            }
+//            b = newBTCSignature(m, v);
+//            if ( IsError(ErrorCode(b))) {
+//                return b;
+//            }
+            v->_BTCSignature = &gSignature._BTCSignature;
             b = unmarshalerReadBTCSignature(m, v->_BTCSignature);
             if ( IsError(ErrorCode(b))) {
                 return b;
@@ -357,6 +373,8 @@ int unmarshalerReadSignature(Unmarshaler *m, Signature *v) {
             if ( IsError(ErrorCode(b))) {
                 return b;
             }
+
+            //v->_ED25519Signature = &gSignature._ED25519Signature;
             b = unmarshalerReadED25519Signature(m, v->_ED25519Signature);
             if ( IsError(ErrorCode(b))) {
                 return b;
@@ -366,10 +384,12 @@ int unmarshalerReadSignature(Unmarshaler *m, Signature *v) {
 #endif
 #if _WANT_ETHSignature_
         case SignatureTypeETH:
-            b = newETHSignature(m, v);
-            if ( IsError(ErrorCode(b))) {
-                return b;
-            }
+//            b = newETHSignature(m, v);
+//            if ( IsError(ErrorCode(b))) {
+//                return b;
+//            }
+//
+            v->_ETHSignature = &gSignature._ETHSignature;
             b = unmarshalerReadETHSignature(m, v->_ETHSignature);
             if ( IsError(ErrorCode(b))) {
                 return b;
@@ -418,10 +438,12 @@ int unmarshalerReadSignature(Unmarshaler *m, Signature *v) {
 #endif
 #if _WANT_RCD1Signature_
         case SignatureTypeRCD1:
-            b = newRCD1Signature(m, v);
-            if ( IsError(ErrorCode(b))) {
-                return b;
-            }
+//            b = newRCD1Signature(m, v);
+//            if ( IsError(ErrorCode(b))) {
+//                return b;
+//            }
+            v->_RCD1Signature = &gSignature._RCD1Signature;
+
             b = unmarshalerReadRCD1Signature(m, v->_RCD1Signature);
             if ( IsError(ErrorCode(b))) {
                 return b;

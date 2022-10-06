@@ -84,12 +84,16 @@ typedef struct {
 typedef struct {
     uint8_t raw_tx[MAX_TRANSACTION_LEN /*+MAX_SIGNATURE_HEADER_LEN*/];  /// raw transaction serialized
     size_t raw_tx_len;                    /// length of raw transaction
-    uint8_t arena[ARENA_SIZE];
-    ED25519Signature edSig;
-    Signature signer;
+    buffer_t arena;
+//    union {
+//        ED25519Signature ed25519;
+//        RCD1Signature rcd;
+//        BTCSignature btc;
+//        ETHSignature eth;
+//    }
+    //ED25519Signature edsig;
+    //Signature signer;
     Transaction transaction;
-    //signer_t signer2;
-    //transaction_t transaction2;            /// structured transaction
     uint8_t m_hash[32];                   /// message hash digest
     uint8_t signature[MAX_DER_SIG_LEN];   /// transaction signature encoded in DER
     uint8_t signature_len;                /// length of transaction signature

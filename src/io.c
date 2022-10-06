@@ -25,7 +25,20 @@
 #include "sw.h"
 #include "common/buffer.h"
 #include "common/write.h"
+// This symbol is defined by the link script to be at the start of the stack
+// area.
+extern unsigned long _stack;
 
+#define STACK_CANARY (*((volatile uint32_t*) &_stack))
+
+void init_canary() {
+    STACK_CANARY = 0xDEADBEEF;
+}
+
+void check_canary() {
+    if (STACK_CANARY != 0xDEADBEEF)
+        THROW(EXCEPTION_OVERFLOW);
+}
 uint32_t G_output_len = 0;
 
 void io_seproxyhal_display(const bagl_element_t *element) {
@@ -58,6 +71,7 @@ uint8_t io_event(uint8_t channel __attribute__((unused))) {
     if (!io_seproxyhal_spi_is_status_sent()) {
         io_seproxyhal_general_status();
     }
+    //check_canary();
 
     return 1;
 }

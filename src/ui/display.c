@@ -153,9 +153,16 @@ UX_STEP_NOCB(ux_display_hash_step,
              bnnn_paging,
              {
                  .title = "Transaction Hash",
-                 .text = G_context.tx_info.m_hash,
+                 .text = g_address,
              });
 
+
+
+
+UX_FLOW(ux_display_transaction_hash_flow,
+        &ux_display_hash_step,
+        &ux_display_approve_step,
+        &ux_display_reject_step);
 
 // FLOW to display transaction information:
 // #1 screen : eye icon + "Review Transaction"
@@ -200,18 +207,31 @@ int setDisplayAmount(Url *url, BigInt *amount) {
 }
 
 int ui_display_transaction(Signature *signer, Transaction *transaction) {
+
+    PRINTF("checkpoint pre display tx 1\n");
+
     if (G_context.req_type != CONFIRM_TRANSACTION || G_context.state != STATE_PARSED) {
         G_context.state = STATE_NONE;
         return io_send_sw(SW_BAD_STATE);
     }
+    format_hex(G_context.tx_info.m_hash, sizeof(G_context.tx_info.m_hash), g_address, sizeof(g_address));
+    PRINTF("checkpoint pre display tx 2 %s\n", g_address);
+//
+//    memset(g_address, 0, sizeof(g_address));
+//    snprintf(g_address, sizeof(g_address), "0x%.*H", 32, G_context.tx_info.m_hash);
+    g_validate_callback = &ui_action_validate_transaction_hash;
+    ux_flow_init(0, ux_display_transaction_hash_flow, NULL);
 
-    const int addCredits =  TransactionTypeAddCredits;
+    return 0;
     //decode the signer
     //signerBuffer
     //decode transaction type:
+    PRINTF("Address of Body: %p\n", ( void * )transaction->Body._u );
     switch ((int)transaction->Body._u->Type) {
         case TransactionTypeAddCredits: {
-            AddCredits *c = (AddCredits*)(&transaction->Body);
+
+            PRINTF("AddCredits tx\n");
+            AddCredits *c = transaction->Body._AddCredits;
             int e = setDisplayAmount(&c->Recipient, &c->Amount);
             if (IsError(ErrorCode(e))) {
                 return e;
@@ -221,10 +241,13 @@ int ui_display_transaction(Signature *signer, Transaction *transaction) {
             break;
         }
         case TransactionTypeSendTokens: {
-            SendTokens *s = (SendTokens*)(&transaction->Body);
+
+                       PRINTF("SendTokens tx\n");
+            SendTokens *s = transaction->Body._SendTokens;
             if ( s->To_length > 1 || s->To_length == 0 ) {
                 return SW_DISPLAY_AMOUNT_FAIL;
             }
+
 
             int e = setDisplayAmount(&s->To[0].Url, &s->To[0].Amount);
             if (IsError(ErrorCode(e))) {

@@ -739,7 +739,7 @@ ACME_API int unmarshalerReadSendTokens(Unmarshaler *m, SendTokens *v) {
     int b = 0;
     uint64_t field = 0;
     v->Type = TransactionTypeSendTokens;
-
+#if 0
     while ( b != m->buffer.size - m->buffer.offset ) {
         if ( m->buffer.offset == m->buffer.size ) {
             return n;
@@ -827,7 +827,8 @@ ACME_API int unmarshalerReadSendTokens(Unmarshaler *m, SendTokens *v) {
                 return n;
         }
     }
-#if 0
+#endif
+#if 1
     if ( m->buffer.offset == m->buffer.size ) {
         return n;
     }
@@ -851,10 +852,9 @@ ACME_API int unmarshalerReadSendTokens(Unmarshaler *m, SendTokens *v) {
         if ( IsError(ErrorCode(b))) {
             return b;
         }
-        if ( type != unionType ) {
+        if ( type != v->Type ) {
             return ErrorInvalidObject;
         }
-        n += b;
 
         n += b;
     }
@@ -917,8 +917,6 @@ ACME_API int unmarshalerReadSendTokens(Unmarshaler *m, SendTokens *v) {
     }
     if ( field == 4 )
     {
-        return ErrorParameterNil;
-
         Unmarshaler m2 = NewUnmarshaler(&m->buffer,m->mempool);
         v->To_length = 0;
         while ( field == 4 ) {
@@ -1364,7 +1362,7 @@ bool Transaction_equal(const Transaction *v, const Transaction *u) {
 /// Binary Marshalers
 /// Binary Unmarshalers
 // UnmarshalBinary unmarshals the transaction from bytes as a unsigned varint.
-ACME_API int unmarshalerReadTransaction(Unmarshaler *m, Transaction *v) {
+ACME_API int unmarshalerReadTransaction(volatile Unmarshaler *m, Transaction *v) {
     CHECK_ERROR_INT(m)
     CHECK_ERROR_INT(v)
     int n = 0;
@@ -1394,6 +1392,7 @@ ACME_API int unmarshalerReadTransaction(Unmarshaler *m, Transaction *v) {
         if ( IsError(ErrorCode(b)) ) {
             return b;
         }
+
         n += b;
         Unmarshaler m2 = {.buffer.ptr = m->buffer.ptr + m->buffer.offset, .buffer.size = size, .buffer.offset = 0,
                           .mempool = m->mempool};
@@ -1402,6 +1401,7 @@ ACME_API int unmarshalerReadTransaction(Unmarshaler *m, Transaction *v) {
             return b;
         }
         buffer_seek_cur(&m->buffer, b);
+
 
         n += b;
     }

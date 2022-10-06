@@ -6,7 +6,6 @@
 #include <common/encoding/encoding.h>
 #include <common/protocol/enum.h>
 #include <common/protocol/unions.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -213,7 +212,7 @@ ACME_API int TokenRecipient_binarySize(const TokenRecipient *v);
 #if _WANT_Transaction_
 
 ACME_API bool Transaction_equal(const Transaction *v, const Transaction *u);
-ACME_API int unmarshalerReadTransaction(Unmarshaler *m, Transaction *v);
+ACME_API int unmarshalerReadTransaction(volatile Unmarshaler *m, Transaction *v);
 ACME_API int marshalerWriteTransaction(Marshaler *m, const Transaction*v);
 ACME_API int Transaction_binarySize(const Transaction *v);
 

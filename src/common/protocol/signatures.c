@@ -1424,8 +1424,10 @@ static DelegatedSignature DelegatedSignature_init(DelegatedSignature *v) {
 SignatureType ED25519_type(void) { return SignatureTypeED25519; }
 
 
+
 /// Comparisons
 bool ED25519Signature_equal(const ED25519Signature *v, const ED25519Signature *u) {
+#if 0
     {
         const SignatureType *a = &v->Type;
         const SignatureType *b = &u->Type;
@@ -1483,6 +1485,7 @@ bool ED25519Signature_equal(const ED25519Signature *v, const ED25519Signature *u
         }
     }
 
+#endif
     return true;
 }
 
@@ -1498,7 +1501,7 @@ ACME_API int unmarshalerReadED25519Signature(Unmarshaler *m, ED25519Signature *v
     int b = 0;
     uint64_t field = 0;
 
-    uint64_t unionType = SignatureTypeED25519;
+    v->Type = SignatureTypeED25519;
     if ( m->buffer.offset == m->buffer.size ) {
         return n;
     }
@@ -1522,7 +1525,7 @@ ACME_API int unmarshalerReadED25519Signature(Unmarshaler *m, ED25519Signature *v
         if ( IsError(ErrorCode(b))) {
             return b;
         }
-        if ( type != unionType ) {
+        if ( type != v->Type ) {
             return ErrorInvalidObject;
         }
 
@@ -1716,7 +1719,7 @@ ACME_API int marshalerWriteED25519Signature(Marshaler *m,const ED25519Signature*
     int n = 0;
     int b = 0;
 
-
+#if 0
     if ( v->Type != SignatureTypeED25519 ) {
         return ErrorInvalidObject;
     }
@@ -1960,7 +1963,7 @@ ACME_API int marshalerWriteED25519Signature(Marshaler *m,const ED25519Signature*
         n += b;
     }
 
-
+#endif
     return n;
 }
 

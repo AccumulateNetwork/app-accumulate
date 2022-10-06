@@ -12,9 +12,14 @@ Error Error_init(Error *e) {
 bool IsError(Error e) {
     return e.code != ErrorNone;
 }
+bool IsErrorCode(int e) {
+    return ErrorCode(e).code != ErrorNone;
+}
 
 Error ErrorCode(ErrorEnum e) {
+
     static Error errors[] = {
+#ifdef WANT_TEXT
     {ErrorNone, {0}},
     {ErrorUnknown, "unknown"},
     {ErrorInvalidEnum,"invalid enum"},
@@ -39,6 +44,32 @@ Error ErrorCode(ErrorEnum e) {
     {ErrorBadKey, "bad key"},
     {ErrorInvalidField, "invalid field"},
     {ErrorExpectingType, "expecting type"},
+#else
+        {ErrorNone, {0}},
+        {ErrorUnknown, {0}},
+        {ErrorInvalidEnum,{0}},
+        {ErrorInvalidObject,{0}},
+        {ErrorNotImplemented, {0}},
+        {ErrorTypeNotFound, {0}},
+        {ErrorParameterNil, {0}},
+        {ErrorParameterInsufficientData,{0}},
+        {ErrorBadCopy,{0}},
+        {ErrorBufferTooSmall,{0}},
+        {ErrorVarIntRead, {0}},
+        {ErrorVarIntWrite,{0}},
+        {ErrorResizeRequred,{0}},
+        {ErrorInvalidBigInt,{0}},
+        {ErrorInvalidString,{0}},
+        {ErrorInvalidHashParameters, {0}},
+        {ErrorUVarIntRead, {0}},
+        {ErrorUVarIntWrite,{0}},
+        {ErrorMempoolFull, {0}},
+        {ErrorInvalidOffset, {0}},
+        {ErrorInvalidData, {0}},
+        {ErrorBadKey, {0}},
+        {ErrorInvalidField, {0}},
+        {ErrorExpectingType, {0}},
+#endif
     };
     //if we have an error code greater than zero that makes it in here, then it is not indended as an error
     if ( (int)(e) >= 0 ) {
@@ -46,7 +77,7 @@ Error ErrorCode(ErrorEnum e) {
     }
 
     //if we have an enum error that wasn't included in the list, then we have an error
-    if ( abs(e) > sizeof(errors) ) {
+    if ( abs(e) > (int)sizeof(errors) ) {
         return errors[abs(ErrorInvalidEnum)];
     }
 
