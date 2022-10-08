@@ -296,7 +296,7 @@ Transaction  *v = transaction;
             b = readTransactionBody(&m3, &v->Body);
             CHECK_ERROR_CODE(b);
         }
-        buffer_seek_cur(&m->buffer, b);
+        buffer_seek_cur(&m->buffer, size);
 
         n += b;
     }

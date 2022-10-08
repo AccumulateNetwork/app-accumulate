@@ -27,8 +27,10 @@
 #include "../ui/display.h"
 #include "os.h"
 #include "common/protocol/signatures.h"
+#include "../ui/dynamic_display.h"
 
-
+#include "ux.h"
+#include "os.h"
 int handler_debug_tx() {
 #if 0
     PRINTF("checkpoint A\n");
@@ -65,6 +67,7 @@ int handler_debug_tx() {
 
     PRINTF("checkpoint Tango\n");
 #endif
-//    ui_display_transaction(&G_context.tx_info.signer, &G_context.tx_info.transaction);
+    debug_display();
+    //    ui_display_transaction(&G_context.tx_info.signer, &G_context.tx_info.transaction);
     return io_send_sw(SW_OK);
 }

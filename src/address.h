@@ -40,6 +40,9 @@ Error getLiteAcmeUrl(const uint8_t public_key[static 64],
                     uint8_t *out, size_t out_len,
                     int8_t *keyName, size_t keyNameLen);
 
+bool adjustDecimals(const char *src, uint32_t srcLength, char *target,
+                    uint32_t targetLength, uint8_t decimals);
+
 Error getLiteIdentityUrl(const uint8_t *keyHash, uint8_t keyHashLen,
                         char *urlOut, size_t urlOutLen);
 //

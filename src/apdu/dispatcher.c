@@ -81,8 +81,8 @@ int apdu_dispatcher(const command_t *cmd) {
             buf.offset = 0;
 
             return handler_sign_tx(&buf, cmd->p1, (bool) (cmd->p2 & P2_MORE));
-//        case DEBUG_TX:
-//            return handler_debug_tx();
+        case DEBUG_TX:
+            return handler_debug_tx();
         default:
             return io_send_sw(SW_INS_NOT_SUPPORTED);
     }

@@ -92,7 +92,7 @@ typedef struct {
 //        ETHSignature eth;
 //    }
     //ED25519Signature edsig;
-    //Signature signer;
+    Signature signer;
     Transaction transaction;
     uint8_t m_hash[32];                   /// message hash digest
     uint8_t signature[MAX_DER_SIG_LEN];   /// transaction signature encoded in DER

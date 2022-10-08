@@ -27,7 +27,7 @@ int readTransaction(Unmarshaler *m, Transaction *v) {
             b = readTransactionHeader(&m2, &v->Header);
             CHECK_ERROR_CODE(b);
         }
-        buffer_seek_cur(&m->buffer, b);
+        buffer_seek_cur(&m->buffer, size);
 
         n += b;
     }
@@ -54,8 +54,11 @@ int readTransaction(Unmarshaler *m, Transaction *v) {
                               .mempool = m->mempool};
             b = readTransactionBody(&m2, &v->Body);
             CHECK_ERROR_CODE(b);
+
+            if ( !buffer_seek_cur(&m->buffer, size) ) {
+                return ErrorBufferTooSmall;
+            }
         }
-        buffer_seek_cur(&m->buffer, b);
 
         n += b;
     }
