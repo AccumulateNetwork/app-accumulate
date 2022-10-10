@@ -191,7 +191,7 @@ UX_FLOW(ux_display_send_tokens_flow,
         &ux_display_approve_step,
         &ux_display_reject_step);
 
-UX_FLOW(ux_display_send_tokens_dynamic_flow,
+UX_FLOW(ux_dynamic_display_flow,
         &ux_display_review_begin_step, //static ux
 
         &step_upper_delimiter, // A special step that serves as the upper delimiter. It won't print anything on the screen.
@@ -233,17 +233,60 @@ int setDisplayAmount(Url *url, BigInt *amount) {
     }
 }
 
+int display_principal() {
+    //display principal
+    Error e = Url_get(&G_context.tx_info.transaction.Header.Principal, global.text, sizeof(global.text));
+    if (IsError(e)) {
+        strcpy(global.title, "error");
+        strcpy(global.text, e.err);
+        return e.code;
+    }
+    strcpy(global.title, "Principal URL");
+    return ErrorNone;
+}
+
+int ui_dynamic_display_add_credits(int index) {
+    AddCredits *ac = G_context.tx_info.transaction.Body._AddCredits;
+    switch(index) {
+        case 0:
+            return display_principal();
+        case 1: {
+            Error e = Url_get(&ac->Recipient, global.text, sizeof(global.text));
+            if (IsError(e)) {
+                strcpy(global.title, "error");
+                strcpy(global.text, e.err);
+                return e.code;
+            }
+            break;
+        }
+        case 2: {
+            snprintf(global.title,sizeof(global.title), "Credits");
+            break;
+        }
+        case 3: {
+            uint256_t i;
+            BigInt *amount = &ac->Amount;
+            int e = frombytes256(amount->data.buffer.ptr+amount->data.buffer.offset,
+                                 amount->data.buffer.size - amount->data.buffer.offset,&i);
+            if ( e < 0 ) {
+                return ErrorInvalidBigInt;
+            }
+            char amountString[32] = {0};
+            if (!tostring256(&i, 10, amountString, sizeof(amountString))) {
+                return ErrorInvalidBigInt;
+            }
+            if ( !adjustDecimals(amountString,strlen(amountString),global.text,sizeof(global.text), CREDITS_PRECISION) ) {
+                return ErrorInvalidString;
+            }
+        }
+    }
+    return 0;
+}
 int ui_dynamic_display_send_tokens(int index) {
     PRINTF("Dynamic Display %d\n", index);
     if ( index == 0 ) {
         //display principal
-        Error e = Url_get(&G_context.tx_info.transaction.Header.Principal, global.text, sizeof(global.text));
-        if (IsError(e)) {
-            strcpy(global.title, "error");
-            strcpy(global.text, e.err);
-            return e.code;
-        }
-        strcpy(global.title, "Principal URL");
+        return display_principal();
     } else {
         //loop through transactions and display those.
         const int offset = 1;
@@ -286,7 +329,7 @@ int ui_dynamic_display_send_tokens(int index) {
                 }
                 //note: this will only work with acme send tokens right now,
                 // if a token exists that doesn't have a precision of 8, this will not display correctly
-                if ( !adjustDecimals(amountString,sizeof(amountString),global.text,sizeof(global.text), ACME_PRECISION) ) {
+                if ( !adjustDecimals(amountString,strlen(amountString),global.text,sizeof(global.text), ACME_PRECISION) ) {
                     return ErrorInvalidString;
                 }
             }
@@ -328,8 +371,9 @@ int ui_display_transaction(Signature *signer, Transaction *transaction) {
                 return e;
             }
 
+            strncpy(g_welcome, "Add Credits", sizeof(g_welcome));
             g_validate_callback = &ui_action_validate_transaction_hash;
-            ux_flow_init(0, ux_display_add_credits_flow, NULL);
+            ux_flow_init(0, ux_dynamic_display_flow, NULL);
             break;
         }
         case TransactionTypeSendTokens: {
@@ -354,7 +398,7 @@ int ui_display_transaction(Signature *signer, Transaction *transaction) {
             global.dynamic_flow = ui_dynamic_display_send_tokens;
             strncpy(g_welcome, "Send Tokens", sizeof(g_welcome));
             g_validate_callback = &ui_action_validate_transaction_hash;
-            ux_flow_init(0, ux_display_send_tokens_dynamic_flow, NULL);
+            ux_flow_init(0, ux_dynamic_display_flow, NULL);
             break;
         }
         default:
