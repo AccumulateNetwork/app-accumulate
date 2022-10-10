@@ -5,14 +5,6 @@
 typedef buffer_t Url_t;
 typedef struct Url {
     Bytes data;
-//    Error (*get)(const struct Url *, Url_t *out);
-//    Error (*set)(struct Url *, Url_t in);
-//
-//    int (*BinarySize)(const struct Url *);
-//    bool (*Equal)(const struct Url*, const struct Url*);
-//    int (*Copy)(struct Url*, const struct Url*);
-//    Error (*MarshalBinary)(const struct Url *, struct Marshaler *outData);
-//    Error (*UnmarshalBinary)(struct Url *,struct Marshaler *data);
 } Url;
 
 Url Url_new(buffer_t *b, size_t n);

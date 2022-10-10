@@ -1,8 +1,6 @@
 
 #include "encoding.h"
 
-//ENCODE_MARSHAL_BINARY_STATIC(Bytes32)
-//ENCODE_UNMARSHAL_BINARY_STATIC(Bytes32)
 ENCODE_EQUAL(Bytes32)
 ENCODE_COPY(Bytes32)
 ENCODE_BINARY_SIZE_STATIC(Bytes32)
@@ -14,9 +12,6 @@ Error Bytes32_valid(const struct Bytes* v) {
     if (!v->buffer.ptr || v->buffer.size - v->buffer.offset != 32) {
         return ErrorCode(ErrorBufferTooSmall);
     }
-//    if ( !v->Copy || !v->Equal || !v->BinarySize || !v->MarshalBinary || !v->UnmarshalBinary ) {
-//        return ErrorCode(ErrorInvalidObject);
-//    }
     return ErrorCode(ErrorNone);
 }
 

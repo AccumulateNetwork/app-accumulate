@@ -13,9 +13,6 @@ Error UVarInt_valid(const Bytes *v) {
     if (v->buffer.size < varint_size(UINT64_MAX)) {
         return ErrorCode(ErrorBufferTooSmall);
     }
-//    if ( !v->Copy || !v->Equal || !v->BinarySize || !v->MarshalBinary || !v->UnmarshalBinary ) {
-//        return ErrorCode(ErrorInvalidObject);
-//    }
     return ErrorCode(ErrorNone);
 }
 
@@ -63,11 +60,6 @@ int UVarInt_binarySize(const UVarInt *v) {
     }
     return size;
 }
-//
-//UVarInt UVarInt_init(UVarInt_t *v) {
-//    buffer_t buffer = { v, varint_size(UINT64_MAX), 0};
-//    return UVarInt_new(&buffer, 1);
-//}
 
 UVarInt UVarInt_new(buffer_t *buffer) {
     UVarInt init = { { {0,0,0}}

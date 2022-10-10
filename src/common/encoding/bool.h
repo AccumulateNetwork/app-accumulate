@@ -6,13 +6,6 @@ typedef struct Bool_t { uint8_t x[64]; } Bool_t;
 
 typedef struct Bool {
     Bytes data;
-//    Error (*get)(const struct Bytes *, Bool_t *out);
-//    Error (*set)(struct Bytes *, const Bool_t *in);
-//    int (*BinarySize)(const struct Bool *);
-//    bool (*Equal)(const struct Bool*, const struct Bool*);
-//    int (*Copy)(struct Bool*, const struct Bool*);
-//    Error (*MarshalBinary)(const struct Bool *, struct Marshaler *outData);
-//    Error (*UnmarshalBinary)(struct Bool *,struct Marshaler *data);
 } Bool;
 
 Bool Bool_new(buffer_t *b, size_t n);
