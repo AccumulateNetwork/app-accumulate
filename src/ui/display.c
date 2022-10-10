@@ -148,49 +148,6 @@ UX_STEP_NOCB(ux_display_review_begin_step,
                  g_welcome,
              });
 
-UX_STEP_NOCB(ux_display_review_add_credits_step,
-             pnn,
-             {
-                 &C_icon_eye,
-                 "Review",
-                 "Add Credits",
-             });
-// Step with title/text for amount
-UX_STEP_NOCB(ux_display_amount_step,
-             bnnn_paging,
-             {
-                 .title = "Amount",
-                 .text = g_amount,
-             });
-
-UX_STEP_NOCB(ux_display_hash_step,
-             bnnn_paging,
-             {
-                 .title = "Transaction Hash",
-                 .text = g_address,
-             });
-
-
-
-
-UX_FLOW(ux_display_transaction_hash_flow,
-        &ux_display_hash_step,
-        &ux_display_approve_step,
-        &ux_display_reject_step);
-
-// FLOW to display transaction information:
-// #1 screen : eye icon + "Review Transaction"
-// #2 screen : display amount
-// #3 screen : display destination address
-// #4 screen : approve button
-// #5 screen : reject button
-UX_FLOW(ux_display_send_tokens_flow,
-        &ux_display_review_begin_step,
-        &ux_display_address_step,
-        &ux_display_amount_step,
-        &ux_display_approve_step,
-        &ux_display_reject_step);
-
 UX_FLOW(ux_dynamic_display_flow,
         &ux_display_review_begin_step, //static ux
 
@@ -203,35 +160,6 @@ UX_FLOW(ux_dynamic_display_flow,
         FLOW_LOOP
 );
 
-// FLOW to display transaction information:
-// #1 screen : eye icon + "Review Transaction"
-// #2 screen : display amount
-// #3 screen : display destination address
-// #4 screen : approve button
-// #5 screen : reject button
-UX_FLOW(ux_display_add_credits_flow,
-        &ux_display_review_add_credits_step,
-        &ux_display_address_step,
-        &ux_display_amount_step,
-        &ux_display_approve_step,
-        &ux_display_reject_step);
-
-int setDisplayAmount(Url *url, BigInt *amount) {
-    CHECK_ERROR_INT(url)
-    CHECK_ERROR_INT(amount)
-
-    uint256_t i;
-    frombytes256(amount->data.buffer.ptr+amount->data.buffer.offset,
-                 amount->data.buffer.size - amount->data.buffer.offset,&i);
-    if ( !tostring256(&i, 10, g_amount,sizeof (g_amount))) {
-        return ErrorInvalidBigInt;
-    }
-    explicit_bzero(g_address, sizeof(g_address));
-    Error e = Url_get(url,g_address, sizeof (g_address)-1);
-    if (IsError(e)) {
-        return e.code;
-    }
-}
 
 int display_principal() {
     //display principal
@@ -251,6 +179,7 @@ int ui_dynamic_display_add_credits(int index) {
         case 0:
             return display_principal();
         case 1: {
+            snprintf(global.title,sizeof(global.title), "Recipient URL");
             Error e = Url_get(&ac->Recipient, global.text, sizeof(global.text));
             if (IsError(e)) {
                 strcpy(global.title, "error");
@@ -260,11 +189,8 @@ int ui_dynamic_display_add_credits(int index) {
             break;
         }
         case 2: {
-            snprintf(global.title,sizeof(global.title), "Credits");
-            break;
-        }
-        case 3: {
             uint256_t i;
+            snprintf(global.title,sizeof(global.title), "Credits");
             BigInt *amount = &ac->Amount;
             int e = frombytes256(amount->data.buffer.ptr+amount->data.buffer.offset,
                                  amount->data.buffer.size - amount->data.buffer.offset,&i);
@@ -278,6 +204,12 @@ int ui_dynamic_display_add_credits(int index) {
             if ( !adjustDecimals(amountString,strlen(amountString),global.text,sizeof(global.text), CREDITS_PRECISION) ) {
                 return ErrorInvalidString;
             }
+            break;
+        }
+        default: {
+            strcpy(global.title, "Invalid");
+            strcpy(global.text, "Display State");
+            return ErrorInvalidField;
         }
     }
     return 0;
@@ -339,36 +271,27 @@ int ui_dynamic_display_send_tokens(int index) {
 }
 
 int ui_display_transaction(Signature *signer, Transaction *transaction) {
-
     PRINTF("checkpoint pre display tx 1\n");
 
     if (G_context.req_type != CONFIRM_TRANSACTION || G_context.state != STATE_PARSED) {
         G_context.state = STATE_NONE;
         return io_send_sw(SW_BAD_STATE);
     }
-//    format_hex(G_context.tx_info.m_hash, sizeof(G_context.tx_info.m_hash), g_address, sizeof(g_address));
-//    PRINTF("checkpoint pre display tx 2 %s\n", g_address);
-//
-//    memset(g_address, 0, sizeof(g_address));
-//    snprintf(g_address, sizeof(g_address), "0x%.*H", 32, G_context.tx_info.m_hash);
-//    g_validate_callback = &ui_action_validate_transaction_hash;
-//    ux_flow_init(0, ux_display_transaction_hash_flow, NULL);
 
-//    return 0;
-    //decode the signer
-    //signerBuffer
-    //decode transaction type:
     explicit_bzero(&global, sizeof(global));
     global.current_state = STATIC_SCREEN;
     PRINTF("Address of Body: %p\n", ( void * )transaction->Body._u );
     switch ((int)transaction->Body._u->Type) {
         case TransactionTypeAddCredits: {
-
             PRINTF("AddCredits tx\n");
-            AddCredits *c = transaction->Body._AddCredits;
-            int e = setDisplayAmount(&c->Recipient, &c->Amount);
-            if (IsError(ErrorCode(e))) {
-                return e;
+
+            global.max = 2;
+            //do a dry run to check for errors
+            for ( int i = 0; i < global.max; ++i) {
+                int e = ui_dynamic_display_add_credits(i);
+                if ( e < 0 ) {
+                    return e;
+                }
             }
 
             strncpy(g_welcome, "Add Credits", sizeof(g_welcome));
@@ -404,26 +327,6 @@ int ui_display_transaction(Signature *signer, Transaction *transaction) {
         default:
             return ErrorTypeNotFound;
     };
-
-
-//
-//    memset(g_amount, 0, sizeof(g_amount));
-//    char amount[30] = {0};
-//    if (!format_fpu64(amount,
-//                      sizeof(amount),
-//                      G_context.tx_info.transaction.value,
-//                      EXPONENT_SMALLEST_UNIT)) {
-//        return io_send_sw(SW_DISPLAY_AMOUNT_FAIL);
-//    }
-//    snprintf(g_amount, sizeof(g_amount), "BOL %.*s", sizeof(amount), amount);
-//    PRINTF("Amount: %s\n", g_amount);
-
-//    memset(g_address, 0, sizeof(g_address));
-//    snprintf(g_address, sizeof(g_address), "0x%.*H", ADDRESS_LEN, G_context.tx_info.transaction.to);
-
-    //g_validate_callback = &ui_action_validate_transaction_hash;
-
-    //ux_flow_init(0, ux_display_transaction_flow, NULL);
 
     return 0;
 }
