@@ -5,14 +5,6 @@
 typedef buffer_t String_t;
 typedef struct String {
     Bytes data;
-//    Error (*get)(const struct String *, String_t *out);
-//    Error (*set)(struct String *, String_t in);
-//
-//    int (*BinarySize)(const struct String *);
-//    bool (*Equal)(const struct String*, const struct String*);
-//    int (*Copy)(struct String*, const struct String*);
-//    Error (*MarshalBinary)(const struct String *, struct Marshaler *outData);
-//    Error (*UnmarshalBinary)(struct String *,const struct Marshaler *data);
 } String;
 
 String String_new(buffer_t *b, size_t n);

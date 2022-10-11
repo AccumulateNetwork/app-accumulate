@@ -31,6 +31,7 @@
 #include "../common/buffer.h"
 #include "../transaction/types.h"
 #include "../transaction/deserialize.h"
+#include "../transaction/utils.h"
 
 int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more) {
     if (chunk == 0) {  // first APDU, parse BIP32 path
@@ -45,59 +46,58 @@ int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more) {
             return io_send_sw(SW_WRONG_DATA_LENGTH);
         }
 
+        int raw_tx_len = cdata->size - cdata->offset;
+        if (G_context.tx_info.raw_tx_len + raw_tx_len > MAX_TRANSACTION_LEN ||  //
+            !buffer_move(cdata,
+                         G_context.tx_info.raw_tx + G_context.tx_info.raw_tx_len,
+                         raw_tx_len)) {
+            return io_send_sw(SW_WRONG_TX_LENGTH);
+        }
+        PRINTF("Checkpoint A\n");
+        G_context.tx_info.raw_tx_len = raw_tx_len;
         return io_send_sw(SW_OK);
     } else {  // parse transaction
         if (G_context.req_type != CONFIRM_TRANSACTION) {
             return io_send_sw(SW_BAD_STATE);
         }
 
-        if (more) {  // more APDUs with transaction part
-            if (G_context.tx_info.raw_tx_len + cdata->size > MAX_TRANSACTION_LEN &&  //
-                !buffer_move(cdata,
-                             G_context.tx_info.raw_tx + G_context.tx_info.raw_tx_len,
-                             cdata->size)) {
-                return io_send_sw(SW_WRONG_TX_LENGTH);
-            }
+        static int a = 0;
+        PRINTF("Checkpoint B:%d\n", a++);
+        if (G_context.tx_info.raw_tx_len + cdata->size > MAX_TRANSACTION_LEN ||  //
+            !buffer_move(cdata,
+                         G_context.tx_info.raw_tx + G_context.tx_info.raw_tx_len,
+                         cdata->size)) {
+            return io_send_sw(SW_WRONG_TX_LENGTH);
+        }
 
-            G_context.tx_info.raw_tx_len += cdata->size;
+        G_context.tx_info.raw_tx_len += cdata->size;
 
+        if (more) {
+            // more APDUs to follow for transaction part
             return io_send_sw(SW_OK);
-        } else {  // last APDU, let's parse and sign
-            if (G_context.tx_info.raw_tx_len + cdata->size > MAX_TRANSACTION_LEN ||  //
-                !buffer_move(cdata,
-                             G_context.tx_info.raw_tx + G_context.tx_info.raw_tx_len,
-                             cdata->size)) {
-                return io_send_sw(SW_WRONG_TX_LENGTH);
-            }
+        }
 
-            G_context.tx_info.raw_tx_len += cdata->size;
+        PRINTF("checkpoint parse C\n");
+        Signature signer;
+#if 1
+        G_context.tx_info.arena.ptr = G_context.tx_info.raw_tx + G_context.tx_info.raw_tx_len;
+        G_context.tx_info.arena.offset = 0;
+        G_context.tx_info.arena.size = sizeof(G_context.tx_info.raw_tx) - G_context.tx_info.raw_tx_len;
 
-            buffer_t buf = {.ptr = G_context.tx_info.raw_tx,
-                            .size = G_context.tx_info.raw_tx_len,
-                            .offset = 0};
+        //signer._ED25519Signature = &G_context.tx_info.edsig;
+        int e = parse_transaction(G_context.tx_info.raw_tx, G_context.tx_info.raw_tx_len,
+                          &signer, &G_context.tx_info.transaction, &G_context.tx_info.arena,
+                                  G_context.tx_info.m_hash, sizeof(G_context.tx_info.m_hash));
+        if ( IsError(ErrorCode(e))) {
+            return io_send_sw(SW_ENCODE_ERROR(ErrorCode(e)));
+        }
+        PRINTF("checkpoint post parse C\n");
+#endif
+        G_context.state = STATE_PARSED;
 
-            parser_status_e status = transaction_deserialize(&buf, &G_context.tx_info.transaction);
-            PRINTF("Parsing status: %d.\n", status);
-            if (status != PARSING_OK) {
-                return io_send_sw(SW_TX_PARSING_FAIL);
-            }
-
-            G_context.state = STATE_PARSED;
-
-            //enable cheat code: copy txid to hash
-            //G_context.tx_info.m_hash
-            cx_sha3_t keccak256;
-            cx_keccak_init(&keccak256, 256);
-            cx_hash((cx_hash_t *) &keccak256,
-                    CX_LAST,
-                    G_context.tx_info.raw_tx,
-                    G_context.tx_info.raw_tx_len,
-                    G_context.tx_info.m_hash,
-                    sizeof(G_context.tx_info.m_hash));
-
-            PRINTF("Hash: %.*H\n", sizeof(G_context.tx_info.m_hash), G_context.tx_info.m_hash);
-
-            return ui_display_transaction();
+        e = ui_display_transaction(&signer, &G_context.tx_info.transaction);
+        if ( IsErrorCode(e)) {
+            io_send_sw(SW_ENCODE_ERROR(ErrorCode(e)));
         }
     }
 

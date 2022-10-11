@@ -4,14 +4,6 @@
 
 typedef struct VarInt {
     Bytes data;
-//    Error (*get)(const struct VarInt *, VarInt_t *out);
-//    Error (*set)(struct VarInt *, VarInt_t in);
-//
-//    int (*BinarySize)(const struct VarInt *);
-//    bool (*Equal)(const struct VarInt*, const struct VarInt*);
-//    int (*Copy)(struct VarInt*, const struct VarInt*);
-//    Error (*MarshalBinary)(const struct VarInt *, struct Marshaler *outData);
-//    Error (*UnmarshalBinary)(struct VarInt *,struct Marshaler *data);
 } VarInt;
 
 VarInt VarInt_new(buffer_t *b);

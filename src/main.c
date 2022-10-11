@@ -35,6 +35,7 @@ ux_state_t G_ux;
 bolos_ux_params_t G_ux_params;
 global_ctx_t G_context;
 
+
 /**
  * Handle APDU command received and send back APDU response using handlers.
  */
@@ -109,13 +110,11 @@ void app_exit() {
     }
     END_TRY_L(exit);
 }
-
 /**
  * Main loop to setup USB, Bluetooth, UI and launch app_main().
  */
 __attribute__((section(".boot"))) int main() {
     __asm volatile("cpsie i");
-
     os_boot();
 
     for (;;) {

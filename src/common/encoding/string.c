@@ -37,11 +37,9 @@ Error String_get(const String*v, char *s, size_t slen) {
         return e;
     }
 
-    if (slen < v->data.buffer.size ) {
-        return ErrorCode(ErrorBufferTooSmall);
-    }
+    int min = (slen-1 < v->data.buffer.size - v->data.buffer.offset) ? slen-1 :  v->data.buffer.size - v->data.buffer.offset;
 
-    strncpy((char*)s,(const char*)v->data.buffer.ptr+v->data.buffer.offset,slen);
+    strncpy((char*)s,(const char*)v->data.buffer.ptr+v->data.buffer.offset,min);
     return ErrorCode(ErrorNone);
 }
 

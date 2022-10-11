@@ -11,11 +11,14 @@ extern "C" {
 #else
 #define ACME_API extern
 #endif
-#include <accumulate/common/encoding/encoding.h>
+#include <common/encoding/encoding.h>
+#include <common/encoding/marshaler.h>
+
+#define WANT_ENUM_STRING_CONVERSION 0
 
 typedef struct {
    const char *name;
-   uint32_t e;
+   uint64_t e;
 } enum_t;
 
 
@@ -59,6 +62,9 @@ typedef enum {
 
     // AccountTypeLiteTokenAccount is a Lite Token Account.
     AccountTypeLiteTokenAccount = 5,
+
+    // AccountTypeBlockLedger is a Block Ledger account.
+    AccountTypeBlockLedger = 6,
 
     // AccountTypeKeyPage is a Key Page account.
     AccountTypeKeyPage = 9,
@@ -161,6 +167,17 @@ typedef enum {
     ObjectTypeTransaction = 2,
 
 } ObjectType;
+
+
+typedef enum {
+
+    // PartitionTypeDirectory .
+    PartitionTypeDirectory = 1,
+
+    // PartitionTypeBlockValidator .
+    PartitionTypeBlockValidator = 2,
+
+} PartitionType;
 
 
 typedef enum {
@@ -337,1681 +354,195 @@ typedef enum {
 
 typedef struct {
     Bytes data;
-    Error (*get)(const struct Bytes *, AccountAuthOperationType *out);
-    Error (*set)(struct Bytes *, AccountAuthOperationType in);
 } AccountAuthOperationType_t;
 
 ACME_API uint64_t AccountAuthOperationType_ID(AccountAuthOperationType v);
+#if WANT_ENUM_STRING_CONVERSION
 ACME_API Error AccountAuthOperationType_fromString(AccountAuthOperationType *v, String *name);
 ACME_API Error AccountAuthOperationType_asString(AccountAuthOperationType v, String *out);
-//ACME_API Error AccountAuthOperationType_marshalJSON(const Bytes *v, Marshaler *out);
-//ACME_API Error AccountAuthOperationType_unmarshalJSON(Bytes *v, const Marshaler *in);
-AccountAuthOperationType_t AccountAuthOperationType_init(AccountAuthOperationType_t *v, buffer_t *buffer);
-
-#ifndef ACME_HEADER
-
-
-ACME_API Error AccountAuthOperationType_set(VarInt *v, AccountAuthOperationType n) {
-    return VarInt_set(v,n);
-}
-
-ACME_API Error AccountAuthOperationType_get(const VarInt *v, AccountAuthOperationType *n) {
-    return VarInt_get(v,n);
-}
-
-
-// ID returns the ID of the Account Auth Operation Type
-ACME_API uint64_t AccountAuthOperationType_ID(AccountAuthOperationType v) { return (uint64_t)(v); }
-
-// String returns the name of the Account Auth Operation Type
-static enum_t AccountAuthOperationType_l[] = {
-	{ "unknown", AccountAuthOperationTypeUnknown },
-	{ "enable", AccountAuthOperationTypeEnable },
-	{ "disable", AccountAuthOperationTypeDisable },
-	{ "addauthority", AccountAuthOperationTypeAddAuthority },
-	{ "removeauthority", AccountAuthOperationTypeRemoveAuthority },
-};
-
-ACME_API Error AccountAuthOperationType_asString(const AccountAuthOperationType v, String *out) {
-    CHECK_ERROR(out)
-    //since we are only dealing with a limited number of enumerations, we will do a linear search
-    for ( int i = 0; i < sizeof(AccountAuthOperationType_l); ++i ) {
-        if ( AccountAuthOperationType_l[i].e == v ) {
-            String_set(&out->data, AccountAuthOperationType_l[i].name);
-            return ErrorCode(ErrorNone);
-        }
-    }
-    return ErrorCode(ErrorTypeNotFound);
-}
-
-// AccountAuthOperationTypeByName returns the named Account Auth Operation Type.
-ACME_API Error AccountAuthOperationType_fromString(AccountAuthOperationType *v, String *name) {
-    CHECK_ERROR(name)
-    //since we are only dealing with a limited number of enumerations, we will do a linear search
-    for ( int i = 0; i < sizeof(AccountAuthOperationType_l); ++i ) {
-        if ( strncmp(AccountAuthOperationType_l[i].name, (const char*)name->data.buffer.ptr+name->data.buffer.offset,name->data.buffer.size) == 0 ) {
-            *v = AccountAuthOperationType_l[i].e;
-            return e;
-        }
-    }
-    return ErrorCode(ErrorTypeNotFound);
-}
-
-// AccountAuthOperationType_marshalJSON marshals the Account Auth Operation Type to JSON as a string.
-ACME_API Error AccountAuthOperationType_marshalJSON(const AccountAuthOperationType v, Marshaler *out) {
-    CHECK_ERROR(out)
-
-    Error e = AccountAuthOperationType_valid(v);
-    if ( IsError(e) ) {
-        return e;
-    }
-
-    uint8_t data[32] = {0};
-    buffer_t buffer = {data, sizeof(data), 0};
-    String s = String_init(0, &buffer, sizeof(data));
-    e = AccountAuthOperationType_asString(v, &s);
-    if ( IsError(e) ) {
-        return e;
-    }
-    return String_marshalJSON(&s, out);
-}
-
-// AccountAuthOperationType_unmarshalJSON unmarshals the Account Auth Operation Type from JSON as a string.
-ACME_API Error AccountAuthOperationType_unmarshalJSON(AccountAuthOperationType *v, const Marshaler *in) {
-    CHECK_ERROR(v)
-    CHECK_ERROR(in)
-
-    Error e = AccountAuthOperationType_valid(v);
-    if (e.code != ErrorNone) {
-        return e;
-    }
-    uint8_t data[32] = {0};
-    buffer_t buffer = {data, sizeof(data), 0};
-    String s = String_init(0, &buffer, sizeof(data));
-    //unmarshal the "in" buffer from the Marshaler into a String
-    e = s.data.UnmarshalJSON(&s.data, in);
-    if ( e.code != ErrorNone ) {
-        return e;
-    }
-    //now convert the unmarshaled string into the enum
-    return AccountAuthOperationType_fromString(v, &s);
-}
-
-// MarshalBinary marshals the Account Auth Operation Type to bytes as a unsigned varint.
-ACME_API int marshalerWriteAccountAuthOperationType(Marshaler *m, AccountAuthOperationType v) {
-    return marshalerWriteField(m, v);
-}
-
-
-// UnmarshalBinary unmarshals the Account Auth Operation Type from bytes as a unsigned varint.
-ACME_API int unmarshalerReadAccountAuthOperationType(Marshaler *m, AccountAuthOperationType *v) {
-	return marshalerReadField(m, v);
-}
-
-// AccountAuthOperationType_binarySize returns the number of bytes required to binary marshal the Account Auth Operation Type.
-AccountAuthOperationType_t AccountAuthOperationType_init(AccountAuthOperationType_t *v, buffer_t *buffer) {
-    AccountAuthOperationType_t init = { { {0,0,0},
-                    VarInt_binarySize,
-                    Bytes_equal,
-                    Bytes_copy,
-                    AccountAuthOperationType_marshalBinary,
-                    AccountAuthOperationType_unmarshalBinary,
-                    AccountAuthOperationType_marshalJSON,
-                    AccountAuthOperationType_unmarshalJSON},
-                    AccountAuthOperationType_get,
-                    AccountAuthOperationType_set,
-                  };
-    if (buffer) {
-        int sizeNeeded = sizeof(AccountAuthOperationType);
-        if ( buffer->size - buffer->offset < sizeNeeded ) {
-            return init;
-        }
-        init.data.buffer.ptr = buffer->ptr;
-        init.data.buffer.offset = buffer->offset;
-        init.data.buffer.size = sizeNeeded;
-        buffer->offset += sizeNeeded;
-    }
-
-    if (v) {
-        *v = init;
-    }
-    return init;
-}
-#endif /* !ACME_HEADER */
-
-#ifdef __cplusplus
-}
 #endif
+ACME_API AccountAuthOperationType_t AccountAuthOperationType_init(AccountAuthOperationType_t *v, buffer_t *buffer);
+ACME_API int unmarshalerReadAccountAuthOperationType(Unmarshaler *m, AccountAuthOperationType *v);
+ACME_API int marshalerWriteAccountAuthOperationType(Marshaler *m, AccountAuthOperationType v);
+ACME_API bool AccountAuthOperationType_equal(const AccountAuthOperationType *a, const AccountAuthOperationType *b);
 
 
 
 typedef struct {
     Bytes data;
-    Error (*get)(const struct Bytes *, AccountType *out);
-    Error (*set)(struct Bytes *, AccountType in);
 } AccountType_t;
 
 ACME_API uint64_t AccountType_ID(AccountType v);
+#if WANT_ENUM_STRING_CONVERSION
 ACME_API Error AccountType_fromString(AccountType *v, String *name);
 ACME_API Error AccountType_asString(AccountType v, String *out);
-//ACME_API Error AccountType_marshalJSON(const Bytes *v, Marshaler *out);
-//ACME_API Error AccountType_unmarshalJSON(Bytes *v, const Marshaler *in);
-AccountType_t AccountType_init(AccountType_t *v, buffer_t *buffer);
-
-#ifndef ACME_HEADER
-
-
-ACME_API Error AccountType_set(VarInt *v, AccountType n) {
-    return VarInt_set(v,n);
-}
-
-ACME_API Error AccountType_get(const VarInt *v, AccountType *n) {
-    return VarInt_get(v,n);
-}
-
-
-// ID returns the ID of the Account Type
-ACME_API uint64_t AccountType_ID(AccountType v) { return (uint64_t)(v); }
-
-// String returns the name of the Account Type
-static enum_t AccountType_l[] = {
-	{ "unknown", AccountTypeUnknown },
-	{ "anchorledger", AccountTypeAnchorLedger },
-	{ "identity", AccountTypeIdentity },
-	{ "tokenissuer", AccountTypeTokenIssuer },
-	{ "tokenaccount", AccountTypeTokenAccount },
-	{ "litetokenaccount", AccountTypeLiteTokenAccount },
-	{ "keypage", AccountTypeKeyPage },
-	{ "keybook", AccountTypeKeyBook },
-	{ "dataaccount", AccountTypeDataAccount },
-	{ "litedataaccount", AccountTypeLiteDataAccount },
-	{ "unknownsigner", AccountTypeUnknownSigner },
-	{ "systemledger", AccountTypeSystemLedger },
-	{ "liteidentity", AccountTypeLiteIdentity },
-	{ "syntheticledger", AccountTypeSyntheticLedger },
-};
-
-ACME_API Error AccountType_asString(const AccountType v, String *out) {
-    CHECK_ERROR(out)
-    //since we are only dealing with a limited number of enumerations, we will do a linear search
-    for ( int i = 0; i < sizeof(AccountType_l); ++i ) {
-        if ( AccountType_l[i].e == v ) {
-            String_set(&out->data, AccountType_l[i].name);
-            return ErrorCode(ErrorNone);
-        }
-    }
-    return ErrorCode(ErrorTypeNotFound);
-}
-
-// AccountTypeByName returns the named Account Type.
-ACME_API Error AccountType_fromString(AccountType *v, String *name) {
-    CHECK_ERROR(name)
-    //since we are only dealing with a limited number of enumerations, we will do a linear search
-    for ( int i = 0; i < sizeof(AccountType_l); ++i ) {
-        if ( strncmp(AccountType_l[i].name, (const char*)name->data.buffer.ptr+name->data.buffer.offset,name->data.buffer.size) == 0 ) {
-            *v = AccountType_l[i].e;
-            return e;
-        }
-    }
-    return ErrorCode(ErrorTypeNotFound);
-}
-
-// AccountType_marshalJSON marshals the Account Type to JSON as a string.
-ACME_API Error AccountType_marshalJSON(const AccountType v, Marshaler *out) {
-    CHECK_ERROR(out)
-
-    Error e = AccountType_valid(v);
-    if ( IsError(e) ) {
-        return e;
-    }
-
-    uint8_t data[32] = {0};
-    buffer_t buffer = {data, sizeof(data), 0};
-    String s = String_init(0, &buffer, sizeof(data));
-    e = AccountType_asString(v, &s);
-    if ( IsError(e) ) {
-        return e;
-    }
-    return String_marshalJSON(&s, out);
-}
-
-// AccountType_unmarshalJSON unmarshals the Account Type from JSON as a string.
-ACME_API Error AccountType_unmarshalJSON(AccountType *v, const Marshaler *in) {
-    CHECK_ERROR(v)
-    CHECK_ERROR(in)
-
-    Error e = AccountType_valid(v);
-    if (e.code != ErrorNone) {
-        return e;
-    }
-    uint8_t data[32] = {0};
-    buffer_t buffer = {data, sizeof(data), 0};
-    String s = String_init(0, &buffer, sizeof(data));
-    //unmarshal the "in" buffer from the Marshaler into a String
-    e = s.data.UnmarshalJSON(&s.data, in);
-    if ( e.code != ErrorNone ) {
-        return e;
-    }
-    //now convert the unmarshaled string into the enum
-    return AccountType_fromString(v, &s);
-}
-
-// MarshalBinary marshals the Account Type to bytes as a unsigned varint.
-ACME_API int marshalerWriteAccountType(Marshaler *m, AccountType v) {
-    return marshalerWriteField(m, v);
-}
-
-
-// UnmarshalBinary unmarshals the Account Type from bytes as a unsigned varint.
-ACME_API int unmarshalerReadAccountType(Marshaler *m, AccountType *v) {
-	return marshalerReadField(m, v);
-}
-
-// AccountType_binarySize returns the number of bytes required to binary marshal the Account Type.
-AccountType_t AccountType_init(AccountType_t *v, buffer_t *buffer) {
-    AccountType_t init = { { {0,0,0},
-                    VarInt_binarySize,
-                    Bytes_equal,
-                    Bytes_copy,
-                    AccountType_marshalBinary,
-                    AccountType_unmarshalBinary,
-                    AccountType_marshalJSON,
-                    AccountType_unmarshalJSON},
-                    AccountType_get,
-                    AccountType_set,
-                  };
-    if (buffer) {
-        int sizeNeeded = sizeof(AccountType);
-        if ( buffer->size - buffer->offset < sizeNeeded ) {
-            return init;
-        }
-        init.data.buffer.ptr = buffer->ptr;
-        init.data.buffer.offset = buffer->offset;
-        init.data.buffer.size = sizeNeeded;
-        buffer->offset += sizeNeeded;
-    }
-
-    if (v) {
-        *v = init;
-    }
-    return init;
-}
-#endif /* !ACME_HEADER */
-
-#ifdef __cplusplus
-}
 #endif
+ACME_API AccountType_t AccountType_init(AccountType_t *v, buffer_t *buffer);
+ACME_API int unmarshalerReadAccountType(Unmarshaler *m, AccountType *v);
+ACME_API int marshalerWriteAccountType(Marshaler *m, AccountType v);
+ACME_API bool AccountType_equal(const AccountType *a, const AccountType *b);
 
 
 
 typedef struct {
     Bytes data;
-    Error (*get)(const struct Bytes *, AllowedTransactionBit *out);
-    Error (*set)(struct Bytes *, AllowedTransactionBit in);
 } AllowedTransactionBit_t;
 
 ACME_API uint64_t AllowedTransactionBit_ID(AllowedTransactionBit v);
+#if WANT_ENUM_STRING_CONVERSION
 ACME_API Error AllowedTransactionBit_fromString(AllowedTransactionBit *v, String *name);
 ACME_API Error AllowedTransactionBit_asString(AllowedTransactionBit v, String *out);
-//ACME_API Error AllowedTransactionBit_marshalJSON(const Bytes *v, Marshaler *out);
-//ACME_API Error AllowedTransactionBit_unmarshalJSON(Bytes *v, const Marshaler *in);
-AllowedTransactionBit_t AllowedTransactionBit_init(AllowedTransactionBit_t *v, buffer_t *buffer);
-
-#ifndef ACME_HEADER
-
-
-ACME_API Error AllowedTransactionBit_set(VarInt *v, AllowedTransactionBit n) {
-    return VarInt_set(v,n);
-}
-
-ACME_API Error AllowedTransactionBit_get(const VarInt *v, AllowedTransactionBit *n) {
-    return VarInt_get(v,n);
-}
-
-
-// ID returns the ID of the Allowed Transaction Bit
-ACME_API uint64_t AllowedTransactionBit_ID(AllowedTransactionBit v) { return (uint64_t)(v); }
-
-// String returns the name of the Allowed Transaction Bit
-static enum_t AllowedTransactionBit_l[] = {
-	{ "updatekeypage", AllowedTransactionBitUpdateKeyPage },
-	{ "updateaccountauth", AllowedTransactionBitUpdateAccountAuth },
-};
-
-ACME_API Error AllowedTransactionBit_asString(const AllowedTransactionBit v, String *out) {
-    CHECK_ERROR(out)
-    //since we are only dealing with a limited number of enumerations, we will do a linear search
-    for ( int i = 0; i < sizeof(AllowedTransactionBit_l); ++i ) {
-        if ( AllowedTransactionBit_l[i].e == v ) {
-            String_set(&out->data, AllowedTransactionBit_l[i].name);
-            return ErrorCode(ErrorNone);
-        }
-    }
-    return ErrorCode(ErrorTypeNotFound);
-}
-
-// AllowedTransactionBitByName returns the named Allowed Transaction Bit.
-ACME_API Error AllowedTransactionBit_fromString(AllowedTransactionBit *v, String *name) {
-    CHECK_ERROR(name)
-    //since we are only dealing with a limited number of enumerations, we will do a linear search
-    for ( int i = 0; i < sizeof(AllowedTransactionBit_l); ++i ) {
-        if ( strncmp(AllowedTransactionBit_l[i].name, (const char*)name->data.buffer.ptr+name->data.buffer.offset,name->data.buffer.size) == 0 ) {
-            *v = AllowedTransactionBit_l[i].e;
-            return e;
-        }
-    }
-    return ErrorCode(ErrorTypeNotFound);
-}
-
-// AllowedTransactionBit_marshalJSON marshals the Allowed Transaction Bit to JSON as a string.
-ACME_API Error AllowedTransactionBit_marshalJSON(const AllowedTransactionBit v, Marshaler *out) {
-    CHECK_ERROR(out)
-
-    Error e = AllowedTransactionBit_valid(v);
-    if ( IsError(e) ) {
-        return e;
-    }
-
-    uint8_t data[32] = {0};
-    buffer_t buffer = {data, sizeof(data), 0};
-    String s = String_init(0, &buffer, sizeof(data));
-    e = AllowedTransactionBit_asString(v, &s);
-    if ( IsError(e) ) {
-        return e;
-    }
-    return String_marshalJSON(&s, out);
-}
-
-// AllowedTransactionBit_unmarshalJSON unmarshals the Allowed Transaction Bit from JSON as a string.
-ACME_API Error AllowedTransactionBit_unmarshalJSON(AllowedTransactionBit *v, const Marshaler *in) {
-    CHECK_ERROR(v)
-    CHECK_ERROR(in)
-
-    Error e = AllowedTransactionBit_valid(v);
-    if (e.code != ErrorNone) {
-        return e;
-    }
-    uint8_t data[32] = {0};
-    buffer_t buffer = {data, sizeof(data), 0};
-    String s = String_init(0, &buffer, sizeof(data));
-    //unmarshal the "in" buffer from the Marshaler into a String
-    e = s.data.UnmarshalJSON(&s.data, in);
-    if ( e.code != ErrorNone ) {
-        return e;
-    }
-    //now convert the unmarshaled string into the enum
-    return AllowedTransactionBit_fromString(v, &s);
-}
-
-// MarshalBinary marshals the Allowed Transaction Bit to bytes as a unsigned varint.
-ACME_API int marshalerWriteAllowedTransactionBit(Marshaler *m, AllowedTransactionBit v) {
-    return marshalerWriteField(m, v);
-}
-
-
-// UnmarshalBinary unmarshals the Allowed Transaction Bit from bytes as a unsigned varint.
-ACME_API int unmarshalerReadAllowedTransactionBit(Marshaler *m, AllowedTransactionBit *v) {
-	return marshalerReadField(m, v);
-}
-
-// AllowedTransactionBit_binarySize returns the number of bytes required to binary marshal the Allowed Transaction Bit.
-AllowedTransactionBit_t AllowedTransactionBit_init(AllowedTransactionBit_t *v, buffer_t *buffer) {
-    AllowedTransactionBit_t init = { { {0,0,0},
-                    VarInt_binarySize,
-                    Bytes_equal,
-                    Bytes_copy,
-                    AllowedTransactionBit_marshalBinary,
-                    AllowedTransactionBit_unmarshalBinary,
-                    AllowedTransactionBit_marshalJSON,
-                    AllowedTransactionBit_unmarshalJSON},
-                    AllowedTransactionBit_get,
-                    AllowedTransactionBit_set,
-                  };
-    if (buffer) {
-        int sizeNeeded = sizeof(AllowedTransactionBit);
-        if ( buffer->size - buffer->offset < sizeNeeded ) {
-            return init;
-        }
-        init.data.buffer.ptr = buffer->ptr;
-        init.data.buffer.offset = buffer->offset;
-        init.data.buffer.size = sizeNeeded;
-        buffer->offset += sizeNeeded;
-    }
-
-    if (v) {
-        *v = init;
-    }
-    return init;
-}
-#endif /* !ACME_HEADER */
-
-#ifdef __cplusplus
-}
 #endif
+ACME_API AllowedTransactionBit_t AllowedTransactionBit_init(AllowedTransactionBit_t *v, buffer_t *buffer);
+ACME_API int unmarshalerReadAllowedTransactionBit(Unmarshaler *m, AllowedTransactionBit *v);
+ACME_API int marshalerWriteAllowedTransactionBit(Marshaler *m, AllowedTransactionBit v);
+ACME_API bool AllowedTransactionBit_equal(const AllowedTransactionBit *a, const AllowedTransactionBit *b);
 
 
 
 typedef struct {
     Bytes data;
-    Error (*get)(const struct Bytes *, BookType *out);
-    Error (*set)(struct Bytes *, BookType in);
 } BookType_t;
 
 ACME_API uint64_t BookType_ID(BookType v);
+#if WANT_ENUM_STRING_CONVERSION
 ACME_API Error BookType_fromString(BookType *v, String *name);
 ACME_API Error BookType_asString(BookType v, String *out);
-//ACME_API Error BookType_marshalJSON(const Bytes *v, Marshaler *out);
-//ACME_API Error BookType_unmarshalJSON(Bytes *v, const Marshaler *in);
-BookType_t BookType_init(BookType_t *v, buffer_t *buffer);
-
-#ifndef ACME_HEADER
-
-
-ACME_API Error BookType_set(VarInt *v, BookType n) {
-    return VarInt_set(v,n);
-}
-
-ACME_API Error BookType_get(const VarInt *v, BookType *n) {
-    return VarInt_get(v,n);
-}
-
-
-// ID returns the ID of the Book Type
-ACME_API uint64_t BookType_ID(BookType v) { return (uint64_t)(v); }
-
-// String returns the name of the Book Type
-static enum_t BookType_l[] = {
-	{ "normal", BookTypeNormal },
-	{ "validator", BookTypeValidator },
-	{ "operator", BookTypeOperator },
-};
-
-ACME_API Error BookType_asString(const BookType v, String *out) {
-    CHECK_ERROR(out)
-    //since we are only dealing with a limited number of enumerations, we will do a linear search
-    for ( int i = 0; i < sizeof(BookType_l); ++i ) {
-        if ( BookType_l[i].e == v ) {
-            String_set(&out->data, BookType_l[i].name);
-            return ErrorCode(ErrorNone);
-        }
-    }
-    return ErrorCode(ErrorTypeNotFound);
-}
-
-// BookTypeByName returns the named Book Type.
-ACME_API Error BookType_fromString(BookType *v, String *name) {
-    CHECK_ERROR(name)
-    //since we are only dealing with a limited number of enumerations, we will do a linear search
-    for ( int i = 0; i < sizeof(BookType_l); ++i ) {
-        if ( strncmp(BookType_l[i].name, (const char*)name->data.buffer.ptr+name->data.buffer.offset,name->data.buffer.size) == 0 ) {
-            *v = BookType_l[i].e;
-            return e;
-        }
-    }
-    return ErrorCode(ErrorTypeNotFound);
-}
-
-// BookType_marshalJSON marshals the Book Type to JSON as a string.
-ACME_API Error BookType_marshalJSON(const BookType v, Marshaler *out) {
-    CHECK_ERROR(out)
-
-    Error e = BookType_valid(v);
-    if ( IsError(e) ) {
-        return e;
-    }
-
-    uint8_t data[32] = {0};
-    buffer_t buffer = {data, sizeof(data), 0};
-    String s = String_init(0, &buffer, sizeof(data));
-    e = BookType_asString(v, &s);
-    if ( IsError(e) ) {
-        return e;
-    }
-    return String_marshalJSON(&s, out);
-}
-
-// BookType_unmarshalJSON unmarshals the Book Type from JSON as a string.
-ACME_API Error BookType_unmarshalJSON(BookType *v, const Marshaler *in) {
-    CHECK_ERROR(v)
-    CHECK_ERROR(in)
-
-    Error e = BookType_valid(v);
-    if (e.code != ErrorNone) {
-        return e;
-    }
-    uint8_t data[32] = {0};
-    buffer_t buffer = {data, sizeof(data), 0};
-    String s = String_init(0, &buffer, sizeof(data));
-    //unmarshal the "in" buffer from the Marshaler into a String
-    e = s.data.UnmarshalJSON(&s.data, in);
-    if ( e.code != ErrorNone ) {
-        return e;
-    }
-    //now convert the unmarshaled string into the enum
-    return BookType_fromString(v, &s);
-}
-
-// MarshalBinary marshals the Book Type to bytes as a unsigned varint.
-ACME_API int marshalerWriteBookType(Marshaler *m, BookType v) {
-    return marshalerWriteField(m, v);
-}
-
-
-// UnmarshalBinary unmarshals the Book Type from bytes as a unsigned varint.
-ACME_API int unmarshalerReadBookType(Marshaler *m, BookType *v) {
-	return marshalerReadField(m, v);
-}
-
-// BookType_binarySize returns the number of bytes required to binary marshal the Book Type.
-BookType_t BookType_init(BookType_t *v, buffer_t *buffer) {
-    BookType_t init = { { {0,0,0},
-                    VarInt_binarySize,
-                    Bytes_equal,
-                    Bytes_copy,
-                    BookType_marshalBinary,
-                    BookType_unmarshalBinary,
-                    BookType_marshalJSON,
-                    BookType_unmarshalJSON},
-                    BookType_get,
-                    BookType_set,
-                  };
-    if (buffer) {
-        int sizeNeeded = sizeof(BookType);
-        if ( buffer->size - buffer->offset < sizeNeeded ) {
-            return init;
-        }
-        init.data.buffer.ptr = buffer->ptr;
-        init.data.buffer.offset = buffer->offset;
-        init.data.buffer.size = sizeNeeded;
-        buffer->offset += sizeNeeded;
-    }
-
-    if (v) {
-        *v = init;
-    }
-    return init;
-}
-#endif /* !ACME_HEADER */
-
-#ifdef __cplusplus
-}
 #endif
+ACME_API BookType_t BookType_init(BookType_t *v, buffer_t *buffer);
+ACME_API int unmarshalerReadBookType(Unmarshaler *m, BookType *v);
+ACME_API int marshalerWriteBookType(Marshaler *m, BookType v);
+ACME_API bool BookType_equal(const BookType *a, const BookType *b);
 
 
 
 typedef struct {
     Bytes data;
-    Error (*get)(const struct Bytes *, DataEntryType *out);
-    Error (*set)(struct Bytes *, DataEntryType in);
 } DataEntryType_t;
 
 ACME_API uint64_t DataEntryType_ID(DataEntryType v);
+#if WANT_ENUM_STRING_CONVERSION
 ACME_API Error DataEntryType_fromString(DataEntryType *v, String *name);
 ACME_API Error DataEntryType_asString(DataEntryType v, String *out);
-//ACME_API Error DataEntryType_marshalJSON(const Bytes *v, Marshaler *out);
-//ACME_API Error DataEntryType_unmarshalJSON(Bytes *v, const Marshaler *in);
-DataEntryType_t DataEntryType_init(DataEntryType_t *v, buffer_t *buffer);
-
-#ifndef ACME_HEADER
-
-
-ACME_API Error DataEntryType_set(VarInt *v, DataEntryType n) {
-    return VarInt_set(v,n);
-}
-
-ACME_API Error DataEntryType_get(const VarInt *v, DataEntryType *n) {
-    return VarInt_get(v,n);
-}
-
-
-// ID returns the ID of the Data Entry Type
-ACME_API uint64_t DataEntryType_ID(DataEntryType v) { return (uint64_t)(v); }
-
-// String returns the name of the Data Entry Type
-static enum_t DataEntryType_l[] = {
-	{ "unknown", DataEntryTypeUnknown },
-	{ "factom", DataEntryTypeFactom },
-	{ "accumulate", DataEntryTypeAccumulate },
-};
-
-ACME_API Error DataEntryType_asString(const DataEntryType v, String *out) {
-    CHECK_ERROR(out)
-    //since we are only dealing with a limited number of enumerations, we will do a linear search
-    for ( int i = 0; i < sizeof(DataEntryType_l); ++i ) {
-        if ( DataEntryType_l[i].e == v ) {
-            String_set(&out->data, DataEntryType_l[i].name);
-            return ErrorCode(ErrorNone);
-        }
-    }
-    return ErrorCode(ErrorTypeNotFound);
-}
-
-// DataEntryTypeByName returns the named Data Entry Type.
-ACME_API Error DataEntryType_fromString(DataEntryType *v, String *name) {
-    CHECK_ERROR(name)
-    //since we are only dealing with a limited number of enumerations, we will do a linear search
-    for ( int i = 0; i < sizeof(DataEntryType_l); ++i ) {
-        if ( strncmp(DataEntryType_l[i].name, (const char*)name->data.buffer.ptr+name->data.buffer.offset,name->data.buffer.size) == 0 ) {
-            *v = DataEntryType_l[i].e;
-            return e;
-        }
-    }
-    return ErrorCode(ErrorTypeNotFound);
-}
-
-// DataEntryType_marshalJSON marshals the Data Entry Type to JSON as a string.
-ACME_API Error DataEntryType_marshalJSON(const DataEntryType v, Marshaler *out) {
-    CHECK_ERROR(out)
-
-    Error e = DataEntryType_valid(v);
-    if ( IsError(e) ) {
-        return e;
-    }
-
-    uint8_t data[32] = {0};
-    buffer_t buffer = {data, sizeof(data), 0};
-    String s = String_init(0, &buffer, sizeof(data));
-    e = DataEntryType_asString(v, &s);
-    if ( IsError(e) ) {
-        return e;
-    }
-    return String_marshalJSON(&s, out);
-}
-
-// DataEntryType_unmarshalJSON unmarshals the Data Entry Type from JSON as a string.
-ACME_API Error DataEntryType_unmarshalJSON(DataEntryType *v, const Marshaler *in) {
-    CHECK_ERROR(v)
-    CHECK_ERROR(in)
-
-    Error e = DataEntryType_valid(v);
-    if (e.code != ErrorNone) {
-        return e;
-    }
-    uint8_t data[32] = {0};
-    buffer_t buffer = {data, sizeof(data), 0};
-    String s = String_init(0, &buffer, sizeof(data));
-    //unmarshal the "in" buffer from the Marshaler into a String
-    e = s.data.UnmarshalJSON(&s.data, in);
-    if ( e.code != ErrorNone ) {
-        return e;
-    }
-    //now convert the unmarshaled string into the enum
-    return DataEntryType_fromString(v, &s);
-}
-
-// MarshalBinary marshals the Data Entry Type to bytes as a unsigned varint.
-ACME_API int marshalerWriteDataEntryType(Marshaler *m, DataEntryType v) {
-    return marshalerWriteField(m, v);
-}
-
-
-// UnmarshalBinary unmarshals the Data Entry Type from bytes as a unsigned varint.
-ACME_API int unmarshalerReadDataEntryType(Marshaler *m, DataEntryType *v) {
-	return marshalerReadField(m, v);
-}
-
-// DataEntryType_binarySize returns the number of bytes required to binary marshal the Data Entry Type.
-DataEntryType_t DataEntryType_init(DataEntryType_t *v, buffer_t *buffer) {
-    DataEntryType_t init = { { {0,0,0},
-                    VarInt_binarySize,
-                    Bytes_equal,
-                    Bytes_copy,
-                    DataEntryType_marshalBinary,
-                    DataEntryType_unmarshalBinary,
-                    DataEntryType_marshalJSON,
-                    DataEntryType_unmarshalJSON},
-                    DataEntryType_get,
-                    DataEntryType_set,
-                  };
-    if (buffer) {
-        int sizeNeeded = sizeof(DataEntryType);
-        if ( buffer->size - buffer->offset < sizeNeeded ) {
-            return init;
-        }
-        init.data.buffer.ptr = buffer->ptr;
-        init.data.buffer.offset = buffer->offset;
-        init.data.buffer.size = sizeNeeded;
-        buffer->offset += sizeNeeded;
-    }
-
-    if (v) {
-        *v = init;
-    }
-    return init;
-}
-#endif /* !ACME_HEADER */
-
-#ifdef __cplusplus
-}
 #endif
+ACME_API DataEntryType_t DataEntryType_init(DataEntryType_t *v, buffer_t *buffer);
+ACME_API int unmarshalerReadDataEntryType(Unmarshaler *m, DataEntryType *v);
+ACME_API int marshalerWriteDataEntryType(Marshaler *m, DataEntryType v);
+ACME_API bool DataEntryType_equal(const DataEntryType *a, const DataEntryType *b);
 
 
 
 typedef struct {
     Bytes data;
-    Error (*get)(const struct Bytes *, KeyPageOperationType *out);
-    Error (*set)(struct Bytes *, KeyPageOperationType in);
 } KeyPageOperationType_t;
 
 ACME_API uint64_t KeyPageOperationType_ID(KeyPageOperationType v);
+#if WANT_ENUM_STRING_CONVERSION
 ACME_API Error KeyPageOperationType_fromString(KeyPageOperationType *v, String *name);
 ACME_API Error KeyPageOperationType_asString(KeyPageOperationType v, String *out);
-//ACME_API Error KeyPageOperationType_marshalJSON(const Bytes *v, Marshaler *out);
-//ACME_API Error KeyPageOperationType_unmarshalJSON(Bytes *v, const Marshaler *in);
-KeyPageOperationType_t KeyPageOperationType_init(KeyPageOperationType_t *v, buffer_t *buffer);
-
-#ifndef ACME_HEADER
-
-
-ACME_API Error KeyPageOperationType_set(VarInt *v, KeyPageOperationType n) {
-    return VarInt_set(v,n);
-}
-
-ACME_API Error KeyPageOperationType_get(const VarInt *v, KeyPageOperationType *n) {
-    return VarInt_get(v,n);
-}
-
-
-// ID returns the ID of the Key Page Operation Type
-ACME_API uint64_t KeyPageOperationType_ID(KeyPageOperationType v) { return (uint64_t)(v); }
-
-// String returns the name of the Key Page Operation Type
-static enum_t KeyPageOperationType_l[] = {
-	{ "unknown", KeyPageOperationTypeUnknown },
-	{ "update", KeyPageOperationTypeUpdate },
-	{ "remove", KeyPageOperationTypeRemove },
-	{ "add", KeyPageOperationTypeAdd },
-	{ "setthreshold", KeyPageOperationTypeSetThreshold },
-	{ "updateallowed", KeyPageOperationTypeUpdateAllowed },
-};
-
-ACME_API Error KeyPageOperationType_asString(const KeyPageOperationType v, String *out) {
-    CHECK_ERROR(out)
-    //since we are only dealing with a limited number of enumerations, we will do a linear search
-    for ( int i = 0; i < sizeof(KeyPageOperationType_l); ++i ) {
-        if ( KeyPageOperationType_l[i].e == v ) {
-            String_set(&out->data, KeyPageOperationType_l[i].name);
-            return ErrorCode(ErrorNone);
-        }
-    }
-    return ErrorCode(ErrorTypeNotFound);
-}
-
-// KeyPageOperationTypeByName returns the named Key Page Operation Type.
-ACME_API Error KeyPageOperationType_fromString(KeyPageOperationType *v, String *name) {
-    CHECK_ERROR(name)
-    //since we are only dealing with a limited number of enumerations, we will do a linear search
-    for ( int i = 0; i < sizeof(KeyPageOperationType_l); ++i ) {
-        if ( strncmp(KeyPageOperationType_l[i].name, (const char*)name->data.buffer.ptr+name->data.buffer.offset,name->data.buffer.size) == 0 ) {
-            *v = KeyPageOperationType_l[i].e;
-            return e;
-        }
-    }
-    return ErrorCode(ErrorTypeNotFound);
-}
-
-// KeyPageOperationType_marshalJSON marshals the Key Page Operation Type to JSON as a string.
-ACME_API Error KeyPageOperationType_marshalJSON(const KeyPageOperationType v, Marshaler *out) {
-    CHECK_ERROR(out)
-
-    Error e = KeyPageOperationType_valid(v);
-    if ( IsError(e) ) {
-        return e;
-    }
-
-    uint8_t data[32] = {0};
-    buffer_t buffer = {data, sizeof(data), 0};
-    String s = String_init(0, &buffer, sizeof(data));
-    e = KeyPageOperationType_asString(v, &s);
-    if ( IsError(e) ) {
-        return e;
-    }
-    return String_marshalJSON(&s, out);
-}
-
-// KeyPageOperationType_unmarshalJSON unmarshals the Key Page Operation Type from JSON as a string.
-ACME_API Error KeyPageOperationType_unmarshalJSON(KeyPageOperationType *v, const Marshaler *in) {
-    CHECK_ERROR(v)
-    CHECK_ERROR(in)
-
-    Error e = KeyPageOperationType_valid(v);
-    if (e.code != ErrorNone) {
-        return e;
-    }
-    uint8_t data[32] = {0};
-    buffer_t buffer = {data, sizeof(data), 0};
-    String s = String_init(0, &buffer, sizeof(data));
-    //unmarshal the "in" buffer from the Marshaler into a String
-    e = s.data.UnmarshalJSON(&s.data, in);
-    if ( e.code != ErrorNone ) {
-        return e;
-    }
-    //now convert the unmarshaled string into the enum
-    return KeyPageOperationType_fromString(v, &s);
-}
-
-// MarshalBinary marshals the Key Page Operation Type to bytes as a unsigned varint.
-ACME_API int marshalerWriteKeyPageOperationType(Marshaler *m, KeyPageOperationType v) {
-    return marshalerWriteField(m, v);
-}
-
-
-// UnmarshalBinary unmarshals the Key Page Operation Type from bytes as a unsigned varint.
-ACME_API int unmarshalerReadKeyPageOperationType(Marshaler *m, KeyPageOperationType *v) {
-	return marshalerReadField(m, v);
-}
-
-// KeyPageOperationType_binarySize returns the number of bytes required to binary marshal the Key Page Operation Type.
-KeyPageOperationType_t KeyPageOperationType_init(KeyPageOperationType_t *v, buffer_t *buffer) {
-    KeyPageOperationType_t init = { { {0,0,0},
-                    VarInt_binarySize,
-                    Bytes_equal,
-                    Bytes_copy,
-                    KeyPageOperationType_marshalBinary,
-                    KeyPageOperationType_unmarshalBinary,
-                    KeyPageOperationType_marshalJSON,
-                    KeyPageOperationType_unmarshalJSON},
-                    KeyPageOperationType_get,
-                    KeyPageOperationType_set,
-                  };
-    if (buffer) {
-        int sizeNeeded = sizeof(KeyPageOperationType);
-        if ( buffer->size - buffer->offset < sizeNeeded ) {
-            return init;
-        }
-        init.data.buffer.ptr = buffer->ptr;
-        init.data.buffer.offset = buffer->offset;
-        init.data.buffer.size = sizeNeeded;
-        buffer->offset += sizeNeeded;
-    }
-
-    if (v) {
-        *v = init;
-    }
-    return init;
-}
-#endif /* !ACME_HEADER */
-
-#ifdef __cplusplus
-}
 #endif
+ACME_API KeyPageOperationType_t KeyPageOperationType_init(KeyPageOperationType_t *v, buffer_t *buffer);
+ACME_API int unmarshalerReadKeyPageOperationType(Unmarshaler *m, KeyPageOperationType *v);
+ACME_API int marshalerWriteKeyPageOperationType(Marshaler *m, KeyPageOperationType v);
+ACME_API bool KeyPageOperationType_equal(const KeyPageOperationType *a, const KeyPageOperationType *b);
 
 
 
 typedef struct {
     Bytes data;
-    Error (*get)(const struct Bytes *, ObjectType *out);
-    Error (*set)(struct Bytes *, ObjectType in);
 } ObjectType_t;
 
 ACME_API uint64_t ObjectType_ID(ObjectType v);
+#if WANT_ENUM_STRING_CONVERSION
 ACME_API Error ObjectType_fromString(ObjectType *v, String *name);
 ACME_API Error ObjectType_asString(ObjectType v, String *out);
-//ACME_API Error ObjectType_marshalJSON(const Bytes *v, Marshaler *out);
-//ACME_API Error ObjectType_unmarshalJSON(Bytes *v, const Marshaler *in);
-ObjectType_t ObjectType_init(ObjectType_t *v, buffer_t *buffer);
-
-#ifndef ACME_HEADER
-
-
-ACME_API Error ObjectType_set(VarInt *v, ObjectType n) {
-    return VarInt_set(v,n);
-}
-
-ACME_API Error ObjectType_get(const VarInt *v, ObjectType *n) {
-    return VarInt_get(v,n);
-}
-
-
-// ID returns the ID of the Object Type
-ACME_API uint64_t ObjectType_ID(ObjectType v) { return (uint64_t)(v); }
-
-// String returns the name of the Object Type
-static enum_t ObjectType_l[] = {
-	{ "unknown", ObjectTypeUnknown },
-	{ "account", ObjectTypeAccount },
-	{ "transaction", ObjectTypeTransaction },
-};
-
-ACME_API Error ObjectType_asString(const ObjectType v, String *out) {
-    CHECK_ERROR(out)
-    //since we are only dealing with a limited number of enumerations, we will do a linear search
-    for ( int i = 0; i < sizeof(ObjectType_l); ++i ) {
-        if ( ObjectType_l[i].e == v ) {
-            String_set(&out->data, ObjectType_l[i].name);
-            return ErrorCode(ErrorNone);
-        }
-    }
-    return ErrorCode(ErrorTypeNotFound);
-}
-
-// ObjectTypeByName returns the named Object Type.
-ACME_API Error ObjectType_fromString(ObjectType *v, String *name) {
-    CHECK_ERROR(name)
-    //since we are only dealing with a limited number of enumerations, we will do a linear search
-    for ( int i = 0; i < sizeof(ObjectType_l); ++i ) {
-        if ( strncmp(ObjectType_l[i].name, (const char*)name->data.buffer.ptr+name->data.buffer.offset,name->data.buffer.size) == 0 ) {
-            *v = ObjectType_l[i].e;
-            return e;
-        }
-    }
-    return ErrorCode(ErrorTypeNotFound);
-}
-
-// ObjectType_marshalJSON marshals the Object Type to JSON as a string.
-ACME_API Error ObjectType_marshalJSON(const ObjectType v, Marshaler *out) {
-    CHECK_ERROR(out)
-
-    Error e = ObjectType_valid(v);
-    if ( IsError(e) ) {
-        return e;
-    }
-
-    uint8_t data[32] = {0};
-    buffer_t buffer = {data, sizeof(data), 0};
-    String s = String_init(0, &buffer, sizeof(data));
-    e = ObjectType_asString(v, &s);
-    if ( IsError(e) ) {
-        return e;
-    }
-    return String_marshalJSON(&s, out);
-}
-
-// ObjectType_unmarshalJSON unmarshals the Object Type from JSON as a string.
-ACME_API Error ObjectType_unmarshalJSON(ObjectType *v, const Marshaler *in) {
-    CHECK_ERROR(v)
-    CHECK_ERROR(in)
-
-    Error e = ObjectType_valid(v);
-    if (e.code != ErrorNone) {
-        return e;
-    }
-    uint8_t data[32] = {0};
-    buffer_t buffer = {data, sizeof(data), 0};
-    String s = String_init(0, &buffer, sizeof(data));
-    //unmarshal the "in" buffer from the Marshaler into a String
-    e = s.data.UnmarshalJSON(&s.data, in);
-    if ( e.code != ErrorNone ) {
-        return e;
-    }
-    //now convert the unmarshaled string into the enum
-    return ObjectType_fromString(v, &s);
-}
-
-// MarshalBinary marshals the Object Type to bytes as a unsigned varint.
-ACME_API int marshalerWriteObjectType(Marshaler *m, ObjectType v) {
-    return marshalerWriteField(m, v);
-}
-
-
-// UnmarshalBinary unmarshals the Object Type from bytes as a unsigned varint.
-ACME_API int unmarshalerReadObjectType(Marshaler *m, ObjectType *v) {
-	return marshalerReadField(m, v);
-}
-
-// ObjectType_binarySize returns the number of bytes required to binary marshal the Object Type.
-ObjectType_t ObjectType_init(ObjectType_t *v, buffer_t *buffer) {
-    ObjectType_t init = { { {0,0,0},
-                    VarInt_binarySize,
-                    Bytes_equal,
-                    Bytes_copy,
-                    ObjectType_marshalBinary,
-                    ObjectType_unmarshalBinary,
-                    ObjectType_marshalJSON,
-                    ObjectType_unmarshalJSON},
-                    ObjectType_get,
-                    ObjectType_set,
-                  };
-    if (buffer) {
-        int sizeNeeded = sizeof(ObjectType);
-        if ( buffer->size - buffer->offset < sizeNeeded ) {
-            return init;
-        }
-        init.data.buffer.ptr = buffer->ptr;
-        init.data.buffer.offset = buffer->offset;
-        init.data.buffer.size = sizeNeeded;
-        buffer->offset += sizeNeeded;
-    }
-
-    if (v) {
-        *v = init;
-    }
-    return init;
-}
-#endif /* !ACME_HEADER */
-
-#ifdef __cplusplus
-}
 #endif
+ACME_API ObjectType_t ObjectType_init(ObjectType_t *v, buffer_t *buffer);
+ACME_API int unmarshalerReadObjectType(Unmarshaler *m, ObjectType *v);
+ACME_API int marshalerWriteObjectType(Marshaler *m, ObjectType v);
+ACME_API bool ObjectType_equal(const ObjectType *a, const ObjectType *b);
 
 
 
 typedef struct {
     Bytes data;
-    Error (*get)(const struct Bytes *, SignatureType *out);
-    Error (*set)(struct Bytes *, SignatureType in);
+} PartitionType_t;
+
+ACME_API uint64_t PartitionType_ID(PartitionType v);
+#if WANT_ENUM_STRING_CONVERSION
+ACME_API Error PartitionType_fromString(PartitionType *v, String *name);
+ACME_API Error PartitionType_asString(PartitionType v, String *out);
+#endif
+ACME_API PartitionType_t PartitionType_init(PartitionType_t *v, buffer_t *buffer);
+ACME_API int unmarshalerReadPartitionType(Unmarshaler *m, PartitionType *v);
+ACME_API int marshalerWritePartitionType(Marshaler *m, PartitionType v);
+ACME_API bool PartitionType_equal(const PartitionType *a, const PartitionType *b);
+
+
+
+typedef struct {
+    Bytes data;
 } SignatureType_t;
 
 ACME_API uint64_t SignatureType_ID(SignatureType v);
+#if WANT_ENUM_STRING_CONVERSION
 ACME_API Error SignatureType_fromString(SignatureType *v, String *name);
 ACME_API Error SignatureType_asString(SignatureType v, String *out);
-//ACME_API Error SignatureType_marshalJSON(const Bytes *v, Marshaler *out);
-//ACME_API Error SignatureType_unmarshalJSON(Bytes *v, const Marshaler *in);
-SignatureType_t SignatureType_init(SignatureType_t *v, buffer_t *buffer);
-
-#ifndef ACME_HEADER
-
-
-ACME_API Error SignatureType_set(VarInt *v, SignatureType n) {
-    return VarInt_set(v,n);
-}
-
-ACME_API Error SignatureType_get(const VarInt *v, SignatureType *n) {
-    return VarInt_get(v,n);
-}
-
-
-// ID returns the ID of the Signature Type
-ACME_API uint64_t SignatureType_ID(SignatureType v) { return (uint64_t)(v); }
-
-// String returns the name of the Signature Type
-static enum_t SignatureType_l[] = {
-	{ "unknown", SignatureTypeUnknown },
-	{ "legacyed25519", SignatureTypeLegacyED25519 },
-	{ "ed25519", SignatureTypeED25519 },
-	{ "rcd1", SignatureTypeRCD1 },
-	{ "receipt", SignatureTypeReceipt },
-	{ "partition", SignatureTypePartition },
-	{ "set", SignatureTypeSet },
-	{ "remote", SignatureTypeRemote },
-	{ "btc", SignatureTypeBTC },
-	{ "btclegacy", SignatureTypeBTCLegacy },
-	{ "eth", SignatureTypeETH },
-	{ "delegated", SignatureTypeDelegated },
-	{ "internal", SignatureTypeInternal },
-};
-
-ACME_API Error SignatureType_asString(const SignatureType v, String *out) {
-    CHECK_ERROR(out)
-    //since we are only dealing with a limited number of enumerations, we will do a linear search
-    for ( int i = 0; i < sizeof(SignatureType_l); ++i ) {
-        if ( SignatureType_l[i].e == v ) {
-            String_set(&out->data, SignatureType_l[i].name);
-            return ErrorCode(ErrorNone);
-        }
-    }
-    return ErrorCode(ErrorTypeNotFound);
-}
-
-// SignatureTypeByName returns the named Signature Type.
-ACME_API Error SignatureType_fromString(SignatureType *v, String *name) {
-    CHECK_ERROR(name)
-    //since we are only dealing with a limited number of enumerations, we will do a linear search
-    for ( int i = 0; i < sizeof(SignatureType_l); ++i ) {
-        if ( strncmp(SignatureType_l[i].name, (const char*)name->data.buffer.ptr+name->data.buffer.offset,name->data.buffer.size) == 0 ) {
-            *v = SignatureType_l[i].e;
-            return e;
-        }
-    }
-    return ErrorCode(ErrorTypeNotFound);
-}
-
-// SignatureType_marshalJSON marshals the Signature Type to JSON as a string.
-ACME_API Error SignatureType_marshalJSON(const SignatureType v, Marshaler *out) {
-    CHECK_ERROR(out)
-
-    Error e = SignatureType_valid(v);
-    if ( IsError(e) ) {
-        return e;
-    }
-
-    uint8_t data[32] = {0};
-    buffer_t buffer = {data, sizeof(data), 0};
-    String s = String_init(0, &buffer, sizeof(data));
-    e = SignatureType_asString(v, &s);
-    if ( IsError(e) ) {
-        return e;
-    }
-    return String_marshalJSON(&s, out);
-}
-
-// SignatureType_unmarshalJSON unmarshals the Signature Type from JSON as a string.
-ACME_API Error SignatureType_unmarshalJSON(SignatureType *v, const Marshaler *in) {
-    CHECK_ERROR(v)
-    CHECK_ERROR(in)
-
-    Error e = SignatureType_valid(v);
-    if (e.code != ErrorNone) {
-        return e;
-    }
-    uint8_t data[32] = {0};
-    buffer_t buffer = {data, sizeof(data), 0};
-    String s = String_init(0, &buffer, sizeof(data));
-    //unmarshal the "in" buffer from the Marshaler into a String
-    e = s.data.UnmarshalJSON(&s.data, in);
-    if ( e.code != ErrorNone ) {
-        return e;
-    }
-    //now convert the unmarshaled string into the enum
-    return SignatureType_fromString(v, &s);
-}
-
-// MarshalBinary marshals the Signature Type to bytes as a unsigned varint.
-ACME_API int marshalerWriteSignatureType(Marshaler *m, SignatureType v) {
-    return marshalerWriteField(m, v);
-}
-
-
-// UnmarshalBinary unmarshals the Signature Type from bytes as a unsigned varint.
-ACME_API int unmarshalerReadSignatureType(Marshaler *m, SignatureType *v) {
-	return marshalerReadField(m, v);
-}
-
-// SignatureType_binarySize returns the number of bytes required to binary marshal the Signature Type.
-SignatureType_t SignatureType_init(SignatureType_t *v, buffer_t *buffer) {
-    SignatureType_t init = { { {0,0,0},
-                    VarInt_binarySize,
-                    Bytes_equal,
-                    Bytes_copy,
-                    SignatureType_marshalBinary,
-                    SignatureType_unmarshalBinary,
-                    SignatureType_marshalJSON,
-                    SignatureType_unmarshalJSON},
-                    SignatureType_get,
-                    SignatureType_set,
-                  };
-    if (buffer) {
-        int sizeNeeded = sizeof(SignatureType);
-        if ( buffer->size - buffer->offset < sizeNeeded ) {
-            return init;
-        }
-        init.data.buffer.ptr = buffer->ptr;
-        init.data.buffer.offset = buffer->offset;
-        init.data.buffer.size = sizeNeeded;
-        buffer->offset += sizeNeeded;
-    }
-
-    if (v) {
-        *v = init;
-    }
-    return init;
-}
-#endif /* !ACME_HEADER */
-
-#ifdef __cplusplus
-}
 #endif
+ACME_API SignatureType_t SignatureType_init(SignatureType_t *v, buffer_t *buffer);
+ACME_API int unmarshalerReadSignatureType(Unmarshaler *m, SignatureType *v);
+ACME_API int marshalerWriteSignatureType(Marshaler *m, SignatureType v);
+ACME_API bool SignatureType_equal(const SignatureType *a, const SignatureType *b);
 
 
 
 typedef struct {
     Bytes data;
-    Error (*get)(const struct Bytes *, TransactionMax *out);
-    Error (*set)(struct Bytes *, TransactionMax in);
 } TransactionMax_t;
 
 ACME_API uint64_t TransactionMax_ID(TransactionMax v);
+#if WANT_ENUM_STRING_CONVERSION
 ACME_API Error TransactionMax_fromString(TransactionMax *v, String *name);
 ACME_API Error TransactionMax_asString(TransactionMax v, String *out);
-//ACME_API Error TransactionMax_marshalJSON(const Bytes *v, Marshaler *out);
-//ACME_API Error TransactionMax_unmarshalJSON(Bytes *v, const Marshaler *in);
-TransactionMax_t TransactionMax_init(TransactionMax_t *v, buffer_t *buffer);
-
-#ifndef ACME_HEADER
-
-
-ACME_API Error TransactionMax_set(VarInt *v, TransactionMax n) {
-    return VarInt_set(v,n);
-}
-
-ACME_API Error TransactionMax_get(const VarInt *v, TransactionMax *n) {
-    return VarInt_get(v,n);
-}
-
-
-// ID returns the ID of the Transaction Max
-ACME_API uint64_t TransactionMax_ID(TransactionMax v) { return (uint64_t)(v); }
-
-// String returns the name of the Transaction Max
-static enum_t TransactionMax_l[] = {
-	{ "user", TransactionMaxUser },
-	{ "synthetic", TransactionMaxSynthetic },
-	{ "system", TransactionMaxSystem },
-};
-
-ACME_API Error TransactionMax_asString(const TransactionMax v, String *out) {
-    CHECK_ERROR(out)
-    //since we are only dealing with a limited number of enumerations, we will do a linear search
-    for ( int i = 0; i < sizeof(TransactionMax_l); ++i ) {
-        if ( TransactionMax_l[i].e == v ) {
-            String_set(&out->data, TransactionMax_l[i].name);
-            return ErrorCode(ErrorNone);
-        }
-    }
-    return ErrorCode(ErrorTypeNotFound);
-}
-
-// TransactionMaxByName returns the named Transaction Max.
-ACME_API Error TransactionMax_fromString(TransactionMax *v, String *name) {
-    CHECK_ERROR(name)
-    //since we are only dealing with a limited number of enumerations, we will do a linear search
-    for ( int i = 0; i < sizeof(TransactionMax_l); ++i ) {
-        if ( strncmp(TransactionMax_l[i].name, (const char*)name->data.buffer.ptr+name->data.buffer.offset,name->data.buffer.size) == 0 ) {
-            *v = TransactionMax_l[i].e;
-            return e;
-        }
-    }
-    return ErrorCode(ErrorTypeNotFound);
-}
-
-// TransactionMax_marshalJSON marshals the Transaction Max to JSON as a string.
-ACME_API Error TransactionMax_marshalJSON(const TransactionMax v, Marshaler *out) {
-    CHECK_ERROR(out)
-
-    Error e = TransactionMax_valid(v);
-    if ( IsError(e) ) {
-        return e;
-    }
-
-    uint8_t data[32] = {0};
-    buffer_t buffer = {data, sizeof(data), 0};
-    String s = String_init(0, &buffer, sizeof(data));
-    e = TransactionMax_asString(v, &s);
-    if ( IsError(e) ) {
-        return e;
-    }
-    return String_marshalJSON(&s, out);
-}
-
-// TransactionMax_unmarshalJSON unmarshals the Transaction Max from JSON as a string.
-ACME_API Error TransactionMax_unmarshalJSON(TransactionMax *v, const Marshaler *in) {
-    CHECK_ERROR(v)
-    CHECK_ERROR(in)
-
-    Error e = TransactionMax_valid(v);
-    if (e.code != ErrorNone) {
-        return e;
-    }
-    uint8_t data[32] = {0};
-    buffer_t buffer = {data, sizeof(data), 0};
-    String s = String_init(0, &buffer, sizeof(data));
-    //unmarshal the "in" buffer from the Marshaler into a String
-    e = s.data.UnmarshalJSON(&s.data, in);
-    if ( e.code != ErrorNone ) {
-        return e;
-    }
-    //now convert the unmarshaled string into the enum
-    return TransactionMax_fromString(v, &s);
-}
-
-// MarshalBinary marshals the Transaction Max to bytes as a unsigned varint.
-ACME_API int marshalerWriteTransactionMax(Marshaler *m, TransactionMax v) {
-    return marshalerWriteField(m, v);
-}
-
-
-// UnmarshalBinary unmarshals the Transaction Max from bytes as a unsigned varint.
-ACME_API int unmarshalerReadTransactionMax(Marshaler *m, TransactionMax *v) {
-	return marshalerReadField(m, v);
-}
-
-// TransactionMax_binarySize returns the number of bytes required to binary marshal the Transaction Max.
-TransactionMax_t TransactionMax_init(TransactionMax_t *v, buffer_t *buffer) {
-    TransactionMax_t init = { { {0,0,0},
-                    VarInt_binarySize,
-                    Bytes_equal,
-                    Bytes_copy,
-                    TransactionMax_marshalBinary,
-                    TransactionMax_unmarshalBinary,
-                    TransactionMax_marshalJSON,
-                    TransactionMax_unmarshalJSON},
-                    TransactionMax_get,
-                    TransactionMax_set,
-                  };
-    if (buffer) {
-        int sizeNeeded = sizeof(TransactionMax);
-        if ( buffer->size - buffer->offset < sizeNeeded ) {
-            return init;
-        }
-        init.data.buffer.ptr = buffer->ptr;
-        init.data.buffer.offset = buffer->offset;
-        init.data.buffer.size = sizeNeeded;
-        buffer->offset += sizeNeeded;
-    }
-
-    if (v) {
-        *v = init;
-    }
-    return init;
-}
-#endif /* !ACME_HEADER */
-
-#ifdef __cplusplus
-}
 #endif
+ACME_API TransactionMax_t TransactionMax_init(TransactionMax_t *v, buffer_t *buffer);
+ACME_API int unmarshalerReadTransactionMax(Unmarshaler *m, TransactionMax *v);
+ACME_API int marshalerWriteTransactionMax(Marshaler *m, TransactionMax v);
+ACME_API bool TransactionMax_equal(const TransactionMax *a, const TransactionMax *b);
 
 
 
 typedef struct {
     Bytes data;
-    Error (*get)(const struct Bytes *, TransactionType *out);
-    Error (*set)(struct Bytes *, TransactionType in);
 } TransactionType_t;
 
 ACME_API uint64_t TransactionType_ID(TransactionType v);
+#if WANT_ENUM_STRING_CONVERSION
 ACME_API Error TransactionType_fromString(TransactionType *v, String *name);
 ACME_API Error TransactionType_asString(TransactionType v, String *out);
-//ACME_API Error TransactionType_marshalJSON(const Bytes *v, Marshaler *out);
-//ACME_API Error TransactionType_unmarshalJSON(Bytes *v, const Marshaler *in);
-TransactionType_t TransactionType_init(TransactionType_t *v, buffer_t *buffer);
-
-#ifndef ACME_HEADER
-
-
-ACME_API Error TransactionType_set(VarInt *v, TransactionType n) {
-    return VarInt_set(v,n);
-}
-
-ACME_API Error TransactionType_get(const VarInt *v, TransactionType *n) {
-    return VarInt_get(v,n);
-}
-
-
-// ID returns the ID of the Transaction Type
-ACME_API uint64_t TransactionType_ID(TransactionType v) { return (uint64_t)(v); }
-
-// String returns the name of the Transaction Type
-static enum_t TransactionType_l[] = {
-	{ "unknown", TransactionTypeUnknown },
-	{ "createidentity", TransactionTypeCreateIdentity },
-	{ "createtokenaccount", TransactionTypeCreateTokenAccount },
-	{ "sendtokens", TransactionTypeSendTokens },
-	{ "createdataaccount", TransactionTypeCreateDataAccount },
-	{ "writedata", TransactionTypeWriteData },
-	{ "writedatato", TransactionTypeWriteDataTo },
-	{ "acmefaucet", TransactionTypeAcmeFaucet },
-	{ "createtoken", TransactionTypeCreateToken },
-	{ "issuetokens", TransactionTypeIssueTokens },
-	{ "burntokens", TransactionTypeBurnTokens },
-	{ "createlitetokenaccount", TransactionTypeCreateLiteTokenAccount },
-	{ "createkeypage", TransactionTypeCreateKeyPage },
-	{ "createkeybook", TransactionTypeCreateKeyBook },
-	{ "addcredits", TransactionTypeAddCredits },
-	{ "updatekeypage", TransactionTypeUpdateKeyPage },
-	{ "lockaccount", TransactionTypeLockAccount },
-	{ "updateaccountauth", TransactionTypeUpdateAccountAuth },
-	{ "updatekey", TransactionTypeUpdateKey },
-	{ "remote", TransactionTypeRemote },
-	{ "syntheticcreateidentity", TransactionTypeSyntheticCreateIdentity },
-	{ "syntheticwritedata", TransactionTypeSyntheticWriteData },
-	{ "syntheticdeposittokens", TransactionTypeSyntheticDepositTokens },
-	{ "syntheticdepositcredits", TransactionTypeSyntheticDepositCredits },
-	{ "syntheticburntokens", TransactionTypeSyntheticBurnTokens },
-	{ "syntheticforwardtransaction", TransactionTypeSyntheticForwardTransaction },
-	{ "systemgenesis", TransactionTypeSystemGenesis },
-	{ "directoryanchor", TransactionTypeDirectoryAnchor },
-	{ "blockvalidatoranchor", TransactionTypeBlockValidatorAnchor },
-	{ "systemwritedata", TransactionTypeSystemWriteData },
-};
-
-ACME_API Error TransactionType_asString(const TransactionType v, String *out) {
-    CHECK_ERROR(out)
-    //since we are only dealing with a limited number of enumerations, we will do a linear search
-    for ( int i = 0; i < sizeof(TransactionType_l); ++i ) {
-        if ( TransactionType_l[i].e == v ) {
-            String_set(&out->data, TransactionType_l[i].name);
-            return ErrorCode(ErrorNone);
-        }
-    }
-    return ErrorCode(ErrorTypeNotFound);
-}
-
-// TransactionTypeByName returns the named Transaction Type.
-ACME_API Error TransactionType_fromString(TransactionType *v, String *name) {
-    CHECK_ERROR(name)
-    //since we are only dealing with a limited number of enumerations, we will do a linear search
-    for ( int i = 0; i < sizeof(TransactionType_l); ++i ) {
-        if ( strncmp(TransactionType_l[i].name, (const char*)name->data.buffer.ptr+name->data.buffer.offset,name->data.buffer.size) == 0 ) {
-            *v = TransactionType_l[i].e;
-            return e;
-        }
-    }
-    return ErrorCode(ErrorTypeNotFound);
-}
-
-// TransactionType_marshalJSON marshals the Transaction Type to JSON as a string.
-ACME_API Error TransactionType_marshalJSON(const TransactionType v, Marshaler *out) {
-    CHECK_ERROR(out)
-
-    Error e = TransactionType_valid(v);
-    if ( IsError(e) ) {
-        return e;
-    }
-
-    uint8_t data[32] = {0};
-    buffer_t buffer = {data, sizeof(data), 0};
-    String s = String_init(0, &buffer, sizeof(data));
-    e = TransactionType_asString(v, &s);
-    if ( IsError(e) ) {
-        return e;
-    }
-    return String_marshalJSON(&s, out);
-}
-
-// TransactionType_unmarshalJSON unmarshals the Transaction Type from JSON as a string.
-ACME_API Error TransactionType_unmarshalJSON(TransactionType *v, const Marshaler *in) {
-    CHECK_ERROR(v)
-    CHECK_ERROR(in)
-
-    Error e = TransactionType_valid(v);
-    if (e.code != ErrorNone) {
-        return e;
-    }
-    uint8_t data[32] = {0};
-    buffer_t buffer = {data, sizeof(data), 0};
-    String s = String_init(0, &buffer, sizeof(data));
-    //unmarshal the "in" buffer from the Marshaler into a String
-    e = s.data.UnmarshalJSON(&s.data, in);
-    if ( e.code != ErrorNone ) {
-        return e;
-    }
-    //now convert the unmarshaled string into the enum
-    return TransactionType_fromString(v, &s);
-}
-
-// MarshalBinary marshals the Transaction Type to bytes as a unsigned varint.
-ACME_API int marshalerWriteTransactionType(Marshaler *m, TransactionType v) {
-    return marshalerWriteField(m, v);
-}
-
-
-// UnmarshalBinary unmarshals the Transaction Type from bytes as a unsigned varint.
-ACME_API int unmarshalerReadTransactionType(Marshaler *m, TransactionType *v) {
-	return marshalerReadField(m, v);
-}
-
-// TransactionType_binarySize returns the number of bytes required to binary marshal the Transaction Type.
-TransactionType_t TransactionType_init(TransactionType_t *v, buffer_t *buffer) {
-    TransactionType_t init = { { {0,0,0},
-                    VarInt_binarySize,
-                    Bytes_equal,
-                    Bytes_copy,
-                    TransactionType_marshalBinary,
-                    TransactionType_unmarshalBinary,
-                    TransactionType_marshalJSON,
-                    TransactionType_unmarshalJSON},
-                    TransactionType_get,
-                    TransactionType_set,
-                  };
-    if (buffer) {
-        int sizeNeeded = sizeof(TransactionType);
-        if ( buffer->size - buffer->offset < sizeNeeded ) {
-            return init;
-        }
-        init.data.buffer.ptr = buffer->ptr;
-        init.data.buffer.offset = buffer->offset;
-        init.data.buffer.size = sizeNeeded;
-        buffer->offset += sizeNeeded;
-    }
-
-    if (v) {
-        *v = init;
-    }
-    return init;
-}
-#endif /* !ACME_HEADER */
-
-#ifdef __cplusplus
-}
 #endif
+ACME_API TransactionType_t TransactionType_init(TransactionType_t *v, buffer_t *buffer);
+ACME_API int unmarshalerReadTransactionType(Unmarshaler *m, TransactionType *v);
+ACME_API int marshalerWriteTransactionType(Marshaler *m, TransactionType v);
+ACME_API bool TransactionType_equal(const TransactionType *a, const TransactionType *b);
 
 
 
 typedef struct {
     Bytes data;
-    Error (*get)(const struct Bytes *, VoteType *out);
-    Error (*set)(struct Bytes *, VoteType in);
 } VoteType_t;
 
 ACME_API uint64_t VoteType_ID(VoteType v);
+#if WANT_ENUM_STRING_CONVERSION
 ACME_API Error VoteType_fromString(VoteType *v, String *name);
 ACME_API Error VoteType_asString(VoteType v, String *out);
-//ACME_API Error VoteType_marshalJSON(const Bytes *v, Marshaler *out);
-//ACME_API Error VoteType_unmarshalJSON(Bytes *v, const Marshaler *in);
-VoteType_t VoteType_init(VoteType_t *v, buffer_t *buffer);
+#endif
+ACME_API VoteType_t VoteType_init(VoteType_t *v, buffer_t *buffer);
+ACME_API int unmarshalerReadVoteType(Unmarshaler *m, VoteType *v);
+ACME_API int marshalerWriteVoteType(Marshaler *m, VoteType v);
+ACME_API bool VoteType_equal(const VoteType *a, const VoteType *b);
 
-#ifndef ACME_HEADER
-
-
-ACME_API Error VoteType_set(VarInt *v, VoteType n) {
-    return VarInt_set(v,n);
-}
-
-ACME_API Error VoteType_get(const VarInt *v, VoteType *n) {
-    return VarInt_get(v,n);
-}
-
-
-// ID returns the ID of the Vote Type
-ACME_API uint64_t VoteType_ID(VoteType v) { return (uint64_t)(v); }
-
-// String returns the name of the Vote Type
-static enum_t VoteType_l[] = {
-	{ "accept", VoteTypeAccept },
-	{ "reject", VoteTypeReject },
-	{ "abstain", VoteTypeAbstain },
-	{ "suggest", VoteTypeSuggest },
-};
-
-ACME_API Error VoteType_asString(const VoteType v, String *out) {
-    CHECK_ERROR(out)
-    //since we are only dealing with a limited number of enumerations, we will do a linear search
-    for ( int i = 0; i < sizeof(VoteType_l); ++i ) {
-        if ( VoteType_l[i].e == v ) {
-            String_set(&out->data, VoteType_l[i].name);
-            return ErrorCode(ErrorNone);
-        }
-    }
-    return ErrorCode(ErrorTypeNotFound);
-}
-
-// VoteTypeByName returns the named Vote Type.
-ACME_API Error VoteType_fromString(VoteType *v, String *name) {
-    CHECK_ERROR(name)
-    //since we are only dealing with a limited number of enumerations, we will do a linear search
-    for ( int i = 0; i < sizeof(VoteType_l); ++i ) {
-        if ( strncmp(VoteType_l[i].name, (const char*)name->data.buffer.ptr+name->data.buffer.offset,name->data.buffer.size) == 0 ) {
-            *v = VoteType_l[i].e;
-            return e;
-        }
-    }
-    return ErrorCode(ErrorTypeNotFound);
-}
-
-// VoteType_marshalJSON marshals the Vote Type to JSON as a string.
-ACME_API Error VoteType_marshalJSON(const VoteType v, Marshaler *out) {
-    CHECK_ERROR(out)
-
-    Error e = VoteType_valid(v);
-    if ( IsError(e) ) {
-        return e;
-    }
-
-    uint8_t data[32] = {0};
-    buffer_t buffer = {data, sizeof(data), 0};
-    String s = String_init(0, &buffer, sizeof(data));
-    e = VoteType_asString(v, &s);
-    if ( IsError(e) ) {
-        return e;
-    }
-    return String_marshalJSON(&s, out);
-}
-
-// VoteType_unmarshalJSON unmarshals the Vote Type from JSON as a string.
-ACME_API Error VoteType_unmarshalJSON(VoteType *v, const Marshaler *in) {
-    CHECK_ERROR(v)
-    CHECK_ERROR(in)
-
-    Error e = VoteType_valid(v);
-    if (e.code != ErrorNone) {
-        return e;
-    }
-    uint8_t data[32] = {0};
-    buffer_t buffer = {data, sizeof(data), 0};
-    String s = String_init(0, &buffer, sizeof(data));
-    //unmarshal the "in" buffer from the Marshaler into a String
-    e = s.data.UnmarshalJSON(&s.data, in);
-    if ( e.code != ErrorNone ) {
-        return e;
-    }
-    //now convert the unmarshaled string into the enum
-    return VoteType_fromString(v, &s);
-}
-
-// MarshalBinary marshals the Vote Type to bytes as a unsigned varint.
-ACME_API int marshalerWriteVoteType(Marshaler *m, VoteType v) {
-    return marshalerWriteField(m, v);
-}
-
-
-// UnmarshalBinary unmarshals the Vote Type from bytes as a unsigned varint.
-ACME_API int unmarshalerReadVoteType(Marshaler *m, VoteType *v) {
-	return marshalerReadField(m, v);
-}
-
-// VoteType_binarySize returns the number of bytes required to binary marshal the Vote Type.
-VoteType_t VoteType_init(VoteType_t *v, buffer_t *buffer) {
-    VoteType_t init = { { {0,0,0},
-                    VarInt_binarySize,
-                    Bytes_equal,
-                    Bytes_copy,
-                    VoteType_marshalBinary,
-                    VoteType_unmarshalBinary,
-                    VoteType_marshalJSON,
-                    VoteType_unmarshalJSON},
-                    VoteType_get,
-                    VoteType_set,
-                  };
-    if (buffer) {
-        int sizeNeeded = sizeof(VoteType);
-        if ( buffer->size - buffer->offset < sizeNeeded ) {
-            return init;
-        }
-        init.data.buffer.ptr = buffer->ptr;
-        init.data.buffer.offset = buffer->offset;
-        init.data.buffer.size = sizeNeeded;
-        buffer->offset += sizeNeeded;
-    }
-
-    if (v) {
-        *v = init;
-    }
-    return init;
-}
-#endif /* !ACME_HEADER */
 
 #ifdef __cplusplus
 }
 #endif
-
-

@@ -75,7 +75,7 @@ BigInt BigInt_new(buffer_t *b) {
     BigInt init = { { {0,0,0}}};
     if (b) {
         int sizeNeeded = 32;
-        if ( b->size - b->offset < sizeNeeded ) {
+        if ( (int)(b->size - b->offset) < sizeNeeded ) {
             return init;
         }
         init.data.buffer.ptr = b->ptr;
@@ -86,8 +86,4 @@ BigInt BigInt_new(buffer_t *b) {
 
     return init;
 }
-//
-//BigInt BigInt_init(BigInt_t *v) {
-//    buffer_t buffer = { &v->elements[0], 32, 0};
-//    return BigInt_new(&buffer, 32);
-//}
+

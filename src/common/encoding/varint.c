@@ -16,9 +16,6 @@ Error VarInt_valid(const Bytes *v) {
     if (v->buffer.size != sizeof(uint64_t)) {
         return ErrorCode(ErrorBufferTooSmall);
     }
-//    if ( !v->Copy || !v->Equal || !v->BinarySize || !v->MarshalBinary || !v->UnmarshalBinary ) {
-//        return ErrorCode(ErrorInvalidObject);
-//    }
     return ErrorCode(ErrorNone);
 }
 
@@ -86,8 +83,3 @@ VarInt VarInt_new(buffer_t *buffer) {
 
     return init;
 }
-//
-//VarInt VarInt_init(VarInt_t *v) {
-//    buffer_t buffer = { v, sizeof(size_t), 0};
-//    return VarInt_new(&buffer, sizeof (size_t));
-//}

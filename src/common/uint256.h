@@ -19,6 +19,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <common/buffer.h>
 
 typedef struct uint128_t { uint64_t elements[2]; } uint128_t;
 
@@ -73,3 +74,4 @@ void readu128LE(uint8_t *buffer, uint128_t *target);
 int fromstring256(const char *in, size_t inLen, uint256_t *number);
 int fromhex256(const char *in, size_t inLen, uint256_t *number);
 int frombytes256(const uint8_t *in, size_t inLen, uint256_t *number);
+int buffer_readu256BE(buffer_t *b, uint256_t *target);

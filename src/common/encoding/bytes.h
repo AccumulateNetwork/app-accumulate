@@ -8,14 +8,6 @@ struct Unmarshaler;
 
 typedef struct Bytes {
     buffer_t buffer;
-//
-//    int (*BinarySize)(const struct Bytes *);
-//    bool (*Equal)(const struct Bytes*, const struct Bytes*);
-//    int (*Copy)(struct Bytes*, const struct Bytes*);
-//    Error (*MarshalBinary)(const struct Bytes*, struct Marshaler *outData);
-//    Error (*UnmarshalBinary)(struct Bytes*,struct Unmarshaler *data);
-//    Error (*MarshalJSON)(const struct Bytes*, struct Marshaler *outData);
-//    Error (*UnmarshalJSON)(struct Bytes*,struct Unmarshaler *data);
 } Bytes;
 
 typedef uint8_t Byte_t;

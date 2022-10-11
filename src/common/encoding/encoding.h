@@ -17,6 +17,8 @@
 #include <common/encoding/bigint.h>
 #include <common/encoding/url.h>
 #include <common/encoding/marshaler.h>
+#include <common/encoding/rawjson.h>
+#include <common/encoding/bool.h>
 
 #define JSMN_HEADER
 #include <common/jsmn.h>

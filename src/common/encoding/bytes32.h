@@ -5,15 +5,6 @@
 typedef struct Bytes32_t { uint8_t x[32]; } Bytes32_t;
 typedef struct Bytes32 {
     Bytes data;
-//
-//    Error (*get)(const struct Bytes *, Bytes32_t *out);
-//    Error (*set)(struct Bytes *, const Bytes32_t *in);
-//
-//    int (*BinarySize)(const struct Bytes32 *);
-//    bool (*Equal)(const struct Bytes32*, const struct Bytes32*);
-//    int (*Copy)(struct Bytes32*, const struct Bytes32*);
-//    Error (*MarshalBinary)(const struct Bytes32 *, struct Marshaler *outData);
-//    Error (*UnmarshalBinary)(struct Bytes32 *,struct Marshaler *data);
 } Bytes32;
 
 Bytes32 Bytes32_new(buffer_t *b, size_t n);

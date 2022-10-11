@@ -62,13 +62,7 @@ Error Bytes_unmarshalJSON(struct Bytes* self, struct Marshaler *data) {
 
 Bytes Bytes_new(buffer_t *b, size_t n) {
     Bytes init = { {0, 0, 0},
-                 Bytes_binarySizeDynamic,
-                 Bytes_equal,
-                 Bytes_copy,
-                 Bytes_marshalBinaryDynamic,
-                 Bytes_unmarshalBinaryDynamic,
-                 Bytes_marshalJSON,
-                 Bytes_unmarshalJSON};
+                 };
     if ( b ) {
         init.buffer.size = n;
         init.buffer.ptr = b->ptr;
