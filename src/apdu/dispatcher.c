@@ -29,6 +29,7 @@
 #include "../handler/get_app_name.h"
 #include "../handler/get_public_key.h"
 #include "../handler/sign_tx.h"
+#include "../handler/debug_tx.h"
 
 int apdu_dispatcher(const command_t *cmd) {
     if (cmd->cla != CLA) {
@@ -80,6 +81,8 @@ int apdu_dispatcher(const command_t *cmd) {
             buf.offset = 0;
 
             return handler_sign_tx(&buf, cmd->p1, (bool) (cmd->p2 & P2_MORE));
+        case DEBUG_TX:
+            return handler_debug_tx();
         default:
             return io_send_sw(SW_INS_NOT_SUPPORTED);
     }

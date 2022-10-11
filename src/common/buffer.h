@@ -144,8 +144,8 @@ bool buffer_read_u64(buffer_t *buffer, uint64_t *value, endianness_t endianness)
  * @return true if success, false otherwise.
  *
  */
-bool buffer_read_varint(buffer_t *buffer, int64_t *value);
-bool buffer_read_uvarint(buffer_t *buffer, uint64_t *value);
+int buffer_read_varint(buffer_t *buffer, int64_t *value);
+int buffer_read_uvarint(buffer_t *buffer, uint64_t *value);
 
 /**
  * Read BIP32 path from buffer.

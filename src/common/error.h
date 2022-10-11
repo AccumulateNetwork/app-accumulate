@@ -30,13 +30,18 @@ typedef enum {
     ErrorInvalidOffset = -19,
     ErrorInvalidData = -20,
     ErrorBadKey = -21,
+    ErrorInvalidField = -22,
+    ErrorExpectingType = -23,
+    ErrorMaxError = -24,
 } ErrorEnum;
 
-Error ErrorCode(ErrorEnum e); 
+Error ErrorCode(int e);
 Error Error_init(Error *e);
 bool IsError(Error e);
+bool IsErrorCode(int e);
 
 #define CHECK_ERROR(v) if (!v) { return ErrorCode(ErrorParameterNil); }
 #define CHECK_ERROR_INT(v) if (!v) { return ErrorCode(ErrorParameterNil).code; }
 #define CHECK_ERROR_BOOL(v) if (!v) { return false; }
 
+#define CHECK_ERROR_CODE(v) if (IsErrorCode(v)) { return v; }

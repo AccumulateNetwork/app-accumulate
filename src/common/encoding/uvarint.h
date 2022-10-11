@@ -5,14 +5,6 @@
 //typedef uint64_t UVarInt_t;
 typedef struct UVarInt {
     Bytes data;
-//    Error (*get)(const struct UVarInt *, UVarInt_t *out);
-//    Error (*set)(struct UVarInt *, UVarInt_t in);
-//
-//    int (*BinarySize)(const struct UVarInt *);
-//    bool (*Equal)(const struct UVarInt*, const struct UVarInt*);
-//    int (*Copy)(struct UVarInt*, const struct UVarInt*);
-//    Error (*MarshalBinary)(const struct UVarInt *, struct Marshaler *outData);
-//    Error (*UnmarshalBinary)(struct UVarInt *,struct Marshaler *data);
 } UVarInt;
 
 UVarInt UVarInt_new(buffer_t *b);

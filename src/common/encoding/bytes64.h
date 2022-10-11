@@ -6,13 +6,6 @@ typedef struct Bytes64_t { uint8_t x[64]; } Bytes64_t;
 
 typedef struct Bytes64 {
     Bytes data;
-//    Error (*get)(const struct Bytes *, Bytes64_t *out);
-//    Error (*set)(struct Bytes *, const Bytes64_t *in);
-//    int (*BinarySize)(const struct Bytes64 *);
-//    bool (*Equal)(const struct Bytes64*, const struct Bytes64*);
-//    int (*Copy)(struct Bytes64*, const struct Bytes64*);
-//    Error (*MarshalBinary)(const struct Bytes64 *, struct Marshaler *outData);
-//    Error (*UnmarshalBinary)(struct Bytes64 *,struct Marshaler *data);
 } Bytes64;
 
 Bytes64 Bytes64_new(buffer_t *b, size_t n);
