@@ -78,12 +78,9 @@ void bnnn_paging_edgecase() {
 
 int step_test(int index) {
     strcpy(global.title, "step_test");
-    snprintf(global.text,128,"%d |",index);
+    snprintf(global.text,sizeof (global.text),"<%d | >",index);
     return 0;
 }
-
-
-
 
 bool get_next_data(char *title, char *text, bool is_upper_delimiter, bool next) {
     //adjust the step to current offset....

@@ -29,6 +29,7 @@ int readSignature(Unmarshaler *m, Signature *v) {
             PRINTF("Signature Type %d\n", type);
             v->_u->Type = type;
 
+                        return ErrorInvaliqdObject;
             b = readSignatureTypeUnion(m, v->_u);
             CHECK_ERROR_CODE(b);
             n += b;
