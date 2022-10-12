@@ -19,8 +19,6 @@
 
 #include <string.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <memory.h>
 #include "uint256.h"
 #include "read.h"
 #include "buffer.h"
@@ -29,11 +27,11 @@ static const char HEXDIGITS[] = "0123456789abcdef";
 
 int buffer_readu256BE(buffer_t *b, uint256_t *target) {
     uint8_t fillBytes[32] = {};
-    size_t bsize = b->size-b->offset ;
-    if ( bsize > sizeof (fillBytes)) {
+    int bsize = (int)(b->size-b->offset);
+    if ( bsize > (int)sizeof (fillBytes)) {
         return -1;
     }
-    for ( size_t i = bsize-1, j = 0; i >= 0; i--, j++ ) {
+    for ( int i = bsize-1, j = 0; i >= 0; i--, j++ ) {
         fillBytes[i] = b->ptr[b->offset+j];
     }
     readu256BE(fillBytes, target);
@@ -41,7 +39,7 @@ int buffer_readu256BE(buffer_t *b, uint256_t *target) {
 }
 
 
-static uint64_t readUint64BE(uint8_t *buffer) {
+static uint64_t readUint64BE(const uint8_t *buffer) {
     return (((uint64_t)buffer[0]) << 56) | (((uint64_t)buffer[1]) << 48) |
            (((uint64_t)buffer[2]) << 40) | (((uint64_t)buffer[3]) << 32) |
            (((uint64_t)buffer[4]) << 24) | (((uint64_t)buffer[5]) << 16) |
@@ -616,10 +614,8 @@ int tobytes256(uint256_t *number, uint8_t *out, uint32_t outLength) {
         return -1;
     }
 
-    uint8_t buffer[32] = {0};
-
     //now convert the hex to binary.
-    int n = hextobin(hexBuffer,strlen(hexBuffer), out, outLength);
+    int n = hextobin(hexBuffer,(int)strlen(hexBuffer), out, (int)outLength);
 
     return n;
 }
@@ -660,7 +656,7 @@ int fromstring256(const char *in, size_t inLen, uint256_t *number) {
 int frombytes256(const uint8_t *in, size_t inLen, uint256_t *number) {
     uint8_t buffer[32] = {0};
 
-    int offset = sizeof(buffer)-inLen;
+    int offset = (int)(sizeof(buffer))-(int)(inLen);
     if ( offset < 0 ) {
         return -1;
     }
@@ -668,7 +664,7 @@ int frombytes256(const uint8_t *in, size_t inLen, uint256_t *number) {
     //align the buffer to 32 byte boundary
     memmove(&buffer[offset],in, inLen);
     readu256BE(buffer, number);
-    return inLen;
+    return (int)(inLen);
 }
 
 int fromhex256(const char *in, size_t inLen, uint256_t *number) {
@@ -677,13 +673,13 @@ int fromhex256(const char *in, size_t inLen, uint256_t *number) {
     uint8_t buffer[32] = {0};
     char inbuffer[65] = {0};
     memset(inbuffer,'0',sizeof(inbuffer)-1);
-    int offset = sizeof(inbuffer) - inLen;
+    int offset = (int)(sizeof(inbuffer)) - (int)(inLen);
     if ( offset < 0 ) {
         return -1;
     }
 
     memmove(inbuffer, in, inLen);
-    int n = hextobin(in, inLen, buffer, sizeof(buffer));
+    int n = hextobin(in, (int)inLen, buffer, (int)sizeof(buffer));
     if ( n < 0 ) {
         return -1;
     }

@@ -77,7 +77,7 @@ void bnnn_paging_edgecase() {
 }
 
 int step_test(int index) {
-    strcpy(global.title, "step_test");
+    snprintf(global.title,sizeof(global.title), "step_test");
     snprintf(global.text,sizeof (global.text),"<%d | >",index);
     return 0;
 }

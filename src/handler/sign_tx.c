@@ -24,22 +24,21 @@
 #include "cx.h"
 
 #include "sign_tx.h"
-#include "../sw.h"
-#include "../globals.h"
-#include "../crypto.h"
-#include "../ui/display.h"
-#include "../common/buffer.h"
-#include "../transaction/types.h"
-#include "../transaction/deserialize.h"
-#include "../transaction/utils.h"
-
-Signature G_signer;
-Transaction G_transaction;
-buffer_t G_arena;
+#include "sw.h"
+#include "globals.h"
+#include "crypto.h"
+#include "ui/display/display.h"
+#include "common/buffer.h"
+#include "transaction/types.h"
+#include "transaction/utils.h"
 
 int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more) {
     if (chunk == 0) {  // first APDU, parse BIP32 path
         explicit_bzero(&G_context, sizeof(G_context));
+        G_context.tx_info.arena.ptr = G_context.tx_info.memory;
+        G_context.tx_info.arena.offset = 0;
+        G_context.tx_info.arena.size = sizeof(G_context.tx_info.memory);
+
         G_context.req_type = CONFIRM_TRANSACTION;
         G_context.state = STATE_NONE;
 
@@ -82,23 +81,20 @@ int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more) {
 
         PRINTF("checkpoint parse C\n");
 #if 1
-        G_arena.ptr = G_context.tx_info.memory;//G_context.tx_info.raw_tx + G_context.tx_info.raw_tx_len;
-        G_arena.offset = 0;
-        G_arena.size = sizeof(G_context.tx_info.memory);//sizeof(G_context.tx_info.raw_tx) - G_context.tx_info.raw_tx_len;
-
         int e = parse_transaction(G_context.tx_info.raw_tx, G_context.tx_info.raw_tx_len,
-                          &G_signer, &G_transaction, &G_arena);
+                                  &G_context.tx_info.signer, &G_context.tx_info.transaction,
+                                  &G_context.tx_info.arena);
 
         if ( IsError(ErrorCode(e))) {
             return io_send_sw(SW_ENCODE_ERROR(ErrorCode(e)));
         }
         Bytes hash = {.buffer.ptr = G_context.tx_info.m_hash, .buffer.size = sizeof (G_context.tx_info.m_hash), .buffer.offset = 0};
-        Bytes32_get(&G_signer._u->TransactionHash, &hash);
+        Bytes32_get(&G_context.tx_info.signer._u->TransactionHash, &hash);
         PRINTF("checkpoint post parse C\n");
 #endif
         G_context.state = STATE_PARSED;
 
-        e = ui_display_transaction(&G_signer, &G_transaction);
+        e = ui_display_transaction();
         if ( IsErrorCode(e)) {
             io_send_sw(SW_ENCODE_ERROR(ErrorCode(e)));
         }

@@ -73,7 +73,7 @@ typedef struct {
     uint8_t raw_public_key[65];  /// v, x-coordinate (32), y-coodinate (32)
     uint8_t public_key_length;   /// length of key, compressed / uncompressed
     uint8_t chain_code[32];      /// for public key derivation
-    char  address_name[64];
+    char  address_name[MAX_ACME_LITE_ACCOUNT_LEN];
     char  lite_account[MAX_ACME_LITE_ACCOUNT_LEN];
     uint8_t hash[32];
 } pubkey_ctx_t;
@@ -83,7 +83,10 @@ typedef struct {
  */
 typedef struct {
     uint8_t memory[ARENA_SIZE];
-    uint8_t raw_tx[MAX_TRANSACTION_LEN /*+MAX_SIGNATURE_HEADER_LEN*/];  /// raw transaction serialized
+    uint8_t raw_tx[MAX_TRANSACTION_LEN];  /// raw transaction serialized
+    buffer_t arena;
+    Signature signer;
+    Transaction transaction;
     size_t raw_tx_len;                    /// length of raw transaction
     uint8_t m_hash[32];                   /// message hash digest
 } transaction_ctx_t;

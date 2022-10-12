@@ -31,7 +31,7 @@
 #include "../sw.h"
 #include "../crypto.h"
 #include "../common/buffer.h"
-#include "../ui/display.h"
+#include "../ui/display/display.h"
 #include "../helper/send_response.h"
 #include "address.h"
 
@@ -83,7 +83,7 @@ int handler_get_public_key(buffer_t *cdata, bool display) {
 
     //if we have an address name supplied to us override the name we derived.
     if (addressNameLen > 0 ) {
-        strcpy(G_context.pk_info.address_name, addressName);
+        strncpy(G_context.pk_info.address_name, addressName,sizeof(G_context.pk_info.address_name)-1);
     }
 
     if (display) {

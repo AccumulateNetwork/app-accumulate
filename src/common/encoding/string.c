@@ -39,6 +39,7 @@ Error String_get(const String*v, char *s, size_t slen) {
 
     int min = (slen-1 < v->data.buffer.size - v->data.buffer.offset) ? slen-1 :  v->data.buffer.size - v->data.buffer.offset;
 
+    explicit_bzero(s,slen);
     strncpy((char*)s,(const char*)v->data.buffer.ptr+v->data.buffer.offset,min);
     return ErrorCode(ErrorNone);
 }
@@ -51,12 +52,13 @@ Error String_set(String *v, const char *s) {
         return e;
     }
 
-    if (strlen(s) > v->data.buffer.size) {
+    size_t size = v->data.buffer.size-v->data.buffer.offset;
+    if (!buffer_can_read(&v->data.buffer,strlen(s))) {
         return ErrorCode(ErrorBufferTooSmall);
     }
 
-    memset((void*)(v->data.buffer.ptr+v->data.buffer.offset),0,v->data.buffer.size);
-    strncpy((char*)(v->data.buffer.ptr+v->data.buffer.offset),s,strlen(s));
+    explicit_bzero(v->data.buffer.ptr+v->data.buffer.offset, size);
+    snprintf((char*)(v->data.buffer.ptr+v->data.buffer.offset),  size, "%s", s);
     return ErrorCode(ErrorNone);
 }
 

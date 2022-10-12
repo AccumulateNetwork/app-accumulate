@@ -24,10 +24,10 @@
 #include "../sw.h"
 #include "../types.h"
 #include "common/buffer.h"
-#include "../ui/display.h"
+#include "ui/display/display.h"
 #include "os.h"
 #include "common/protocol/signatures.h"
-#include "../ui/dynamic_display.h"
+#include "ui/dynamic_display.h"
 
 #include "ux.h"
 #include "os.h"
