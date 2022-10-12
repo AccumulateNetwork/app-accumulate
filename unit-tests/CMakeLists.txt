@@ -78,8 +78,6 @@ add_library(encoding STATIC ../src/common/encoding/bytes32.c ../src/common/encod
 add_library(error STATIC ../src/common/error.c)
 add_library(sha256 STATIC ../src/common/sha256.c ../src/common/internal/testing/sha256.c)
 
-
-
 target_link_libraries(test_base58 PUBLIC ${CMOCKA_LIBRARY} gcov base58)
 target_link_libraries(test_bip32 PUBLIC ${CMOCKA_LIBRARY} gcov bip32 read)
 target_link_libraries(test_buffer PUBLIC ${CMOCKA_LIBRARY} gcov buffer bip32 varint write read)

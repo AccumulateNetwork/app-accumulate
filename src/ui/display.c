@@ -39,7 +39,7 @@
 #include "globals.h"
 
 static action_validate_cb g_validate_callback;
-//static char g_amount[30];
+
 static char g_bip32_path[60];
 static char g_welcome[32];
 static char g_address[MAX_ACME_LITE_ACCOUNT_LEN];
@@ -49,9 +49,6 @@ static char g_address[MAX_ACME_LITE_ACCOUNT_LEN];
 
 #define min(a,b) (a<b?a:b)
 
-// display stepped screens
-unsigned int ux_step;
-unsigned int ux_step_count;
 
 
 // Step with icon and text
@@ -137,7 +134,6 @@ int ui_display_address() {
 
     return 0;
 }
-
 
 // Step with icon and text
 UX_STEP_NOCB(ux_display_review_begin_step,

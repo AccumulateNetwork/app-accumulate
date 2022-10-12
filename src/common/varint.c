@@ -86,29 +86,3 @@ int varint_write(uint8_t *out, size_t offset, int64_t value) {
     }
     return uvarint_write(out, offset, ux);
 }
-
-//
-//        uint8_t varint_len = varint_size(value);
-//
-//        switch (varint_len) {
-//            case 1:
-//                out[offset] = (uint8_t) value;
-//                break;
-//            case 3:
-//                out[offset++] = 0xFD;
-//                write_u16_le(out, offset, (uint16_t) value);
-//                break;
-//            case 5:
-//                out[offset++] = 0xFE;
-//                write_u32_le(out, offset, (uint32_t) value);
-//                break;
-//            case 9:
-//                out[offset++] = 0xFF;
-//                write_u64_le(out, offset, (uint64_t) value);
-//                break;
-//            default:
-//                return -1;
-//        }
-//
-//        return varint_len;
-//    }

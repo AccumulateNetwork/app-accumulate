@@ -97,7 +97,7 @@ int append_pending(MerkleState *m, uint8_t *append, uint8_t appendlen) {
             return ErrorInvalidOffset;
         }
     }
-    if ( !buffer_can_read(&m->arena,32) ) {
+    if ( !buffer_can_read(m->arena,32) ) {
         return ErrorBufferTooSmall;
     }
 

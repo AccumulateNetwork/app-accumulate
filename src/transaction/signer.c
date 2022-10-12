@@ -11,7 +11,6 @@ int readSignature(Unmarshaler *m, Signature *v) {
     CHECK_ERROR_CODE(b);
 
     if ( field != 1 ) {
-        //return field<0?field:-field;
         return ErrorInvalidField;
     }
     n += b;
