@@ -140,42 +140,6 @@ int parse_transaction(uint8_t *raw_tx, uint16_t raw_tx_len, Signature *signer, T
             return ErrorBufferTooSmall;
         }
     PRINTF("checkpoint parse D\n");
-//
-//    uint8_t hlen = 0;
-//    if (!buffer_read_u8(&buf, &hlen)) {
-//        PRINTF("cannot read 8 byte transaction hash\n");
-//        return ErrorBufferTooSmall;
-//    }
-//
-//    if (hlen != hash_len) {
-//        return ErrorBufferTooSmall;
-//    }
-//
-//    PRINTF("checkpoint parse D\n");
-//    // sign this
-//    if (!buffer_move(&buf, hash, hash_len)) {
-//        PRINTF("cannot read transaction hash\n");
-//        return ErrorBufferTooSmall;
-//    }
-
-//    CHECK_ERROR_CODE(readTransaction(&transactionUnmarshaler, transaction));
-
-//        return ErrorUnknown;
-//    PRINTF("pre signer parse \n");
-//    CHECK_ERROR_CODE(readSignature(&signerUnmarshaler, signer));
-//    PRINTF("post signature parse \n");
-
-    //    char outbuf[65] = {0};
-//
-//    format_hex(hash, 32, outbuf, sizeof(outbuf));
-//    PRINTF("External HASH %s\n", outbuf);
-//
-//    format_hex(signer->_u->TransactionHash.data.buffer.ptr+signer->_u->TransactionHash.data.buffer.offset,
-//               signer->_u->TransactionHash.data.buffer.size-signer->_u->TransactionHash.data.buffer.offset,
-//               outbuf, sizeof(outbuf));
-//    PRINTF("Transaction HASH %s\n", outbuf);
-//
-//    PRINTF("pre transaction parse A\n");
 
     //configure the arena
     int e = ErrorNone;
