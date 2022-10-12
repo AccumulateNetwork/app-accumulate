@@ -51,14 +51,21 @@ bool transaction_utils_format_memo(const uint8_t *memo,
     return true;
 }
 
+#define MAX_PENDING 16
 typedef struct MerkleState {
-    buffer_t **hashlist[32];
-    int hashlistlen;
-    buffer_t **pending;
+    buffer_t pending[MAX_PENDING];
     int pendingLen;
-    int pendingSize;
     int count;
+    buffer_t *arena;
 } MerkleState;
+
+//16*32 <- 512
+void MerkleState_init(MerkleState *m, buffer_t *arena) {
+    m->count = 0;
+    m->pendingLen = 0;
+    explicit_bzero(m->pending, sizeof(m->pending));
+    m->arena = arena;
+}
 
 Error MerkleState_DAGRoot(MerkleState *m, uint8_t mdroot[static 32]) {
     Error e = ErrorCode(ErrorNone);
@@ -67,13 +74,13 @@ Error MerkleState_DAGRoot(MerkleState *m, uint8_t mdroot[static 32]) {
     for (int i = 0; i < m->pendingLen; i++ ){ //_, v := range m.Pending {
         if (first) { // Pick up the first hash in m.MerkleState no matter what.
             first = false;
-            memmove(mdroot, m->pending[i], 32);
+            memmove(mdroot, m->pending[i].ptr+m->pending[i].offset, m->pending[i].size);
             // = Hash(v).Copy() // If a nil is assigned over a nil, no harm no foul.  Fewer cases to test this way.
-        } else if (m->pending[i] != 0 ) { // If MDRoot isn't nil and v isn't nil, combine them.
+        } else if (m->pending[i].size != 0 ) { // If MDRoot isn't nil and v isn't nil, combine them.
             // the pending hash is on the left, MDRoot candidate is on the right, for a new MDRoot
             uint8_t combine[64] = {0};
             memmove(combine, mdroot, 32);
-            memmove(combine + 32, m->pending[i], 32 );
+            memmove(combine + 32, m->pending[i].ptr+m->pending[i].offset, 32 );
             e = sha256(combine, sizeof(combine), mdroot, 32);
             if (IsError(e) ) {
                 return e;
@@ -83,37 +90,57 @@ Error MerkleState_DAGRoot(MerkleState *m, uint8_t mdroot[static 32]) {
     return e;
 }
 
-Error MerkleState_PadPending(MerkleState *m) {
-    int pendingLen = m->pendingLen;
-    if ( pendingLen == 0 || m->pending[pendingLen-1] != 0) {
-        //m.Pending = append(m.Pending, nil)
-        m->pendingLen++;
-    } else {
-        return ErrorCode(ErrorInvalidHashParameters);
+int append_pending(MerkleState *m, uint8_t *append, uint8_t appendlen) {
+    //appendLen must be either 0 or 32
+    if ( appendlen != 32 ) {
+        if ( appendlen != 0) {
+            return ErrorInvalidOffset;
+        }
     }
-    return ErrorCode(ErrorNone);
+    if ( !buffer_can_read(&m->arena,32) ) {
+        return ErrorBufferTooSmall;
+    }
+
+    m->pending[m->pendingLen].ptr = m->arena->ptr + m->arena->offset;
+    m->pending[m->pendingLen].size = appendlen;
+    memmove(m->pending[m->pendingLen].ptr+m->pending[m->pendingLen].offset, append, appendlen);
+    m->arena->offset += 32;
+    m->pendingLen++;
+    return ErrorNone;
+}
+
+int MerkleState_PadPending(MerkleState *m) {
+    if ( m->pendingLen == 0 || m->pending[m->pendingLen-1].size != 0) {
+        return append_pending(m, NULL, 0);
+    }
+    return ErrorNone;
+}
+
+int MerkleState_AddToMerkleTree(MerkleState *m, uint8_t hash_[static 32]) {
+    uint8_t hash[32];
+    memmove(hash, hash_, 32);
+    //m.HashList = append(m.HashList, hash) // Add the new Hash to the Hash List
+    m->count++;                             // Increment our total Hash Count
+    int e = MerkleState_PadPending(m);
+    if (IsErrorCode(e)) {
+        return e;
+    }
+    for (int i = 0; i < m->pendingLen; i++ ) {         // Adding the hash is like incrementing a variable
+        if (m->pending[i].size == 0) { //                     Look for an empty slot, and
+            m->pending[i].size = 32;
+            memmove(m->pending[i].ptr + m->pending[i].offset, hash, 32); //               And put the Hash there if one is found
+            return ErrorNone;              //          Mission complete, so return
+        }
+        uint8_t combine[64] = {0};
+        memmove(combine, m->pending[i].ptr+m->pending[i].offset, 32);
+        memmove(combine+32, hash, 32);
+        sha256(combine,sizeof(combine), hash, 32);
+        m->pending[i].size = 0;                   //   and carry the result to the next (clearing this one)
+    }
+    return 0;
 }
 
 #if 0
-void MerkleState_AddToMerkleTree(MerkleState *m, hash_ []byte) {
-    //hash := Hash(hash_).Copy()
-    //m.HashList = append(m.HashList, hash) // Add the new Hash to the Hash List
-    m->count++;                             // Increment our total Hash Count
-    MerkleState_PadPending(m);
-    for (int i = 0; i < m->pendingLen; i++ ) {         // Adding the hash is like incrementing a variable
-        if (m->pending[i] == 0) { //                     Look for an empty slot, and
-           m->pending[i] = hash; //               And put the Hash there if one is found
-           return;              //          Mission complete, so return
-        }
-        hash = Hash(v).Combine(Sha256, hash); // If this slot isn't empty, combine the hash with the slot
-        m.Pending[i] = 0;                   //   and carry the result to the next (clearing this one)
-        }
-
-
-
-
-}
-
 Error MerkleFieldHash(buffer_t **marshaledFieldBuffers, int numFieldBuffers) {
     uint8_t hash[32] = {0};
     Error e = ErrorCode(ErrorNone);
@@ -149,8 +176,7 @@ Error MerkleFieldHash(buffer_t **marshaledFieldBuffers, int numFieldBuffers) {
 }
 
 #endif
-int parse_transaction(uint8_t *raw_tx, uint16_t raw_tx_len, Signature *signer, Transaction *transaction, buffer_t *arena,
-                      uint8_t *hash, uint8_t hash_len) {
+int parse_transaction(uint8_t *raw_tx, uint16_t raw_tx_len, Signature *signer, Transaction *transaction, buffer_t *arena) {
     PRINTF("checkpoint parse A\n");
     // we have received all the APDU's so let's parse and sign
     buffer_t buf = {.ptr = raw_tx,
@@ -171,6 +197,7 @@ int parse_transaction(uint8_t *raw_tx, uint16_t raw_tx_len, Signature *signer, T
                                        .buffer.offset = 0,
                                        .mempool = arena};
         PRINTF("pre signer parse \n");
+
         CHECK_ERROR_CODE(readSignature(&signerUnmarshaler, signer));
         PRINTF("post signature parse \n");
     }
@@ -202,23 +229,23 @@ int parse_transaction(uint8_t *raw_tx, uint16_t raw_tx_len, Signature *signer, T
             return ErrorBufferTooSmall;
         }
     PRINTF("checkpoint parse D\n");
-
-    uint8_t hlen = 0;
-    if (!buffer_read_u8(&buf, &hlen)) {
-        PRINTF("cannot read 8 byte transaction hash\n");
-        return ErrorBufferTooSmall;
-    }
-
-    if (hlen != hash_len) {
-        return ErrorBufferTooSmall;
-    }
-
-    PRINTF("checkpoint parse D\n");
-    // sign this
-    if (!buffer_move(&buf, hash, hash_len)) {
-        PRINTF("cannot read transaction hash\n");
-        return ErrorBufferTooSmall;
-    }
+//
+//    uint8_t hlen = 0;
+//    if (!buffer_read_u8(&buf, &hlen)) {
+//        PRINTF("cannot read 8 byte transaction hash\n");
+//        return ErrorBufferTooSmall;
+//    }
+//
+//    if (hlen != hash_len) {
+//        return ErrorBufferTooSmall;
+//    }
+//
+//    PRINTF("checkpoint parse D\n");
+//    // sign this
+//    if (!buffer_move(&buf, hash, hash_len)) {
+//        PRINTF("cannot read transaction hash\n");
+//        return ErrorBufferTooSmall;
+//    }
 
 //    CHECK_ERROR_CODE(readTransaction(&transactionUnmarshaler, transaction));
 
@@ -321,7 +348,7 @@ int readTransactionBody(Unmarshaler *m, TransactionBody *v) {
 
         default:
             n = ErrorNotImplemented;
-    };
+    }
 
     return n;
 }

@@ -12,7 +12,7 @@
 #define ACME_HEADER
 //#include "_enums2.h"
 #include <common/protocol/enum.h>
-#include <common/protocol/types.h>
+//#include <common/protocol/types.h>
 #include <common/protocol/transaction.h>
 #include <common/protocol/unions.h>
 #include <common/protocol/signatures.h>
@@ -37,6 +37,7 @@ test_e init_test_e_from_buffer(buffer_t *buffer) {
 }
 static void test_encoding_apdu(void **state) {
 
+    //char *apdu_payload = "008b01020220e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11043b6163633a2f2f6336613632396639613635626632313135396335646662666662633836386563336165363163653436353131303865632f41434d45050106fe9fd4c5bc3008fc4cb8002c013309a0897c5dd441d0e45c22d51f7bd055cfc6178326554feb2e00b7016b013b6163633a2f2f6336613632396639613635626632313135396335646662666662633836386563336165363163653436353131303865632f41434d4502f692a23889af61f6c3817e170dde845eb90ae283049baea1b832b498e1913dcc030b6c6564676572207465";
     char *apdu_payload = "008b01020220e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11043b6163633a2f2f6336613632396639613635626632313135396335646662666662633836386563336165363163653436353131303865632f41434d45050106a7c9c4bebc300883222b90c83815a36ab8d38aae8c0cd0520bf7d54dcfd16b863e9dd85459e13e00b7016b013b6163633a2f2f6336613632396639613635626632313135396335646662666662633836386563336165363163653436353131303865632f41434d450269ccdd24c24f6e91de4a623ed534328b5ff60562f4b19342cceac329ace2b123030b6c656467657220746573740248010e023b6163633a2f2f6639666562393361313063616632646466313633396336666634353934666262313939633964653963643130636134372f41434d4503043b9aca0004d20920263379a18beffca785c59bfb2bee6dd5d41ba991e076144e0ef70c6f61dea0ba";
     //char *apdu_payload = "008b01020220e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11043b6163633a2f2f6336613632396639613635626632313135396335646662666662633836386563336165363163653436353131303865632f41434d450501069ca3e4b4ba3008c4dcfc1b86ccdd0cd7937fcb2619a2735b59f8119a43cd7d396690b5c017bf0400b6016b013b6163633a2f2f6336613632396639613635626632313135396335646662666662633836386563336165363163653436353131303865632f41434d45022aa4dd0e234834061b2ec1402b95e7888af941f6d47d3a5d82e15789c47c82c9030b6c65646765722074657374024701030443013b6163633a2f2f6639666562393361313063616632646466313633396336666634353934666262313939633964653963643130636134372f41434d4502043b9aca002036fbe60414509eb11b04b900d8d69191e456fac7b33a74842af7272968c308e5";
     uint8_t raw_tx[1024] = {0};
@@ -61,8 +62,7 @@ static void test_encoding_apdu(void **state) {
 
     Signature signer;
     Transaction transaction;
-    uint8_t hash[32] = {0};
-    int e = parse_transaction(raw_tx, raw_tx_len, &signer, &transaction, &arena,hash, sizeof(hash));
+    int e = parse_transaction(raw_tx, raw_tx_len, &signer, &transaction, &arena);
     assert_false(IsError(ErrorCode(e)));
 #if 0
     // now we need to go through the transaction and identify the header, body, and hash
@@ -127,7 +127,7 @@ static void test_encoding_transaction(void **state) {
     buffer_t txbuffer = {transaction, sizeof(transaction), 0};
     Unmarshaler um = NewUnmarshaler(&txbuffer,&mempool);
     struct Transaction t;
-    int n = unmarshalerReadTransaction(&um, &t);
+    int n = readTransaction(&um, &t);
     assert_false(IsError(ErrorCode(n)));
 
     int expectedLen = strlen(Transaction)/2;
@@ -140,9 +140,9 @@ static void test_encoding_transaction(void **state) {
     buffer_t sigbuffer = { preSignature, sizeof(preSignature), 0 };
     um = NewUnmarshaler(&sigbuffer, &mempool);
     Signature s;
-    ED25519Signature ed;
+    Signature ed;
 
-    n = unmarshalerReadED25519Signature(&um, &ed);//unmarshalerReadSignature(&um, &s);
+    n = readSignature(&um, &ed);//unmarshalerReadSignature(&um, &s);
     assert_false(IsError(ErrorCode(n)));
 
     expectedLen = strlen(PreSignature)/2;

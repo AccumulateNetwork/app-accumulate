@@ -51,5 +51,4 @@ int readTransactionBody(Unmarshaler *m, TransactionBody *v) ;
 int readTransactionTypeHeader(Unmarshaler *m, TransactionType *type);
 int readTransaction(Unmarshaler *m, Transaction *v);
 
-int parse_transaction(uint8_t *raw_tx, uint16_t raw_tx_len, Signature *signer, Transaction *transaction, buffer_t *arena,
-                      uint8_t *hash, uint8_t hash_len);
+int parse_transaction(uint8_t *raw_tx, uint16_t raw_tx_len, Signature *signer, Transaction *transaction, buffer_t *arena);

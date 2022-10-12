@@ -28,8 +28,10 @@
  */
 #ifdef TARGET_NANOS
 #define MAX_DATA_ENTRY 1 //the nano s can only support smaller transactions
+#define ARENA_SIZE 512
 #else
-#define MAX_DATA_ENTRY 2 //accumulate accepts a max size 20kb transaction + padding for arena
+#define MAX_DATA_ENTRY 1 //accumulate accepts a max size 20kb transaction + padding for arena
+#define ARENA_SIZE 512
 #endif
 
 #define MAX_TRANSACTION_LEN 512*MAX_DATA_ENTRY //10270 //510

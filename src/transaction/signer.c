@@ -11,10 +11,10 @@ int readSignature(Unmarshaler *m, Signature *v) {
     CHECK_ERROR_CODE(b);
 
     if ( field != 1 ) {
+        //return field<0?field:-field;
         return ErrorInvalidField;
     }
     n += b;
-
     b = unmarshalerReadUInt(m, &type);
     CHECK_ERROR_CODE(b);
     n += b;
@@ -28,15 +28,13 @@ int readSignature(Unmarshaler *m, Signature *v) {
             CHECK_ERROR_INT(v->_u);
             PRINTF("Signature Type %d\n", type);
             v->_u->Type = type;
-
-                        return ErrorInvaliqdObject;
             b = readSignatureTypeUnion(m, v->_u);
             CHECK_ERROR_CODE(b);
             n += b;
             break;
         default:
             n = ErrorNotImplemented;
-    };
+    }
     PRINTF("readSignature End %d\n", n);
 
     return n;
@@ -71,6 +69,7 @@ int readSignatureTypeUnion(Unmarshaler *m, SignatureTypeUnion *v) {
             return ErrorInvalidObject;
         }
     }
+
     if ( m->buffer.offset == m->buffer.size ) {
         return n;
     }

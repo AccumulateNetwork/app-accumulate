@@ -3,8 +3,12 @@
 #include <stdbool.h>
 
 typedef struct Error {
-   int code;
-   char err[64];
+    int code;
+#ifdef WANT_TEXT
+    char err[32];
+#else
+    char err[1];
+#endif
 } Error;
 
 typedef enum {

@@ -39,11 +39,14 @@ void ui_action_validate_transaction_hash(bool choice) {
     if (choice) {
         G_context.state = STATE_APPROVED;
 
-        if (crypto_sign_message() < 0) {
+        uint8_t signature[MAX_DER_SIG_LEN] = {0};
+        uint8_t parity = 0;
+        uint8_t signature_len=sizeof(signature);
+        if (crypto_sign_message(signature, &signature_len, &parity) < 0) {
             G_context.state = STATE_NONE;
             io_send_sw(SW_SIGNATURE_FAIL);
         } else {
-            helper_send_response_sig();
+            helper_send_response_sig(signature, signature_len, parity);
         }
     } else {
         G_context.state = STATE_NONE;
@@ -57,12 +60,14 @@ void ui_action_validate_transaction_hash(bool choice) {
 void ui_action_validate_transaction(bool choice) {
     if (choice) {
         G_context.state = STATE_APPROVED;
-
-        if (crypto_sign_message() < 0) {
+        uint8_t signature[MAX_DER_SIG_LEN] = {0};
+        uint8_t parity = 0;
+        uint8_t signature_len=sizeof(signature);
+        if (crypto_sign_message(signature, &signature_len, &parity) < 0) {
             G_context.state = STATE_NONE;
             io_send_sw(SW_SIGNATURE_FAIL);
         } else {
-            helper_send_response_sig();
+            helper_send_response_sig(signature, signature_len, parity);
         }
     } else {
         G_context.state = STATE_NONE;

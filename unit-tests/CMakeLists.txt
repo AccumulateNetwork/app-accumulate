@@ -72,8 +72,7 @@ add_library(encoding STATIC ../src/common/encoding/bytes32.c ../src/common/encod
         ../src/common/encoding/string.c ../src/common/encoding/varint.c ../src/common/encoding/bigint.c
         ../src/common/encoding/marshaler.c ../src/common/encoding/url.c ../src/common/encoding/uvarint.c
         ../src/common/encoding/rawjson.c ../src/common/encoding/bool.c
-        ../src/common/encoding/bytes.c ../src/common/protocol/unions.c ../src/common/protocol/signatures.c
-        ../src/common/protocol/transaction.c ../src/common/protocol/enum.c ../src/transaction/utils.c
+        ../src/common/encoding/bytes.c  ../src/common/protocol/enum.c ../src/transaction/utils.c
         ../src/transaction/signer.c ../src/transaction/header.c ../src/transaction/send_tokens.c
         ../src/transaction/add_credits.c ../src/transaction/token_recipient.c ../src/transaction/transaction.c)
 add_library(error STATIC ../src/common/error.c)

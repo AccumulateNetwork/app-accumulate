@@ -71,7 +71,7 @@ else
     DEFINES += IO_SEPROXYHAL_BUFFER_SIZE_B=128
 endif
 
-DEBUG = 1
+DEBUG = 0 
 ifneq ($(DEBUG),0)
     DEFINES += HAVE_PRINTF
     ifeq ($(TARGET_NAME),TARGET_NANOX)
@@ -98,7 +98,7 @@ $(info GCCPATH is not set: arm-none-eabi-* will be used from PATH)
 endif
 
 CC      := $(CLANGPATH)clang
-CFLAGS  += -O3 -Os
+CFLAGS  += -O3 -Os 
 AS      := $(GCCPATH)arm-none-eabi-gcc
 LD      := $(GCCPATH)arm-none-eabi-gcc
 LDFLAGS += -O3 -Os

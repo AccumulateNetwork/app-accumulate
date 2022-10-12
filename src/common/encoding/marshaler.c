@@ -237,12 +237,16 @@ int unmarshalerReadByte(Unmarshaler *m, uint8_t *field) {
         return ErrorBufferTooSmall;
     }
     *field = m->buffer.ptr[m->buffer.offset];
-    m->buffer.offset++;
+    buffer_seek_cur(&m->buffer, 1);
     return 1;
 }
 
 int unmarshalerReadUInt(Unmarshaler *m, uint64_t *field) {
-    return buffer_read_uvarint(&m->buffer, field);
+    int ret = buffer_read_uvarint(&m->buffer, field);
+    if ( ret < 0 ) {
+        return ErrorUVarIntRead;
+    }
+    return ret;
 }
 
 int unmarshalerPeekField(Unmarshaler *m, uint64_t *field) {
@@ -278,6 +282,7 @@ int unmarshalerReadUVarInt(Unmarshaler *m, struct UVarInt *v) {
     if ( offset < 0 ) {
         return ErrorUVarIntRead;
     }
+
     v->data.buffer.size = offset;
 
     return offset;

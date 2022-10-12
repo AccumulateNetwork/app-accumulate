@@ -36,13 +36,13 @@
 #include "../common/bip32.h"
 #include "../common/format.h"
 #include "dynamic_display.h"
+#include "globals.h"
 
 static action_validate_cb g_validate_callback;
-static char g_amount[30];
+//static char g_amount[30];
 static char g_bip32_path[60];
 static char g_welcome[32];
 static char g_address[MAX_ACME_LITE_ACCOUNT_LEN];
-static buffer_t g_signer;
 //static char g_address_name[64];
 //static char g_lite_account[MAX_ACME_LITE_ACCOUNT_LEN];
 
@@ -163,7 +163,7 @@ UX_FLOW(ux_dynamic_display_flow,
 
 int display_principal() {
     //display principal
-    Error e = Url_get(&G_context.tx_info.transaction.Header.Principal, global.text, sizeof(global.text));
+    Error e = Url_get(&G_transaction.Header.Principal, global.text, sizeof(global.text));
     if (IsError(e)) {
         strcpy(global.title, "error");
         strcpy(global.text, e.err);
@@ -174,7 +174,7 @@ int display_principal() {
 }
 
 int ui_dynamic_display_add_credits(int index) {
-    AddCredits *ac = G_context.tx_info.transaction.Body._AddCredits;
+    AddCredits *ac = G_transaction.Body._AddCredits;
     switch(index) {
         case 0:
             return display_principal();
@@ -225,7 +225,7 @@ int ui_dynamic_display_send_tokens(int index) {
         if ( ((index-offset) % 2) == 0) {
             //display the destination URL
             int localIndex = (index-offset)/2;
-            Error e = Url_get(&G_context.tx_info.transaction.Body._SendTokens->To[localIndex].Url,
+            Error e = Url_get(&G_transaction.Body._SendTokens->To[localIndex].Url,
                               global.text, sizeof(global.text));
             if (IsError(e)) {
                 strcpy(global.title, "error");
@@ -233,7 +233,7 @@ int ui_dynamic_display_send_tokens(int index) {
                 return e.code;
             }
             snprintf(global.title,sizeof(global.title), "Output %d URL", localIndex+1);
-            SendTokens *s = G_context.tx_info.transaction.Body._SendTokens;
+            SendTokens *s = G_transaction.Body._SendTokens;
             PRINTF("URL : %.*s" , s->To[localIndex].Url.data.buffer.size - s->To[localIndex].Url.data.buffer.offset,
                    s->To[localIndex].Url.data.buffer.ptr+s->To[localIndex].Url.data.buffer.offset);
 
@@ -241,14 +241,14 @@ int ui_dynamic_display_send_tokens(int index) {
             //display the destination amount
             int localIndex = (index-offset-1)/2;
             snprintf(global.title,sizeof(global.title), "Output %d Amount", localIndex+1);
-            if ( localIndex > (int)G_context.tx_info.transaction.Body._SendTokens->To_length) {
+            if ( localIndex > (int)G_transaction.Body._SendTokens->To_length) {
                 strcpy(global.title, "Send To error");
                 snprintf(global.text,sizeof (global.text),"out of bounds %d>%d",localIndex,
-                         G_context.tx_info.transaction.Body._SendTokens->To_length);
+                         G_transaction.Body._SendTokens->To_length);
                 return ErrorInvalidData;
             }
             uint256_t i;
-            BigInt *amount = &G_context.tx_info.transaction.Body._SendTokens->To[localIndex].Amount;
+            BigInt *amount = &G_transaction.Body._SendTokens->To[localIndex].Amount;
             int e = frombytes256(amount->data.buffer.ptr+amount->data.buffer.offset,
                          amount->data.buffer.size - amount->data.buffer.offset,&i);
             if ( e < 0 ) {
@@ -327,7 +327,7 @@ int ui_display_transaction(Signature *signer, Transaction *transaction) {
         }
         default:
             return ErrorTypeNotFound;
-    };
+    }
 
     return 0;
 }
