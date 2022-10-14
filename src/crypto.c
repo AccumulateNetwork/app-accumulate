@@ -133,7 +133,7 @@ Error crypto_init_public_key(cx_ecfp_private_key_t *private_key,
     return ErrorCode(ErrorNone);
 }
 
-int crypto_sign_message() {
+int crypto_sign_message(void) {
     cx_ecfp_private_key_t private_key = {0};
     uint32_t info = 0;
     int sig_len = 0;

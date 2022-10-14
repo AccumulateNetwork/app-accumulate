@@ -57,7 +57,7 @@ Error crypto_init_public_key(cx_ecfp_private_key_t *private_key,
  * @throw INVALID_PARAMETER
  *
  */
-int crypto_sign_message();
+int crypto_sign_message(void);
 
 void crypto_ripemd160(const uint8_t *in, uint16_t inlen, uint8_t out[static 20]);
 void crypto_hash160(const uint8_t *in, uint16_t inlen, uint8_t out[static 20]);
