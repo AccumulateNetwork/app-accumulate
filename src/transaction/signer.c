@@ -1,5 +1,32 @@
 #include "utils.h"
+#include "common/hasher.h"
 
+int initiatorHash(Signature *s, uint8_t initiator[static 32]) {
+    CHECK_ERROR_INT(s)
+    CHECK_ERROR_INT(s->_u)
+    if (s->_u->PublicKey.buffer.size == 0 || s->_u->PublicKey.buffer.ptr == 0 ) {
+        return ErrorInvalidObject;
+    }
+    uint64_t var = 0;
+    Error e = UVarInt_get(&s->_u->SignerVersion, &var);
+    if ( IsError(e) || var == 0 ) {
+        return ErrorInvalidObject;
+    }
+    e = UVarInt_get(&s->_u->Timestamp, &var);
+    if ( IsError(e) || var == 0 ) {
+        return ErrorInvalidObject;
+    }
+
+    MerkleState hasher;
+    MerkleStateInit(&hasher);
+    CHECK_ERROR_CODE(hasherAddBytes(&hasher, &s->_u->PublicKey));
+    CHECK_ERROR_CODE(hasherAddUrl(&hasher, &s->_u->Signer));
+    CHECK_ERROR_CODE(hasherAddUVarInt(&hasher, &s->_u->SignerVersion));
+    CHECK_ERROR_CODE(hasherAddUVarInt(&hasher, &s->_u->Timestamp));
+
+    CHECK_ERROR_CODE(MerkleDAGRoot(&hasher, initiator).code);
+    return ErrorNone;
+}
 
 int readSignature(Unmarshaler *m, Signature *v) {
     int n = 0;

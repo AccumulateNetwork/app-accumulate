@@ -50,11 +50,11 @@ typedef struct AddCredits {
     
     //
 
-	//uint8_t fieldsSet[4];
+	bool fieldsSet[4];
 	Url Recipient;  //`json:"recipient,omitempty" form:"recipient" query:"recipient" validate:"required"`
 	BigInt Amount;  //`json:"amount,omitempty" form:"amount" query:"amount" validate:"required"`
 	UVarInt Oracle;  //`json:"oracle,omitempty" form:"oracle" query:"oracle"`
-	//Bytes extraData[4];
+	Bytes extraData[4];
 
 } AddCredits;
 #endif /* _WANT_AddCredits_ */
@@ -80,10 +80,10 @@ typedef struct TokenRecipient {
     
     //
 
-	//uint8_t fieldsSet[2];
+	bool fieldsSet[2];
 	Url Url;  //`json:"url,omitempty" form:"url" query:"url" validate:"required"`
 	BigInt Amount;  //`json:"amount,omitempty" form:"amount" query:"amount" validate:"required"`
-	//Bytes extraData[2];
+	Bytes extraData[2];
 
 } TokenRecipient;
 #endif /* _WANT_TokenRecipient_ */
@@ -95,12 +95,12 @@ typedef struct SendTokens {
 
     //
 
-    //uint8_t fieldsSet[4];
+    bool fieldsSet[4];
     Bytes32 Hash;  //`json:"hash,omitempty" form:"hash" query:"hash"`
     RawJson Meta;  //`json:"meta,omitempty" form:"meta" query:"meta"`
     size_t To_length;
     TokenRecipient* To;  //`json:"to,omitempty" form:"to" query:"to" validate:"required"`
-                         //Bytes extraData[4];
+    Bytes extraData[4];
 
 } SendTokens;
 #endif /* _WANT_SendTokens_ */
@@ -130,6 +130,8 @@ typedef struct Transaction {
     TransactionBody Body;  //`json:"body,omitempty" form:"body" query:"body" validate:"required"`
     Bytes hash;
     //Bytes extraData[3];
+    buffer_t BodyBuffer;
+    buffer_t HeaderBuffer;
 
 } Transaction;
 #endif /* _WANT_Transaction_ */

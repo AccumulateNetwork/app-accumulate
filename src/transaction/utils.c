@@ -108,8 +108,8 @@ int parse_transaction(uint8_t *raw_tx, uint16_t raw_tx_len, Signature *signer, T
                                        .buffer.offset = 0,
                                        .mempool = arena};
         PRINTF("pre signer parse \n");
-
-        CHECK_ERROR_CODE(readSignature(&signerUnmarshaler, signer));
+        int e = readSignature(&signerUnmarshaler, signer);
+        CHECK_ERROR_CODE(e);
         PRINTF("post signature parse \n");
     }
 
@@ -132,25 +132,14 @@ int parse_transaction(uint8_t *raw_tx, uint16_t raw_tx_len, Signature *signer, T
                                             .buffer.size = len,
                                             .buffer.offset = 0,
                                             .mempool = arena};
-        CHECK_ERROR_CODE(readTransaction(&transactionUnmarshaler, transaction));
+        int e = readTransaction(&transactionUnmarshaler, transaction);
+        CHECK_ERROR_CODE(e);
     }
 
-        if (!buffer_seek_cur(&buf, len)) {
-            PRINTF("cannot advance transaction buffer %d bytes\n", len);
-            return ErrorBufferTooSmall;
-        }
-    PRINTF("checkpoint parse D\n");
-
-    //configure the arena
-    int e = ErrorNone;
-
-
-    PRINTF("DO TRANSACTION MAGIC\n");
-
-    PRINTF("post transaction parse A\n");
-
-    PRINTF("post transaction address %p\n", (void*)transaction->Body._SendTokens);
-
+    if (!buffer_seek_cur(&buf, len)) {
+        PRINTF("cannot advance transaction buffer %d bytes\n", len);
+        return ErrorBufferTooSmall;
+    }
 
     return ErrorNone;
 }
@@ -184,10 +173,12 @@ int readTransactionBody(Unmarshaler *m, TransactionBody *v) {
     TransactionType type = 0;
     PRINTF("ENTERING READ TRANSACTION BODY\n");
 
+    buffer_t bodyMark = { m->buffer.ptr+m->buffer.offset, 0,0};
     int b = readTransactionTypeHeader(m, &type);
     CHECK_ERROR_CODE(b);
 
     n += b;
+    bodyMark.size += b;
 
     PRINTF("READ  TRANSACTION BODY type %d\n", type);
     switch ( type ) {
@@ -195,6 +186,9 @@ int readTransactionBody(Unmarshaler *m, TransactionBody *v) {
             PRINTF("Allocate AddCredits\n");
             v->_AddCredits = (AddCredits *)unmarshalerAlloc(m, sizeof(AddCredits));
             CHECK_ERROR_INT(v->_AddCredits);
+
+            v->_AddCredits->fieldsSet[0] = true;
+            v->_AddCredits->extraData[0].buffer = bodyMark;
 
             b = readAddCredits(m, v->_AddCredits);
             CHECK_ERROR_CODE(b);
@@ -210,6 +204,8 @@ int readTransactionBody(Unmarshaler *m, TransactionBody *v) {
             v->_SendTokens = (SendTokens*)unmarshalerAlloc(m, sizeof(SendTokens));
             PRINTF("allocate SEND TOKENS %p size %d\n", v->_SendTokens, sizeof(SendTokens));
             CHECK_ERROR_INT(v->_SendTokens)
+            v->_SendTokens->fieldsSet[0] = true;
+            v->_SendTokens->extraData[0].buffer = bodyMark;
 
             PRINTF("Unmarshal Read Send Tokens\n");
             b = readSendTokens(m, v->_SendTokens);

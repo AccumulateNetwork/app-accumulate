@@ -47,5 +47,4 @@ bool IsErrorCode(int e);
 #define CHECK_ERROR(v) if (!v) { return ErrorCode(ErrorParameterNil); }
 #define CHECK_ERROR_INT(v) if (!v) { return ErrorCode(ErrorParameterNil).code; }
 #define CHECK_ERROR_BOOL(v) if (!v) { return false; }
-
-#define CHECK_ERROR_CODE(v) if (IsErrorCode(v)) { return v; }
+#define CHECK_ERROR_CODE(v) { int __e__ = v; if (IsErrorCode(__e__)) { return __e__; } }

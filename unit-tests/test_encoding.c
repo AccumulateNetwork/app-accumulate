@@ -10,12 +10,13 @@
 #include <common/encoding/encoding.h>
 #include <common/sha256.h>
 #define ACME_HEADER
-//#include "_enums2.h"
 #include <common/protocol/enum.h>
 #include <common/protocol/transaction.h>
 #include <common/protocol/unions.h>
 #include <common/protocol/signatures.h>
 #include <transaction/utils.h>
+
+#define WANT_DEBUG_TX_CODE 0
 
 typedef struct {
    Bytes32 a;
@@ -40,6 +41,7 @@ static void test_encoding_apdu(void **state) {
     uint8_t raw_tx[1024] = {0};
     hextobin(apdu_payload, strlen(apdu_payload), raw_tx, sizeof(raw_tx));
 
+#if WANT_DEBUG_TX_CODE
     printf("G_context.tx_info.raw_tx_len = 0;\n");
     for ( int i = 0; i < strlen(apdu_payload)/2; i++) {
         printf("G_context.tx_info.raw_tx[G_context.tx_info.raw_tx_len++] = 0x%x;  ",raw_tx[i]);
@@ -48,6 +50,7 @@ static void test_encoding_apdu(void **state) {
         }
     }
     printf("//%d\n",raw_tx_len);
+#endif
 
     int raw_tx_len = strlen(apdu_payload)/2;
     // we have received all the APDU's so let's parse and sign
@@ -62,48 +65,6 @@ static void test_encoding_apdu(void **state) {
     uint8_t hash[32] = {0};
     int e = parse_transaction(raw_tx, raw_tx_len, &signer, &transaction, &arena,hash, sizeof(hash));
     assert_false(IsError(ErrorCode(e)));
-#if 0
-    // now we need to go through the transaction and identify the header, body, and hash
-    uint16_t len = 0;
-    assert_true(buffer_read_u16(&buf, &len, BE));
-
-
-    // set the signer buffer
-    buffer_t signerBuffer = {.ptr = buf.ptr + buf.offset, .size = len, .offset = 0};
-    assert_true(buffer_seek_cur(&buf, len));
-
-    // read the transaction length
-    assert_true(buffer_read_u16(&buf, &len, BE));
-
-    // set the transaction buffer
-    buffer_t transactionBuffer = {.ptr = buf.ptr + buf.offset, .size = len, .offset = 0};
-    assert_true(buffer_seek_cur(&buf, len));
-
-    // temporary
-    // read cheat code
-    uint8_t hlen = 0;
-    assert_true(buffer_read_u8(&buf, &hlen));
-
-    uint8_t hash[32] = {0};
-    assert_false(hlen != sizeof(hash));
-
-    // sign this
-    assert_true(buffer_move(&buf, hash, sizeof(hash)));
-
-    uint8_t arena[ARENA_SIZE] = {0};
-    buffer_t mempool = {arena, ARENA_SIZE, 0};
-    explicit_bzero(arena, ARENA_SIZE);
-
-    Transaction tx;
-    Unmarshaler m = NewUnmarshaler(&transactionBuffer, &mempool);
-    int e = unmarshalerReadTransaction(&m, &tx);
-    assert_false(IsError(ErrorCode(e)));
-
-    Signature signer;
-    m = NewUnmarshaler(&signerBuffer, &mempool);
-    e = unmarshalerReadSignature(&m, &signer);
-    assert_false(IsError(ErrorCode(e)));
-#endif
 }
 
 static void test_encoding_transaction(void **state) {

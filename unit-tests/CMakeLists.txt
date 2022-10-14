@@ -55,6 +55,7 @@ add_executable(test_tx_utils test_tx_utils.c)
 add_executable(test_encoding test_encoding.c)
 add_executable(test_hasher test_hasher.c)
 
+add_library(hasher STATIC ../src/common/hasher.c)
 add_library(base58 STATIC ../src/common/base58.c)
 add_library(bip32 STATIC ../src/common/bip32.c)
 add_library(buffer STATIC ../src/common/buffer.c)
@@ -63,8 +64,6 @@ add_library(write STATIC ../src/common/write.c)
 add_library(format STATIC ../src/common/format.c)
 add_library(varint STATIC ../src/common/varint.c)
 add_library(apdu_parser STATIC ../src/apdu/parser.c)
-add_library(transaction_deserialize ../src/transaction/deserialize.c)
-add_library(transaction_serialize ../src/transaction/serialize.c)
 add_library(transaction_utils ../src/transaction/utils.c)
 add_library(uint256 STATIC ../src/common/uint256.c)
 #add_library(envelope STATIC ../src/common/envelope.c)
@@ -85,8 +84,6 @@ target_link_libraries(test_format PUBLIC ${CMOCKA_LIBRARY} gcov format)
 target_link_libraries(test_write PUBLIC ${CMOCKA_LIBRARY} gcov write)
 target_link_libraries(test_apdu_parser PUBLIC ${CMOCKA_LIBRARY} gcov apdu_parser)
 target_link_libraries(test_tx_parser PUBLIC
-                      transaction_deserialize
-                      transaction_serialize
                       buffer
                       bip32
                       ${CMOCKA_LIBRARY}
@@ -109,7 +106,7 @@ target_link_libraries(test_encoding sha256 encoding uint256
 
 target_link_libraries(test_hasher PUBLIC sha256 encoding uint256
         buffer varint error transaction_utils gcov
-        ${CMOCKA_LIBRARY} read write format bip32 )
+        ${CMOCKA_LIBRARY} hasher read write format bip32 )
 
 #target_link_libraries(test_envelope envelope encoding uint256
 #        buffer varint transaction_utils gcov

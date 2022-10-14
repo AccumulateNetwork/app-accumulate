@@ -5,6 +5,9 @@ int readSendTokens(Unmarshaler *m, SendTokens *v) {
     uint64_t field = 0;
     v->Type = TransactionTypeSendTokens;
 
+    memset(v->fieldsSet, 0, sizeof(v->fieldsSet));
+    memset(v->extraData, 0, sizeof(v->extraData));
+
     if ( m->buffer.offset == m->buffer.size ) {
         return n;
     }
@@ -12,10 +15,13 @@ int readSendTokens(Unmarshaler *m, SendTokens *v) {
     CHECK_ERROR_CODE(b);
     if ( field == 1 )
     {
+        v->extraData[field-1].buffer.ptr = m->buffer.ptr+m->buffer.offset;
+        v->extraData[field-1].buffer.offset = 0;
+        v->extraData[field-1].buffer.size = 0;
         b = unmarshalerReadField(m, &field);
         CHECK_ERROR_CODE(b);
         n += b;
-
+        v->extraData[field-1].buffer.size += b;
         uint64_t type = 0;
         b = unmarshalerReadUInt(m,&type);
         CHECK_ERROR_CODE(b);
@@ -24,6 +30,8 @@ int readSendTokens(Unmarshaler *m, SendTokens *v) {
         if ( type != v->Type ) {
             return ErrorInvalidObject;
         }
+        v->extraData[field-1].buffer.size += b;
+        v->fieldsSet[field-1] = true;
     }
     if ( m->buffer.offset == m->buffer.size ) {
         return n;
@@ -32,13 +40,19 @@ int readSendTokens(Unmarshaler *m, SendTokens *v) {
     CHECK_ERROR_CODE(b);
     if ( field == 2 )
     {
+        v->extraData[field-1].buffer.ptr = m->buffer.ptr+m->buffer.offset;
+        v->extraData[field-1].buffer.offset = 0;
+        v->extraData[field-1].buffer.size = 0;
         b = unmarshalerReadField(m, &field);
         CHECK_ERROR_CODE(b);
         n += b;
+        v->extraData[field-1].buffer.size += b;
 
         b = unmarshalerReadBytes32(m,&v->Hash);
         CHECK_ERROR_CODE(b);
         n += b;
+        v->extraData[field-1].buffer.size += b;
+        v->fieldsSet[field-1] = true;
     }
     if ( m->buffer.offset == m->buffer.size ) {
         return n;
@@ -47,13 +61,19 @@ int readSendTokens(Unmarshaler *m, SendTokens *v) {
     CHECK_ERROR_CODE(b);
     if ( field == 3 )
     {
+        v->extraData[field-1].buffer.ptr = m->buffer.ptr+m->buffer.offset;
+        v->extraData[field-1].buffer.offset = 0;
+        v->extraData[field-1].buffer.size = 0;
         b = unmarshalerReadField(m, &field);
         CHECK_ERROR_CODE(b);
         n += b;
+        v->extraData[field-1].buffer.size += b;
 
         b = unmarshalerReadRawJson(m,&v->Meta);
         CHECK_ERROR_CODE(b);
         n += b;
+        v->extraData[field-1].buffer.size += b;
+        v->fieldsSet[field-1] = true;
     }
     if ( m->buffer.offset == m->buffer.size ) {
         return n;
@@ -62,6 +82,9 @@ int readSendTokens(Unmarshaler *m, SendTokens *v) {
     CHECK_ERROR_CODE(b);
     if ( field == 4 )
     {
+        v->extraData[field-1].buffer.ptr = m->buffer.ptr+m->buffer.offset;
+        v->extraData[field-1].buffer.offset = 0;
+        v->extraData[field-1].buffer.size = 0;
         Unmarshaler m2 = NewUnmarshaler(&m->buffer,m->mempool);
         v->To_length = 0;
         while ( field == 4 ) {
@@ -92,6 +115,7 @@ int readSendTokens(Unmarshaler *m, SendTokens *v) {
             b = unmarshalerReadUInt(m,&size);
             CHECK_ERROR_CODE(b);
             n += b;
+            v->extraData[field-1].buffer.size += b;
 
             {
                 Unmarshaler m3 = {.buffer.ptr = m->buffer.ptr + m->buffer.offset,
@@ -104,7 +128,10 @@ int readSendTokens(Unmarshaler *m, SendTokens *v) {
             buffer_seek_cur(&m->buffer, size);
 
             n += size;
+            v->extraData[field-1].buffer.size += size;
         }
+
+        v->fieldsSet[field-1] = true;
     }
     return n;
 }
