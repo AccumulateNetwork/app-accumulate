@@ -38,6 +38,3 @@ extern io_state_e G_io_state;
  */
 extern global_ctx_t G_context;
 //
-//extern Signature G_signer;
-//extern Transaction G_transaction;
-//extern buffer_t G_arena;
