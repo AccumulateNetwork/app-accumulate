@@ -43,7 +43,7 @@ int helper_send_response_pubkey() {
     return io_send_response(&(const buffer_t){.ptr = resp, .size = offset, .offset = 0}, SW_OK);
 }
 
-int helper_send_response_sig() {
+int helper_send_response_sig(void) {
     uint8_t resp[1 + MAX_DER_SIG_LEN + 1 + 1 ] = {0};
     size_t offset = 0;
 

@@ -43,4 +43,4 @@ int helper_send_response_pubkey(void);
  *
  */
 
-int helper_send_response_sig();
+int helper_send_response_sig(void);

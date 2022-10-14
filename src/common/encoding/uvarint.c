@@ -66,7 +66,7 @@ UVarInt UVarInt_new(buffer_t *buffer) {
                   };
     if (buffer) {
         int sizeNeeded = uvarint_size(UINT64_MAX);
-        if ( buffer->size - buffer->offset < sizeNeeded ) {
+        if ( (int)buffer->size - (int)buffer->offset < sizeNeeded ) {
             return init;
         }
         init.data.buffer.ptr = buffer->ptr;
