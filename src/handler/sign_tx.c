@@ -33,6 +33,7 @@
 #include "transaction/utils.h"
 
 int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more) {
+#if 0
     if (chunk == 0) {  // first APDU, parse BIP32 path
         explicit_bzero(&G_context, sizeof(G_context));
         G_context.tx_info.arena.ptr = G_context.tx_info.memory;
@@ -99,6 +100,6 @@ int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more) {
             io_send_sw(SW_ENCODE_ERROR(ErrorCode(e)));
         }
     }
-
+#endif
     return 0;
 }

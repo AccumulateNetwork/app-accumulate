@@ -16,16 +16,22 @@
 # ****************************************************************************
 
 ifeq ($(BOLOS_SDK),)
+    # `THIS_DIR` must be resolved BEFORE any `include` directives
+    THIS_DIR   := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
+		TARGET_SDK := $(shell ./util/read-last-sdk)
+		BOLOS_SDK  := ${$(TARGET_SDK)}
+endif
+
+ifeq ($(BOLOS_SDK),)
 $(error Environment variable BOLOS_SDK is not set)
 endif
 
 include $(BOLOS_SDK)/Makefile.defines
 
-
 ifeq ($(TARGET_NAME), TARGET_NANOX)
-APP_LOAD_PARAMS=--appFlags 0x200  # APPLICATION_FLAG_BOLOS_SETTINGS
+    APP_LOAD_PARAMS += --appFlags 0x200  # APPLICATION_FLAG_BOLOS_SETTINGS
 else
-APP_LOAD_PARAMS=--appFlags 0x000
+    APP_LOAD_PARAMS += --appFlags 0x000
 endif
 # Accumulate supports addressing bitcoin, ethereum, factom, and accumulate  for accumulate transactions
 APP_LOAD_PARAMS += --path "44'/0'" --path "44'/60'" --path "44'/131'" --path "44'/281'"
@@ -38,12 +44,15 @@ APPVERSION_N = 0
 APPVERSION_P = 2 
 APPVERSION   = "$(APPVERSION_M).$(APPVERSION_N).$(APPVERSION_P)"
 
-ifeq ($(TARGET_NAME),TARGET_NANOX)
-    ICONNAME=icons/nanox_app_accumulate.gif
-else
+ifeq ($(TARGET_NAME),TARGET_NANOS)
     ICONNAME=icons/nanos_app_accumulate.gif
+else
+    ICONNAME=icons/nanox_app_accumulate.gif
 endif
 
+################
+# Default rule #
+################
 all: default
 
 DEFINES += $(DEFINES_LIB)
@@ -59,19 +68,22 @@ DEFINES += HAVE_WEBUSB WEBUSB_URL_SIZE_B=0 WEBUSB_URL=""
 DEFINES += UNUSED\(x\)=\(void\)x
 
 ifeq ($(TARGET_NAME),TARGET_NANOX)
-    DEFINES += IO_SEPROXYHAL_BUFFER_SIZE_B=300
     DEFINES += HAVE_BLE BLE_COMMAND_TIMEOUT_MS=2000 HAVE_BLE_APDU
+endif
+
+ifeq ($(TARGET_NAME),TARGET_NANOS)
+    DEFINES += IO_SEPROXYHAL_BUFFER_SIZE_B=128
+else
+    DEFINES += IO_SEPROXYHAL_BUFFER_SIZE_B=300
     DEFINES += HAVE_GLO096
     DEFINES += BAGL_WIDTH=128 BAGL_HEIGHT=64
     DEFINES += HAVE_BAGL_ELLIPSIS
     DEFINES += HAVE_BAGL_FONT_OPEN_SANS_REGULAR_11PX
     DEFINES += HAVE_BAGL_FONT_OPEN_SANS_EXTRABOLD_11PX
     DEFINES += HAVE_BAGL_FONT_OPEN_SANS_LIGHT_16PX
-else
-    DEFINES += IO_SEPROXYHAL_BUFFER_SIZE_B=128
 endif
 
-DEBUG = 0
+DEBUG = 1
 ifneq ($(DEBUG),0)
     DEFINES += HAVE_PRINTF
     ifeq ($(TARGET_NAME),TARGET_NANOX)
@@ -98,10 +110,10 @@ $(info GCCPATH is not set: arm-none-eabi-* will be used from PATH)
 endif
 
 CC      := $(CLANGPATH)clang
-CFLAGS  += -O3 -Os
+CFLAGS  += -O0 -O0 -g
 AS      := $(GCCPATH)arm-none-eabi-gcc
 LD      := $(GCCPATH)arm-none-eabi-gcc
-LDFLAGS += -O3 -Os
+LDFLAGS += -O0 -O0 -g
 LDLIBS  += -lm -lgcc -lc
 
 include $(BOLOS_SDK)/Makefile.glyphs
@@ -127,4 +139,4 @@ include $(BOLOS_SDK)/Makefile.rules
 dep/%.d: %.c Makefile
 
 listvariants:
-	@echo VARIANTS COIN BOL
+	@echo VARIANTS COIN accumulate

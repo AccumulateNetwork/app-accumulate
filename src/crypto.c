@@ -20,7 +20,6 @@
 #include <stdbool.h>  // bool
 #include "common/error.h"
 #include "crypto.h"
-#include "cx.h"
 #include "memory.h"
 #include "globals.h"
 
@@ -56,12 +55,13 @@ derivation_t inferCurve(const uint32_t *bip32_path, uint8_t bip32_path_len) {
 int crypto_derive_private_key(cx_ecfp_private_key_t *private_key,
                               const uint32_t *bip32_path,
                               uint8_t bip32_path_len) {
-    uint8_t raw_private_key[32] = {0};
+    volatile uint8_t raw_private_key[32] = {0};
+    volatile derivation_t curve = inferCurve(bip32_path, bip32_path_len);
+    explicit_bzero(private_key, sizeof(cx_ecfp_private_key_t));
 
     BEGIN_TRY {
         TRY {
-            derivation_t curve = inferCurve(bip32_path, bip32_path_len);
-            os_perso_derive_node_with_seed_key(
+            os_perso_derive_node_bip32_seed_key(
                 curve.mode,
                 curve.derivation_curve,
                 bip32_path,
@@ -70,7 +70,8 @@ int crypto_derive_private_key(cx_ecfp_private_key_t *private_key,
                 NULL,
                 NULL,
                 0);
-
+            PRINTF("completed os_perso\n");
+            PRINTF("raw_private_key %.*H\n", 32, raw_private_key);
             cx_ecfp_init_private_key(curve.key_gen_curve,
                                      raw_private_key,
                                      sizeof(raw_private_key),

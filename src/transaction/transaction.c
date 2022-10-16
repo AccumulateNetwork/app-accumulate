@@ -2,22 +2,30 @@
 #include "common/sha256.h"
 
 int getBodyHash(TransactionBody *v, uint8_t hash[static 32]) {
-    //need a big ol switch here.
-#if 1
+
+    HashContext ctx;
+    crypto_hash_init(&ctx);
+    uint8_t tt[10] = {0};
+    int n = uvarint_write(tt,0,v->_u->Type);
+    crypto_hash_update(&ctx, tt, n);
     switch(v->_u->Type) {
-        case TransactionTypeAddCredits:
-            break;
-        case TransactionTypeSendTokens:
-            sha256(v->_SendTokens->extraData)
-            cx_sha256_t hash_context;
-            cx_sha256_init(&hash_context);
-            uint8_t hashtag[32];
-            for ( int i = 0; i < sizeof(v->_SendTokens.))
-            crypto_hash_update(&hash_context->header, tag, tag_len);
-            crypto_hash_digest(&hash_context->header, hashtag, sizeof(hashtag));
-
-
-            break;
+        case TransactionTypeAddCredits:{
+            for (int i = 0; i < (int)sizeof(v->_AddCredits->fieldsSet); i++) {
+                if ( v->_AddCredits->fieldsSet[i] ) {
+                    buffer_t *buff = &v->_AddCredits->extraData[i].buffer;
+                    crypto_hash_update(&ctx,buff->ptr+buff->offset, buff->size-buff->offset);
+                }
+            }
+        } break;
+        case TransactionTypeSendTokens: {
+            for (int i = 0; i < (int)sizeof(v->_SendTokens->fieldsSet); i++) {
+                if ( v->_SendTokens->fieldsSet[i] ) {
+                    buffer_t *buff = &v->_SendTokens->extraData[i].buffer;
+                    crypto_hash_update(&ctx,buff->ptr+buff->offset, buff->size-buff->offset);
+                }
+            }
+            crypto_hash_final(&ctx, hash, 32);
+        } break;
         case TransactionTypeUpdateKeyPage:
         case TransactionTypeUpdateKey:
         case TransactionTypeWriteData:
@@ -25,10 +33,9 @@ int getBodyHash(TransactionBody *v, uint8_t hash[static 32]) {
             return ErrorNotImplemented;
         default:
             return ErrorInvalidEnum;
-
     }
-#endif
 
+    crypto_hash_final(&ctx, hash, 32);
 
 //    hasher, ok := t.Body.(interface{ GetHash() []byte })
 //    if ok {

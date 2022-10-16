@@ -41,9 +41,6 @@ int handler_get_public_key(buffer_t *cdata, bool display) {
     G_context.state = STATE_NONE;
     G_context.pk_info.public_key_length = sizeof(G_context.pk_info.raw_public_key);
 
-    cx_ecfp_private_key_t private_key = {0};
-    cx_ecfp_public_key_t public_key = {0};
-
     if (!buffer_read_u8(cdata, &G_context.bip32_path_len) ||
         !buffer_read_bip32_path(cdata, G_context.bip32_path, (size_t) G_context.bip32_path_len)) {
         return io_send_sw(SW_WRONG_DATA_LENGTH);
@@ -59,6 +56,9 @@ int handler_get_public_key(buffer_t *cdata, bool display) {
             return io_send_sw(SW_ENCODE_ERROR(ErrorCode(ErrorInvalidString)));
         }
     }
+
+    cx_ecfp_private_key_t private_key = {0};
+    cx_ecfp_public_key_t public_key = {0};
 
     // derive private key according to BIP32 path
     crypto_derive_private_key(&private_key,
