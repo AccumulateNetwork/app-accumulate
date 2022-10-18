@@ -20,4 +20,6 @@ int readTransaction(Unmarshaler *m, Transaction *v);
 int initiatorHash(Signature *s, uint8_t initiator[static 32]);
 int transactionHash(Transaction *s, uint8_t hash[static 32]);
 
-int parse_transaction(uint8_t *raw_tx, uint16_t raw_tx_len, Signature *signer, Transaction *transaction, buffer_t *arena);
+int parse_transaction(uint8_t *raw_tx, uint16_t raw_tx_len, Signature *signer,
+                      Transaction *transaction, buffer_t *arena,
+                      uint8_t initiator[static 32], uint8_t txHash[static 32]);

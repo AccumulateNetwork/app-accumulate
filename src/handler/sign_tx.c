@@ -82,19 +82,104 @@ int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more) {
 
         PRINTF("checkpoint parse C\n");
 
-        int e = parse_transaction(G_context.tx_info.raw_tx, G_context.tx_info.raw_tx_len,
-                                  &G_context.tx_info.signer, &G_context.tx_info.transaction,
-                                  &G_context.tx_info.arena);
+        int e = parse_transaction(G_context.tx_info.raw_tx,
+                                  G_context.tx_info.raw_tx_len,
+                                  &G_context.tx_info.signer,
+                                  &G_context.tx_info.transaction,
+                                  &G_context.tx_info.arena,
+                                  G_context.tx_info.initiatorHash,
+                                  G_context.tx_info.m_hash);
 
-        if ( IsError(ErrorCode(e))) {
+        if (IsError(ErrorCode(e))) {
             return io_send_sw(SW_ENCODE_ERROR(ErrorCode(e)));
         }
-        Bytes hash = {.buffer.ptr = G_context.tx_info.m_hash, .buffer.size = sizeof (G_context.tx_info.m_hash), .buffer.offset = 0};
-        Bytes32_get(&G_context.tx_info.signer._u->TransactionHash, &hash);
-        PRINTF("checkpoint post parse C\n");
+
+        // Next do some sanity checks on the transaction to make sure it looks reasonable. These checks include
+        // ensuring the correct public key is used, the initiator hash (if supplied) is correct and if not
+        // supplied, will be computed and set, and the transaction hash (if supplied) is correct and if not
+        // supplied, gets computed and set.
+
+        //Step 1: check to make sure the signer used the correct public key
+        {
+            uint8_t raw_public_key[65] = {0};
+            uint8_t public_key_length = sizeof(raw_public_key);
+            cx_ecfp_private_key_t private_key;
+            cx_ecfp_public_key_t public_key;
+            crypto_derive_private_key(&private_key, G_context.bip32_path, G_context.bip32_path_len);
+            crypto_init_public_key(&private_key, &public_key, raw_public_key, &raw_tx_len, true);
+            explicit_bzero(&private_key, sizeof(private_key));
+            //do a comparison of keys, set the initiator key if not present
+            Bytes *pubKey = &G_context.tx_info.signer._u->PublicKey;
+            uint64_t keyLen = 0;
+            int bytes = uvarint_read(pubKey->buffer.ptr+pubKey->buffer.offset,pubKey->buffer.size-pubKey->buffer.offset, &keyLen);
+
+            //check to make sure the key's match and the key length is the expected length
+            if ( raw_tx_len != (int)(keyLen) || !buffer_can_read(&pubKey->buffer, bytes+keyLen) ||
+                 memcmp(pubKey->buffer.ptr+pubKey->buffer.offset, raw_public_key, keyLen) != 0 ) {
+                //the key buffer is not set or not the right key, so give up
+                return io_send_sw(SW_ENCODE_ERROR(ErrorCode(ErrorBadKey)));
+            }
+        }
+
+        //Step 2: compute the initiator hash with given inputs, if signer supplied one, then compare it,
+        //otherwise set it
+        {
+            e = initiatorHash(&G_context.tx_info.signer, G_context.tx_info.initiatorHash);
+            if (IsError(ErrorCode(e))) {
+                return io_send_sw(SW_ENCODE_ERROR(ErrorCode(e)));
+            }
+            // now set initiator hash if it isn't present in transaction header
+            if (!buffer_can_read(&G_context.tx_info.transaction.Header.Initiator.data.buffer, 32)) {
+                G_context.tx_info.transaction.Header.Initiator.data =
+                    (const Bytes){.buffer.ptr = G_context.tx_info.initiatorHash,
+                                  .buffer.size = sizeof(G_context.tx_info.initiatorHash),
+                                  .buffer.offset = 0};
+            }
+            // early check to see if our hashes match
+            uint8_t initiator[32] = {0};
+            Bytes hash =
+                (const Bytes){.buffer.ptr = initiator, .buffer.size = sizeof(initiator), .buffer.offset = 0};
+            Error err = Bytes32_get(&G_context.tx_info.signer._u->TransactionHash, &hash);
+            if (IsError(err)) {
+                return io_send_sw(SW_ENCODE_ERROR(err));
+            }
+            //initiator hash must match computed, otherwise fail.
+            if (memcmp(initiator, G_context.tx_info.m_hash, 32) != 0) {
+                return io_send_sw(SW_ENCODE_ERROR(ErrorCode(ErrorInvalidHashParameters)));
+            }
+        }
+
+        //Step 3: compute and compare (if supplied) the transaction  hash
+        {
+            Bytes hash = {.buffer.ptr = G_context.tx_info.m_hash,
+                          .buffer.size = sizeof(G_context.tx_info.m_hash),
+                          .buffer.offset = 0};
+            // compute transaction hash
+            CHECK_ERROR_INT(transactionHash(&G_context.tx_info.transaction, G_context.tx_info.m_hash));
+            if (!buffer_can_read(&G_context.tx_info.signer._u->TransactionHash.data.buffer, 32)) {
+                // if we don't have a hash as part of the incoming payload, just use the one we computed.
+                G_context.tx_info.signer._u->TransactionHash.data =
+                    (const Bytes){.buffer.ptr = G_context.tx_info.m_hash,
+                                  .buffer.size = sizeof(G_context.tx_info.m_hash),
+                                  .buffer.offset = 0};
+            }
+
+            // early check to see if our hashes match
+            uint8_t txHash[32] = {0};
+            hash = (const Bytes){.buffer.ptr = txHash, .buffer.size = sizeof(txHash), .buffer.offset = 0};
+            Error err = Bytes32_get(&G_context.tx_info.signer._u->TransactionHash, &hash);
+            if (IsError(err)) {
+                return io_send_sw(SW_ENCODE_ERROR(err));
+            }
+
+            if (memcmp(txHash, G_context.tx_info.m_hash, 32) != 0) {
+                return io_send_sw(SW_ENCODE_ERROR(ErrorCode(ErrorInvalidHashParameters)));
+            }
+        }
 
         G_context.state = STATE_PARSED;
 
+        //Step 4: ask for user confirmation of transaction contents
         e = ui_display_transaction();
         if ( IsErrorCode(e)) {
             io_send_sw(SW_ENCODE_ERROR(ErrorCode(e)));
