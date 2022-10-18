@@ -36,9 +36,10 @@ int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more) {
 #if 0
     if (chunk == 0) {  // first APDU, parse BIP32 path
         explicit_bzero(&G_context, sizeof(G_context));
-        G_context.tx_info.arena.ptr = G_context.tx_info.memory;
+        explicit_bzero(G_memory, sizeof(G_memory));
+        G_context.tx_info.arena.ptr = G_memory;
         G_context.tx_info.arena.offset = 0;
-        G_context.tx_info.arena.size = sizeof(G_context.tx_info.memory);
+        G_context.tx_info.arena.size = sizeof(G_memory);
 
         G_context.req_type = CONFIRM_TRANSACTION;
         G_context.state = STATE_NONE;

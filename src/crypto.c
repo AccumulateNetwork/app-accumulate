@@ -134,7 +134,7 @@ Error crypto_init_public_key(cx_ecfp_private_key_t *private_key,
     return ErrorCode(ErrorNone);
 }
 
-int crypto_sign_message(uint8_t *signature, uint8_t *signature_len, uint8_t *parity) {
+int crypto_sign_message(void) {
     cx_ecfp_private_key_t private_key = {0};
     uint32_t info = 0;
     int sig_len = 0;
@@ -149,13 +149,13 @@ int crypto_sign_message(uint8_t *signature, uint8_t *signature_len, uint8_t *par
             switch (private_key.curve) {
             case CX_CURVE_256K1:
                sig_len = cx_ecdsa_sign(&private_key,
-                                       CX_RND_RFC6979 | CX_LAST,
-                                       CX_SHA256,
-                                       G_context.tx_info.m_hash,
-                                       sizeof(G_context.tx_info.m_hash),
-                                       signature,
-                                       signature_len,
-                                       &info);
+                                        CX_RND_RFC6979 | CX_LAST,
+                                        CX_SHA256,
+                                        G_context.tx_info.m_hash,
+                                        sizeof(G_context.tx_info.m_hash),
+                                        G_context.tx_info.signature,
+                                        sizeof(G_context.tx_info.signature),
+                                        &info);
                 break;
             case CX_CURVE_Ed25519:
                 sig_len = cx_eddsa_sign(&private_key,
@@ -163,14 +163,14 @@ int crypto_sign_message(uint8_t *signature, uint8_t *signature_len, uint8_t *par
                                         G_context.tx_info.m_hash,
                                         sizeof(G_context.tx_info.m_hash),
                                         NULL, 0,
-                                        signature,
-                                        signature_len,
+                                        G_context.tx_info.signature,
+                                        sizeof(G_context.tx_info.signature),
                                         NULL);
                 break;
             default:
                 THROW(ErrorInvalidEnum);
             }
-            PRINTF("Signature: %.*H\n", sig_len, signature);
+            PRINTF("Signature: %.*H\n", sig_len, G_context.tx_info.signature);
         }
         CATCH_OTHER(e) {
             THROW(e);
@@ -185,12 +185,11 @@ int crypto_sign_message(uint8_t *signature, uint8_t *signature_len, uint8_t *par
         return -1;
     }
 
-    *signature_len = sig_len;
-    *parity = (uint8_t)(info & CX_ECCINFO_PARITY_ODD);
+    G_context.tx_info.signature_len = sig_len;
+    G_context.tx_info.v = (uint8_t)(info & CX_ECCINFO_PARITY_ODD);
 
     return 0;
 }
-
 
 #ifndef _NR_cx_hash_ripemd160
 /** Missing in some SDKs, we implement it using the cxram section if needed. */

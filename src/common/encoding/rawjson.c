@@ -35,7 +35,7 @@ RawJson RawJson_new(buffer_t *b, size_t n) {
 
     if (b) {
         int sizeNeeded = n;
-        if ( b->size - b->offset < sizeNeeded ) {
+        if ( (int)b->size - (int)b->offset < sizeNeeded ) {
             return init;
         }
         init.data.buffer.ptr = b->ptr;

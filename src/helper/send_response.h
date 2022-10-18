@@ -43,4 +43,4 @@ int helper_send_response_pubkey(void);
  *
  */
 
-int helper_send_response_sig(uint8_t *signature, uint8_t signature_len, uint8_t parity);
+int helper_send_response_sig(void);
