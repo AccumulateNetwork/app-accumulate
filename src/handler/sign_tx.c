@@ -33,13 +33,12 @@
 #include "transaction/utils.h"
 
 int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more) {
-#if 0
+
     if (chunk == 0) {  // first APDU, parse BIP32 path
         explicit_bzero(&G_context, sizeof(G_context));
-        explicit_bzero(G_memory, sizeof(G_memory));
-        G_context.tx_info.arena.ptr = G_memory;
+        G_context.tx_info.arena.ptr = G_context.tx_info.memory;
         G_context.tx_info.arena.offset = 0;
-        G_context.tx_info.arena.size = sizeof(G_memory);
+        G_context.tx_info.arena.size = sizeof(G_context.tx_info.memory);
 
         G_context.req_type = CONFIRM_TRANSACTION;
         G_context.state = STATE_NONE;
@@ -82,7 +81,7 @@ int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more) {
         }
 
         PRINTF("checkpoint parse C\n");
-#if 1
+
         int e = parse_transaction(G_context.tx_info.raw_tx, G_context.tx_info.raw_tx_len,
                                   &G_context.tx_info.signer, &G_context.tx_info.transaction,
                                   &G_context.tx_info.arena);
@@ -93,7 +92,7 @@ int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more) {
         Bytes hash = {.buffer.ptr = G_context.tx_info.m_hash, .buffer.size = sizeof (G_context.tx_info.m_hash), .buffer.offset = 0};
         Bytes32_get(&G_context.tx_info.signer._u->TransactionHash, &hash);
         PRINTF("checkpoint post parse C\n");
-#endif
+
         G_context.state = STATE_PARSED;
 
         e = ui_display_transaction();
@@ -101,6 +100,5 @@ int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more) {
             io_send_sw(SW_ENCODE_ERROR(ErrorCode(e)));
         }
     }
-#endif
     return 0;
 }

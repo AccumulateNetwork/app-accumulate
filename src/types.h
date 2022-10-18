@@ -82,6 +82,7 @@ typedef struct {
  * Structure for transaction information context.
  */
 typedef struct {
+    uint8_t memory[ARENA_SIZE];
     uint8_t raw_tx[MAX_TRANSACTION_LEN];  /// raw transaction serialized
     buffer_t arena;
     Signature signer;

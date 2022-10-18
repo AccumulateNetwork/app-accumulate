@@ -1,6 +1,21 @@
 #include "utils.h"
 #include "common/sha256.h"
 
+int getHeaderHash(TransactionHeader *v, uint8_t hash[static 32] ) {
+    HashContext ctx;
+    crypto_hash_init(&ctx);
+
+    buffer_t buffers[4] = { v->Principal.data.buffer, v->Initiator.data.buffer, v->Memo.data.buffer, v->Metadata.buffer};
+
+    for ( int i = 0; i < 4; i++ ) {
+           crypto_hash_update(&ctx,
+                           buffers[i].ptr+buffers[i].offset,
+                           buffers[i].size - buffers[i].offset);
+    }
+    crypto_hash_final(&ctx, hash, 32);
+    return ErrorNone;
+}
+
 int getBodyHash(TransactionBody *v, uint8_t hash[static 32]) {
 
     HashContext ctx;
@@ -34,43 +49,18 @@ int getBodyHash(TransactionBody *v, uint8_t hash[static 32]) {
         default:
             return ErrorInvalidEnum;
     }
-
     crypto_hash_final(&ctx, hash, 32);
-
-//    hasher, ok := t.Body.(interface{ GetHash() []byte })
-//    if ok {
-//        return hasher.GetHash()
-//    }
-//
-//    data, err := t.Body.MarshalBinary()
-//    if err != nil {
-//        // TransactionPayload.MarshalBinary should never return an error, but
-//        // better a panic then a silently ignored error.
-//        panic(err)
-//    }
-//
-//    hash := sha256.Sum256(data)
     return ErrorNone;
 }
 
 int transactionHash(Transaction *v, uint8_t hash[static 32]) {
-#if 0
-    switch( v->Header)
-    v->BodyBuffer
-    // Marshal the header
-//    header, err := t.Header.MarshalBinary()
-//    if err != nil {
-//        // TransactionHeader.MarshalBinary will never return an error, but better safe than sorry.
-//        panic(err)
-//    }
-//    headerHash := sha256.Sum256(header)
-//
-//    // Calculate the hash
-//    sha := sha256.New()
-//    sha.Write(headerHash[:])
-//    sha.Write(t.getBodyHash())
-//    t.hash = sha.Sum(nil)
-#endif
+    HashContext ctx;
+    crypto_hash_init(&ctx);
+    getHeaderHash(&v->Header, hash);
+    crypto_hash_update(&ctx, hash, 32);
+    getBodyHash(&v->Body, hash);
+    crypto_hash_update(&ctx, hash, 32);
+    crypto_hash_final(&ctx, hash, 32);
     return ErrorNone;
 }
 
@@ -141,6 +131,87 @@ int readTransaction(Unmarshaler *m, Transaction *v) {
         }
 
         n += b;
+    }
+
+    return n;
+}
+
+
+int readTransactionTypeHeader(Unmarshaler *m, TransactionType *type) {
+    int n = 0;
+    uint64_t field = 0;
+    PRINTF("ENTERING READ TRANSACTION BODY\n");
+
+    int b = unmarshalerReadField(m, &field);
+    CHECK_ERROR_CODE(b);
+    n += b;
+
+    if ( field != 1 ) {
+        return ErrorInvalidField;
+    }
+
+    PRINTF("DONE READ FIELD\n");
+
+    b = unmarshalerReadUInt(m, &field);
+    CHECK_ERROR_CODE(b);
+    n += b;
+
+    *type = (TransactionType)field;
+
+    return n;
+}
+
+int readTransactionBody(Unmarshaler *m, TransactionBody *v) {
+    int n = 0;
+    TransactionType type = 0;
+    PRINTF("ENTERING READ TRANSACTION BODY\n");
+
+    buffer_t bodyMark = { m->buffer.ptr+m->buffer.offset, 0,0};
+    int b = readTransactionTypeHeader(m, &type);
+    CHECK_ERROR_CODE(b);
+
+    n += b;
+    bodyMark.size += b;
+
+    PRINTF("READ  TRANSACTION BODY type %d\n", type);
+    switch ( type ) {
+        case TransactionTypeAddCredits:
+            PRINTF("Allocate AddCredits\n");
+            v->_AddCredits = (AddCredits *)unmarshalerAlloc(m, sizeof(AddCredits));
+            CHECK_ERROR_INT(v->_AddCredits);
+
+            v->_AddCredits->fieldsSet[0] = true;
+            v->_AddCredits->extraData[0].buffer = bodyMark;
+
+            b = readAddCredits(m, v->_AddCredits);
+            CHECK_ERROR_CODE(b);
+
+            n += b;
+            //todo: compute body hash
+
+            break;
+
+        case TransactionTypeSendTokens:
+
+            PRINTF("Allocate Send Tokens\n");
+            v->_SendTokens = (SendTokens*)unmarshalerAlloc(m, sizeof(SendTokens));
+            PRINTF("allocate SEND TOKENS %p size %d\n", v->_SendTokens, sizeof(SendTokens));
+            CHECK_ERROR_INT(v->_SendTokens)
+            v->_SendTokens->fieldsSet[0] = true;
+            v->_SendTokens->extraData[0].buffer = bodyMark;
+
+            PRINTF("Unmarshal Read Send Tokens\n");
+            b = readSendTokens(m, v->_SendTokens);
+            CHECK_ERROR_CODE(b);
+
+            PRINTF("Unmarshal Read Send Tokens Complete\n");
+            n += b;
+            //todo: compute body hash
+
+            break;
+
+        default:
+            n = ErrorNotImplemented;
     }
 
     return n;
