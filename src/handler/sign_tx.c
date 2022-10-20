@@ -130,7 +130,7 @@ PRINTF("checkpoint parse C\n");
             if ( public_key_length != (int)(keyLen) || !buffer_can_read(&pubKey, keyLen) ||
                  memcmp(pubKey.ptr+pubKey.offset, raw_public_key, keyLen) != 0 ) {
                 //the key buffer is not set or not the right key, so give up
-                //return io_send_sw(SW_ENCODE_ERROR(ErrorCode(ErrorBadKey)));
+                return io_send_sw(SW_ENCODE_ERROR(ErrorCode(ErrorBadKey)));
             }
         }
 
@@ -156,16 +156,16 @@ PRINTF("checkpoint parse C\n");
             uint8_t initiator[32] = {0};
             Bytes hash =
                 (const Bytes){.buffer.ptr = initiator, .buffer.size = sizeof(initiator), .buffer.offset = 0};
-            Error err = Bytes32_get(&G_context.tx_info.signer._u->TransactionHash, &hash);
+            Error err = Bytes32_get(&G_context.tx_info.transaction.Header.Initiator, &hash);
             if (IsError(err)) {
                 return io_send_sw(SW_ENCODE_ERROR(err));
             }
             //initiator hash must match computed, otherwise fail.
-            if (memcmp(initiator, G_context.tx_info.m_hash, 32) != 0) {
-                //return io_send_sw(SW_ENCODE_ERROR(ErrorCode(ErrorInvalidHashParameters)));
+            if (memcmp(initiator, &G_context.tx_info.initiatorHash[1], 32) != 0) {
+                return io_send_sw(SW_ENCODE_ERROR(ErrorCode(ErrorInvalidHashParameters)));
             }
         }
-        if(0)
+
         //Step 3: compute and compare (if supplied) the transaction  hash
         {
             Bytes hash = {.buffer.ptr = G_context.tx_info.m_hash,
@@ -173,11 +173,10 @@ PRINTF("checkpoint parse C\n");
                           .buffer.offset = 0};
 
             // compute transaction hash
-            Error err = ErrorCode(transactionHash(&G_context.tx_info.transaction, G_context.tx_info.m_hash));
-            if (IsError(err)) {
-                return io_send_sw(SW_ENCODE_ERROR(err));
+            e = transactionHash(&G_context.tx_info.transaction, G_context.tx_info.m_hash);
+            if (IsError(ErrorCode(e))) {
+                return io_send_sw(SW_ENCODE_ERROR(ErrorCode(e)));
             }
-            return io_send_sw(0xBBBB);
 
             if (!buffer_can_read(&G_context.tx_info.signer._u->TransactionHash.data.buffer, 32)) {
                 // if we don't have a hash as part of the incoming payload, just use the one we computed.
@@ -190,13 +189,13 @@ PRINTF("checkpoint parse C\n");
             // early check to see if our hashes match
             uint8_t txHash[32] = {0};
             hash.buffer = (const buffer_t){.ptr = txHash, .size = sizeof(txHash), .offset = 0};
-            err = Bytes32_get(&G_context.tx_info.signer._u->TransactionHash, &hash);
+            Error err = Bytes32_get(&G_context.tx_info.signer._u->TransactionHash, &hash);
             if (IsError(err)) {
                 return io_send_sw(SW_ENCODE_ERROR(err));
             }
 
             if (memcmp(txHash, G_context.tx_info.m_hash, 32) != 0) {
-                //return io_send_sw(SW_ENCODE_ERROR(ErrorCode(ErrorInvalidHashParameters)));
+                return io_send_sw(SW_ENCODE_ERROR(ErrorCode(ErrorInvalidHashParameters)));
             }
         }
 

@@ -32,19 +32,19 @@ Error sha256d(const uint8_t *in, unsigned int len, uint8_t *out, unsigned int ou
 
 int crypto_hash_init(HashContext *hash_context) {
 #if defined(__x86_64__ ) || defined(__i386__)
-    sha256_init(hash_context);
-#else
-    cx_sha256_init(hash_context);
-#endif
+    sha256_init(&hash_context);
     return 0;
+#else
+    return cx_sha256_init_no_throw(hash_context);
+#endif
 }
 
 int crypto_hash_update(HashContext *hash_context, const void *in, size_t in_len) {
 #if defined(__x86_64__ ) || defined(__i386__)
-    sha256_update(hash_context, in, in_len);
+    sha256_update(&hash_context, in, in_len);
     return 0;
 #else
-    return cx_hash(hash_context, 0, in, in_len, NULL, 0);
+    return cx_hash_no_throw(&hash_context->header, 0, in, in_len, NULL, 0);
 #endif
 }
 
@@ -53,6 +53,6 @@ int crypto_hash_final(HashContext *hash_context, uint8_t *out, size_t out_len) {
     sha256_final(hash_context, out);
     return 0;
 #else
-    return cx_hash(hash_context, CX_LAST, NULL, 0, out, out_len);
+    return cx_hash_no_throw(&hash_context->header, CX_LAST, NULL, 0, out, out_len);
 #endif
 }

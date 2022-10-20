@@ -11,7 +11,7 @@ typedef SHA256_CTX HashContext;
 #else
 #include "os.h"
 #include "cx.h"
-typedef cx_hash_t HashContext;
+typedef cx_sha256_t HashContext;
 #endif
 
 

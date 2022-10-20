@@ -7,10 +7,10 @@ int getHeaderHash(TransactionHeader *v, uint8_t hash[static 32] ) {
     crypto_hash_init(&ctx);
 
     for ( uint8_t i = 0; i < sizeof(v->extraData)/sizeof(Bytes); i++ ) {
+
         if ( !v->extraData[i].buffer.ptr ) {
             continue;
         }
-        uint8_t field = i + 1;
         crypto_hash_update(&ctx,
                            v->extraData[i].buffer.ptr+v->extraData[i].buffer.offset,
                            v->extraData[i].buffer.size - v->extraData[i].buffer.offset);
@@ -56,8 +56,10 @@ int transactionHash(Transaction *v, uint8_t hash[static 32]) {
     HashContext ctx;
     crypto_hash_init(&ctx);
     explicit_bzero(hash, 32);
-    getHeaderHash(&v->Header, hash);
-    return ErrorInvalidHashParameters;
+    int e = getHeaderHash(&v->Header, hash);
+    if (IsError(ErrorCode(e))) {
+        return e;
+    }
     crypto_hash_update(&ctx, hash, 32);
     explicit_bzero(hash, 32);
     getBodyHash(&v->Body, hash);
