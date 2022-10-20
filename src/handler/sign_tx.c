@@ -86,9 +86,7 @@ int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more) {
                                   G_context.tx_info.raw_tx_len,
                                   &G_context.tx_info.signer,
                                   &G_context.tx_info.transaction,
-                                  &G_context.tx_info.arena,
-                                  G_context.tx_info.initiatorHash,
-                                  G_context.tx_info.m_hash);
+                                  &G_context.tx_info.arena);
 
         if (IsError(ErrorCode(e))) {
             return io_send_sw(SW_ENCODE_ERROR(ErrorCode(e)));
@@ -103,37 +101,57 @@ int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more) {
         {
             uint8_t raw_public_key[65] = {0};
             uint8_t public_key_length = sizeof(raw_public_key);
-            cx_ecfp_private_key_t private_key;
-            cx_ecfp_public_key_t public_key;
-            crypto_derive_private_key(&private_key, G_context.bip32_path, G_context.bip32_path_len);
-            crypto_init_public_key(&private_key, &public_key, raw_public_key, &raw_tx_len, true);
-            explicit_bzero(&private_key, sizeof(private_key));
-            //do a comparison of keys, set the initiator key if not present
-            Bytes *pubKey = &G_context.tx_info.signer._u->PublicKey;
-            uint64_t keyLen = 0;
-            int bytes = uvarint_read(pubKey->buffer.ptr+pubKey->buffer.offset,pubKey->buffer.size-pubKey->buffer.offset, &keyLen);
+            cx_ecfp_private_key_t private_key = {0};
+            cx_ecfp_public_key_t public_key = {0};
 
+            // derive private key according to BIP32 path
+            crypto_derive_private_key(&private_key,
+                                      G_context.bip32_path,
+                                      G_context.bip32_path_len);
+
+            // generate corresponding public key
+            Error e = crypto_init_public_key(&private_key, &public_key, raw_public_key,
+                                             &public_key_length,
+                                             G_context.bip32_path[1] != CoinTypeEth);
+            // reset private key
+            explicit_bzero(&private_key, sizeof(private_key));
+
+            if (IsError(e)) {
+                return io_send_sw(SW_ENCODE_ERROR(e));
+            }
+
+            //do a comparison of keys, set the initiator key if not present
+            buffer_t pubKey = G_context.tx_info.signer._u->PublicKey.buffer;
+            int keyLen = pubKey.size - pubKey.offset;
+
+            PRINTF("\nLeylen %d\n", keyLen);
+            PRINTF("PubKey TX: %.*H\n",keyLen, pubKey.ptr + pubKey.offset );
+            PRINTF("PubKey Internal: %.*H\n",public_key_length, raw_public_key );
             //check to make sure the key's match and the key length is the expected length
-            if ( raw_tx_len != (int)(keyLen) || !buffer_can_read(&pubKey->buffer, bytes+keyLen) ||
-                 memcmp(pubKey->buffer.ptr+pubKey->buffer.offset, raw_public_key, keyLen) != 0 ) {
+            if ( public_key_length != (int)(keyLen) || !buffer_can_read(&pubKey, keyLen) ||
+                 memcmp(pubKey.ptr+pubKey.offset, raw_public_key, keyLen) != 0 ) {
                 //the key buffer is not set or not the right key, so give up
-                return io_send_sw(SW_ENCODE_ERROR(ErrorCode(ErrorBadKey)));
+                //return io_send_sw(SW_ENCODE_ERROR(ErrorCode(ErrorBadKey)));
             }
         }
 
         //Step 2: compute the initiator hash with given inputs, if signer supplied one, then compare it,
         //otherwise set it
         {
-            e = initiatorHash(&G_context.tx_info.signer, G_context.tx_info.initiatorHash);
+
+            G_context.tx_info.initiatorHash[0] = INITIATOR_FIELD_INDEX;
+            e = initiatorHash(&G_context.tx_info.signer, &G_context.tx_info.initiatorHash[1]);
             if (IsError(ErrorCode(e))) {
                 return io_send_sw(SW_ENCODE_ERROR(ErrorCode(e)));
             }
             // now set initiator hash if it isn't present in transaction header
             if (!buffer_can_read(&G_context.tx_info.transaction.Header.Initiator.data.buffer, 32)) {
-                G_context.tx_info.transaction.Header.Initiator.data =
-                    (const Bytes){.buffer.ptr = G_context.tx_info.initiatorHash,
-                                  .buffer.size = sizeof(G_context.tx_info.initiatorHash),
-                                  .buffer.offset = 0};
+                TransactionHeader *header = &G_context.tx_info.transaction.Header;
+                header->Initiator.data.buffer =
+                        (const buffer_t){.ptr = &G_context.tx_info.initiatorHash[1], .size = 32, .offset = 0};
+                //required for transaction hash generation
+                header->extraData[INITIATOR_FIELD_INDEX].buffer =
+                        (const buffer_t){.ptr = G_context.tx_info.initiatorHash, .size = sizeof(G_context.tx_info.initiatorHash), .offset = 0};
             }
             // early check to see if our hashes match
             uint8_t initiator[32] = {0};
@@ -166,7 +184,7 @@ int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more) {
 
             // early check to see if our hashes match
             uint8_t txHash[32] = {0};
-            hash = (const Bytes){.buffer.ptr = txHash, .buffer.size = sizeof(txHash), .buffer.offset = 0};
+            hash.buffer = (const buffer_t){.ptr = txHash, .size = sizeof(txHash), .offset = 0};
             Error err = Bytes32_get(&G_context.tx_info.signer._u->TransactionHash, &hash);
             if (IsError(err)) {
                 return io_send_sw(SW_ENCODE_ERROR(err));

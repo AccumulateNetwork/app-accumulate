@@ -28,6 +28,7 @@ typedef struct {
         UVarInt Timestamp;  //`json:"timestamp,omitempty" form:"timestamp" query:"timestamp"`
         VoteType Vote;  //`json:"vote,omitempty" form:"vote" query:"vote"`
         Bytes32 TransactionHash;  //`json:"transactionHash,omitempty" form:"transactionHash" query:"transactionHash"`
+        Bytes extraData[8];
 } SignatureTypeUnion;
 
 typedef union {

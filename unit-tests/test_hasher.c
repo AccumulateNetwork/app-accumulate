@@ -138,6 +138,7 @@ void test_transaction_hash(void **state) {
     uint8_t hash[32] = {0};
     int e = transactionHash(&transaction, hash);
     assert_false(IsErrorCode(e));
+    assert_false(memcmp(hash, signer._u->TransactionHash.data.buffer.ptr+signer._u->TransactionHash.data.buffer.offset,32));
 }
 
 int main() {

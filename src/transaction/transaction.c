@@ -1,45 +1,35 @@
 #include "utils.h"
 #include "common/sha256.h"
+#include "common/format.h"
 
 int getHeaderHash(TransactionHeader *v, uint8_t hash[static 32] ) {
     HashContext ctx;
     crypto_hash_init(&ctx);
 
-    buffer_t buffers[4] = { v->Principal.data.buffer, v->Initiator.data.buffer, v->Memo.data.buffer, v->Metadata.buffer};
-
-    for ( int i = 0; i < 4; i++ ) {
-           crypto_hash_update(&ctx,
-                           buffers[i].ptr+buffers[i].offset,
-                           buffers[i].size - buffers[i].offset);
+    for ( uint8_t i = 0; i < sizeof(v->extraData)/sizeof(Bytes); i++ ) {
+        if ( !v->extraData[i].buffer.ptr ) {
+            continue;
+        }
+        uint8_t field = i + 1;
+        crypto_hash_update(&ctx,
+                           v->extraData[i].buffer.ptr+v->extraData[i].buffer.offset,
+                           v->extraData[i].buffer.size - v->extraData[i].buffer.offset);
     }
     crypto_hash_final(&ctx, hash, 32);
     return ErrorNone;
 }
 
 int getBodyHash(TransactionBody *v, uint8_t hash[static 32]) {
-
-    HashContext ctx;
-    crypto_hash_init(&ctx);
-    uint8_t tt[10] = {0};
-    int n = uvarint_write(tt,0,v->_u->Type);
-    crypto_hash_update(&ctx, tt, n);
+    int byteArrayLen = 0;
+    Bytes *byteArray;
     switch(v->_u->Type) {
         case TransactionTypeAddCredits:{
-            for (int i = 0; i < (int)sizeof(v->_AddCredits->fieldsSet); i++) {
-                if ( v->_AddCredits->fieldsSet[i] ) {
-                    buffer_t *buff = &v->_AddCredits->extraData[i].buffer;
-                    crypto_hash_update(&ctx,buff->ptr+buff->offset, buff->size-buff->offset);
-                }
-            }
+            byteArray = v->_AddCredits->extraData;
+            byteArrayLen = (int)sizeof(v->_AddCredits->extraData)/sizeof(Bytes);
         } break;
         case TransactionTypeSendTokens: {
-            for (int i = 0; i < (int)sizeof(v->_SendTokens->fieldsSet); i++) {
-                if ( v->_SendTokens->fieldsSet[i] ) {
-                    buffer_t *buff = &v->_SendTokens->extraData[i].buffer;
-                    crypto_hash_update(&ctx,buff->ptr+buff->offset, buff->size-buff->offset);
-                }
-            }
-            crypto_hash_final(&ctx, hash, 32);
+            byteArray = v->_SendTokens->extraData;
+            byteArrayLen = (int)sizeof(v->_SendTokens->extraData)/sizeof(Bytes);
         } break;
         case TransactionTypeUpdateKeyPage:
         case TransactionTypeUpdateKey:
@@ -49,6 +39,15 @@ int getBodyHash(TransactionBody *v, uint8_t hash[static 32]) {
         default:
             return ErrorInvalidEnum;
     }
+
+    HashContext ctx;
+    crypto_hash_init(&ctx);
+    for (int i = 0; i < byteArrayLen; i++) {
+        if ( byteArray[i].buffer.ptr ) {
+            buffer_t *buff = &byteArray[i].buffer;
+            crypto_hash_update(&ctx,buff->ptr+buff->offset, buff->size-buff->offset);
+        }
+    }
     crypto_hash_final(&ctx, hash, 32);
     return ErrorNone;
 }
@@ -56,8 +55,10 @@ int getBodyHash(TransactionBody *v, uint8_t hash[static 32]) {
 int transactionHash(Transaction *v, uint8_t hash[static 32]) {
     HashContext ctx;
     crypto_hash_init(&ctx);
+    explicit_bzero(hash, 32);
     getHeaderHash(&v->Header, hash);
     crypto_hash_update(&ctx, hash, 32);
+    explicit_bzero(hash, 32);
     getBodyHash(&v->Body, hash);
     crypto_hash_update(&ctx, hash, 32);
     crypto_hash_final(&ctx, hash, 32);
@@ -68,6 +69,7 @@ int readTransaction(Unmarshaler *m, Transaction *v) {
     int n = 0;
     uint64_t field = 0;
 
+    explicit_bzero(v->extraData, sizeof (v->extraData));
     if ( m->buffer.offset == m->buffer.size ) {
         return n;
     }
@@ -75,13 +77,16 @@ int readTransaction(Unmarshaler *m, Transaction *v) {
     CHECK_ERROR_CODE(b);
     if ( field == 1 )
     {
+        v->extraData[field-1].buffer.ptr = m->buffer.ptr+m->buffer.offset;
         b = unmarshalerReadField(m, &field);
         CHECK_ERROR_CODE(b);
+        v->extraData[field-1].buffer.size += b;
         n += b;
 
         uint64_t size = 0;
         b = unmarshalerReadUInt(m,&size);
         CHECK_ERROR_CODE(b);
+        v->extraData[field-1].buffer.size += b;
         n += b;
         {
             Unmarshaler m2 = {.buffer.ptr = m->buffer.ptr + m->buffer.offset,
@@ -91,11 +96,8 @@ int readTransaction(Unmarshaler *m, Transaction *v) {
             b = readTransactionHeader(&m2, &v->Header);
             CHECK_ERROR_CODE(b);
         }
-        v->HeaderBuffer.ptr = m->buffer.ptr + m->buffer.offset;
-        v->HeaderBuffer.offset = 0;
-        v->HeaderBuffer.size = size;
         buffer_seek_cur(&m->buffer, size);
-
+        v->extraData[field-1].buffer.size += b;
         n += b;
     }
     if ( m->buffer.offset == m->buffer.size ) {
@@ -105,8 +107,10 @@ int readTransaction(Unmarshaler *m, Transaction *v) {
     CHECK_ERROR_CODE(b);
     if ( field == 2 )
     {
+        v->extraData[field-1].buffer.ptr = m->buffer.ptr+m->buffer.offset;
         b = unmarshalerReadField(m, &field);
         CHECK_ERROR_CODE(b);
+        v->extraData[field-1].buffer.size += b;
         n += b;
 
         {
@@ -122,14 +126,12 @@ int readTransaction(Unmarshaler *m, Transaction *v) {
             b = readTransactionBody(&m2, &v->Body);
             CHECK_ERROR_CODE(b);
 
-            v->BodyBuffer.ptr = m->buffer.ptr + m->buffer.offset;
-            v->BodyBuffer.offset = 0;
-            v->BodyBuffer.size = size;
             if ( !buffer_seek_cur(&m->buffer, size) ) {
                 return ErrorBufferTooSmall;
             }
         }
 
+        v->extraData[field-1].buffer.size += b;
         n += b;
     }
 
@@ -180,10 +182,9 @@ int readTransactionBody(Unmarshaler *m, TransactionBody *v) {
             v->_AddCredits = (AddCredits *)unmarshalerAlloc(m, sizeof(AddCredits));
             CHECK_ERROR_INT(v->_AddCredits);
 
-            v->_AddCredits->fieldsSet[0] = true;
-            v->_AddCredits->extraData[0].buffer = bodyMark;
 
             b = readAddCredits(m, v->_AddCredits);
+            v->_AddCredits->extraData[0].buffer = bodyMark;
             CHECK_ERROR_CODE(b);
 
             n += b;
@@ -197,11 +198,12 @@ int readTransactionBody(Unmarshaler *m, TransactionBody *v) {
             v->_SendTokens = (SendTokens*)unmarshalerAlloc(m, sizeof(SendTokens));
             PRINTF("allocate SEND TOKENS %p size %d\n", v->_SendTokens, sizeof(SendTokens));
             CHECK_ERROR_INT(v->_SendTokens)
-            v->_SendTokens->fieldsSet[0] = true;
-            v->_SendTokens->extraData[0].buffer = bodyMark;
+            //v->_SendTokens->fieldsSet[0] = true;
+
 
             PRINTF("Unmarshal Read Send Tokens\n");
             b = readSendTokens(m, v->_SendTokens);
+            v->_SendTokens->extraData[0].buffer = bodyMark;
             CHECK_ERROR_CODE(b);
 
             PRINTF("Unmarshal Read Send Tokens Complete\n");

@@ -33,7 +33,8 @@ int readSignature(Unmarshaler *m, Signature *v) {
     uint64_t field = 0;
     uint64_t type = 0;
 
-    PRINTF("readSignature Begin\n");
+    buffer_t sigMark = { m->buffer.ptr+m->buffer.offset, 0,0};
+
     int b = unmarshalerReadField(m, &field);
     CHECK_ERROR_CODE(b);
 
@@ -41,9 +42,12 @@ int readSignature(Unmarshaler *m, Signature *v) {
         return ErrorInvalidField;
     }
     n += b;
+    sigMark.size += b;
+
     b = unmarshalerReadUInt(m, &type);
     CHECK_ERROR_CODE(b);
     n += b;
+    sigMark.size += b;
 
     switch ( type ) {
         case SignatureTypeRCD1:
@@ -51,12 +55,16 @@ int readSignature(Unmarshaler *m, Signature *v) {
         case SignatureTypeBTC:
         case SignatureTypeED25519:
             v->_u = (SignatureTypeUnion*)unmarshalerAlloc(m, sizeof(SignatureTypeUnion));
+            explicit_bzero(v->_u->extraData, sizeof(v->_u->extraData));
             CHECK_ERROR_INT(v->_u);
             PRINTF("Signature Type %d\n", type);
             v->_u->Type = type;
             b = readSignatureTypeUnion(m, v->_u);
+            v->_u->extraData[0].buffer = sigMark;
+
             CHECK_ERROR_CODE(b);
             n += b;
+            sigMark.size += b;
             break;
         default:
             n = ErrorNotImplemented;
@@ -71,6 +79,7 @@ int readSignatureTypeUnion(Unmarshaler *m, SignatureTypeUnion *v) {
     int n = 0;
     uint64_t field = 0;
 
+    explicit_bzero(v->extraData, sizeof(v->extraData));
     if ( m->buffer.offset == m->buffer.size ) {
         return n;
     }
@@ -80,15 +89,20 @@ int readSignatureTypeUnion(Unmarshaler *m, SignatureTypeUnion *v) {
         PRINTF("pre signer parse %d\n", field);
     if ( field == 1 )
     {
+
+        PRINTF("pre siigner field 1\n");
+        v->extraData[field-1].buffer.ptr = m->buffer.ptr+m->buffer.offset;
         PRINTF("read type\n");
         b = unmarshalerReadField(m, &field);
         CHECK_ERROR_CODE(b);
+        v->extraData[field-1].buffer.size += b;
         n += b;
 
         //ensure we are the correct union type
         uint64_t type = 0;
         b = unmarshalerReadUInt(m,&type);
         CHECK_ERROR_CODE(b);
+        v->extraData[field-1].buffer.size += b;
         n += b;
 
         if ( type != v->Type ) {
@@ -104,13 +118,28 @@ int readSignatureTypeUnion(Unmarshaler *m, SignatureTypeUnion *v) {
     PRINTF("pre signer parse %d\n", field);
     if ( field == 2 )
     {
+        PRINTF("pre siigner field 2\n");
+        v->extraData[field-1].buffer.ptr = m->buffer.ptr+m->buffer.offset;
         PRINTF("read public key\n");;
         b = unmarshalerReadField(m, &field);
         CHECK_ERROR_CODE(b);
+        v->extraData[field-1].buffer.size += b;
         n += b;
+        PRINTF("read public key %d\n", b);;
 
         b = unmarshalerReadBytes(m,&v->PublicKey);
         CHECK_ERROR_CODE(b);
+        v->extraData[field-1].buffer.size += b;
+        PRINTF("read public key %d\n", b);;
+        PRINTF("PUBLIC KEY %.*H\n", v->PublicKey.buffer.size - v->PublicKey.buffer.offset, v->PublicKey.buffer.ptr+ v->PublicKey.buffer.offset);
+
+        buffer_t pubKey = v->PublicKey.buffer;
+        int keyLen = pubKey.size - pubKey.offset;
+
+        PRINTF("\nLeylen %d\n", keyLen);
+        PRINTF("PubKey TX: %.*H\n",keyLen, pubKey.ptr + pubKey.offset );
+
+
         n += b;
     }
     if ( m->buffer.offset == m->buffer.size ) {
@@ -121,13 +150,17 @@ int readSignatureTypeUnion(Unmarshaler *m, SignatureTypeUnion *v) {
     PRINTF("pre signer parse %d\n", field);
     if ( field == 3 )
     {
+        PRINTF("pre siigner field 3\n");
+        v->extraData[field-1].buffer.ptr = m->buffer.ptr+m->buffer.offset;
         PRINTF("read signature\n");
         b = unmarshalerReadField(m, &field);
         CHECK_ERROR_CODE(b);
+        v->extraData[field-1].buffer.size += b;
         n += b;
 
         b = unmarshalerReadBytes(m,&v->Signature);
         CHECK_ERROR_CODE(b);
+        v->extraData[field-1].buffer.size += b;
         n += b;
     }
     if ( m->buffer.offset == m->buffer.size ) {
@@ -138,13 +171,17 @@ int readSignatureTypeUnion(Unmarshaler *m, SignatureTypeUnion *v) {
     PRINTF("pre signer parse %d\n", field);
     if ( field == 4 )
     {
+        PRINTF("pre siigner field 4\n");
+        v->extraData[field-1].buffer.ptr = m->buffer.ptr+m->buffer.offset;
         PRINTF("read signerurl\n");
         b = unmarshalerReadField(m, &field);
         CHECK_ERROR_CODE(b);
+        v->extraData[field-1].buffer.size += b;
         n += b;
 
         b = unmarshalerReadUrl(m,&v->Signer);
         CHECK_ERROR_CODE(b);
+        v->extraData[field-1].buffer.size += b;
         n += b;
     }
     if ( m->buffer.offset == m->buffer.size ) {
@@ -155,13 +192,17 @@ int readSignatureTypeUnion(Unmarshaler *m, SignatureTypeUnion *v) {
     PRINTF("pre signer parse %d\n", field);
     if ( field == 5 )
     {
+        PRINTF("pre siigner field 5\n");
+        v->extraData[field-1].buffer.ptr = m->buffer.ptr+m->buffer.offset;
         PRINTF("read version\n");
         b = unmarshalerReadField(m, &field);
         CHECK_ERROR_CODE(b);
+        v->extraData[field-1].buffer.size += b;
         n += b;
 
         b = unmarshalerReadUVarInt(m,&v->SignerVersion);
         CHECK_ERROR_CODE(b);
+        v->extraData[field-1].buffer.size += b;
         n += b;
     }
     if ( m->buffer.offset == m->buffer.size ) {
@@ -172,14 +213,17 @@ int readSignatureTypeUnion(Unmarshaler *m, SignatureTypeUnion *v) {
     PRINTF("pre signer parse %d\n", field);
     if ( field == 6 )
     {
+        PRINTF("pre siigner field 6\n");
+        v->extraData[field-1].buffer.ptr = m->buffer.ptr+m->buffer.offset;
         PRINTF("read timestamp\n");
         b = unmarshalerReadField(m, &field);
         CHECK_ERROR_CODE(b);
+        v->extraData[field-1].buffer.size += b;
         n += b;
 
         b = unmarshalerReadUVarInt(m,&v->Timestamp);
         CHECK_ERROR_CODE(b);
-
+        v->extraData[field-1].buffer.size += b;
         n += b;
     }
     if ( m->buffer.offset == m->buffer.size ) {
@@ -190,14 +234,18 @@ int readSignatureTypeUnion(Unmarshaler *m, SignatureTypeUnion *v) {
     PRINTF("pre signer parse %d\n", field);
     if ( field == 7 )
     {
+        PRINTF("pre siigner field 7\n");
+        v->extraData[field-1].buffer.ptr = m->buffer.ptr+m->buffer.offset;
         PRINTF("read VoteType\n");
         b = unmarshalerReadField(m, &field);
         CHECK_ERROR_CODE(b);
+        v->extraData[field-1].buffer.size += b;
         n += b;
         {
             uint64_t size = 0;
             b = unmarshalerReadUInt(m,&size);
             CHECK_ERROR_CODE(b);
+            v->extraData[field-1].buffer.size += b;
             n += b;
 
             Unmarshaler m2 = {.buffer.ptr = m->buffer.ptr + m->buffer.offset, .buffer.size = size, .buffer.offset = 0,
@@ -206,6 +254,7 @@ int readSignatureTypeUnion(Unmarshaler *m, SignatureTypeUnion *v) {
             CHECK_ERROR_CODE(b);
         }
         buffer_seek_cur(&m->buffer, b);
+        v->extraData[field-1].buffer.size += b;
         n += b;
     }
     if ( m->buffer.offset == m->buffer.size ) {
@@ -216,19 +265,28 @@ int readSignatureTypeUnion(Unmarshaler *m, SignatureTypeUnion *v) {
     PRINTF("pre signer parse %d\n", field);
     if ( field == 8 )
     {
+        PRINTF("pre siigner field 8\n");
+        v->extraData[field-1].buffer.ptr = m->buffer.ptr+m->buffer.offset;
         PRINTF("read bytes32\n");
         b = unmarshalerReadField(m, &field);
         CHECK_ERROR_CODE(b);
         PRINTF("read field %d\n", field);
+        v->extraData[field-1].buffer.size += b;
         n += b;
 
         b = unmarshalerReadBytes32(m,&v->TransactionHash);
         PRINTF("read transaction hash %d",b);
         CHECK_ERROR_CODE(b);
         PRINTF("read transaction hash %d\n",b);
+        v->extraData[field-1].buffer.size += b;
         n += b;
     }
+    //do a comparison of keys, set the initiator key if not present
+    buffer_t pubKey = v->PublicKey.buffer;
+    int keyLen = pubKey.size - pubKey.offset;
 
+    PRINTF("\nLeylen %d\n", keyLen);
+    PRINTF("PubKey TX: %.*H\n",keyLen, pubKey.ptr + pubKey.offset );
         PRINTF("finsh signature union read %d\n",n);
     return n;
 }

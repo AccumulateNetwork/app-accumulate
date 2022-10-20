@@ -88,7 +88,7 @@ typedef struct {
     Signature signer;
     Transaction transaction;
     size_t raw_tx_len;                    /// length of raw transaction
-    uint8_t initiatorHash[32];            /// initiator hash
+    uint8_t initiatorHash[33];            /// initiator hash -> field (1 byte) + hash (32 bytes)
     uint8_t m_hash[32];                   /// transaction / message hash digest
     uint8_t signature[MAX_DER_SIG_LEN];   /// transaction signature encoded in DER
     uint8_t signature_len;                /// length of transaction signature

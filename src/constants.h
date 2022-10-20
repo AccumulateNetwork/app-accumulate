@@ -34,6 +34,8 @@
 #define ARENA_SIZE 512
 #endif
 
+#define INITIATOR_FIELD_INDEX 1
+
 #define MAX_TRANSACTION_LEN 512*MAX_DATA_ENTRY //10270 //510
 
 /**

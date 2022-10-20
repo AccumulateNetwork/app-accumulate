@@ -255,10 +255,7 @@ int unmarshalerPeekField(Unmarshaler *m, uint64_t *field) {
 }
 
 int unmarshalerReadField(Unmarshaler *m, uint64_t *field) {
-    uint8_t byte = 0;
-    int b = unmarshalerReadByte(m, &byte);
-    *field = (uint64_t)byte;
-    return b;
+    return unmarshalerReadUInt(m, field);
 }
 
 int unmarshalerReadVarInt(Unmarshaler *m, struct VarInt *v) {

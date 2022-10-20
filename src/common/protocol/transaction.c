@@ -1610,6 +1610,7 @@ ACME_API int unmarshalerReadTransactionHeader(Unmarshaler *m, TransactionHeader 
     }
     if ( field == 1 )
     {
+        v->extraData[field-1] = &v->Principal.data;
         b = unmarshalerReadField(m, &field);
         if ( IsError(ErrorCode(b))) {
             return b;
@@ -1634,6 +1635,7 @@ ACME_API int unmarshalerReadTransactionHeader(Unmarshaler *m, TransactionHeader 
     }
     if ( field == 2 )
     {
+        v->extraData[field-1] = &v->Initiator.data;
         b = unmarshalerReadField(m, &field);
         if ( IsError(ErrorCode(b))) {
             return b;
@@ -1672,6 +1674,7 @@ ACME_API int unmarshalerReadTransactionHeader(Unmarshaler *m, TransactionHeader 
         }
 
         n += b;
+        v->extraData[field-1] = &v->Memo.data;
     }
     if ( m->buffer.offset == m->buffer.size ) {
         return n;
@@ -1696,6 +1699,7 @@ ACME_API int unmarshalerReadTransactionHeader(Unmarshaler *m, TransactionHeader 
         }
 
         n += b;
+        v->extraData[field-1] = &v->Metadata;
     }
 
     return n;

@@ -74,7 +74,7 @@ typedef struct BTCLegacySignature {
 	UVarInt Timestamp;  //`json:"timestamp,omitempty" form:"timestamp" query:"timestamp"`
 	VoteType Vote;  //`json:"vote,omitempty" form:"vote" query:"vote"`
 	Bytes32 TransactionHash;  //`json:"transactionHash,omitempty" form:"transactionHash" query:"transactionHash"`
-	//Bytes extraData[8];
+	Bytes extraData[8];
 
 } BTCLegacySignature;
 #endif /* _WANT_BTCLegacySignature_ */
@@ -94,7 +94,7 @@ typedef struct BTCSignature {
 	UVarInt Timestamp;  //`json:"timestamp,omitempty" form:"timestamp" query:"timestamp"`
 	VoteType Vote;  //`json:"vote,omitempty" form:"vote" query:"vote"`
 	Bytes32 TransactionHash;  //`json:"transactionHash,omitempty" form:"transactionHash" query:"transactionHash"`
-	//Bytes extraData[8];
+	Bytes extraData[8];
 
 } BTCSignature;
 #endif /* _WANT_BTCSignature_ */
@@ -110,7 +110,7 @@ typedef struct DelegatedSignature {
 	Signature Signature;  //`json:"signature,omitempty" form:"signature" query:"signature" validate:"required"`
 	/// Delegator is the authority that delegated its authority to the signer.
 	Url Delegator;  //`json:"delegator,omitempty" form:"delegator" query:"delegator" validate:"required"`
-	//Bytes extraData[3];
+	Bytes extraData[3];
 
 } DelegatedSignature;
 #endif /* _WANT_DelegatedSignature_ */
@@ -130,7 +130,7 @@ typedef struct ED25519Signature {
 	UVarInt Timestamp;  //`json:"timestamp,omitempty" form:"timestamp" query:"timestamp"`
 	VoteType Vote;  //`json:"vote,omitempty" form:"vote" query:"vote"`
 	Bytes32 TransactionHash;  //`json:"transactionHash,omitempty" form:"transactionHash" query:"transactionHash"`
-	//Bytes extraData[8];
+	Bytes extraData[8];
 
 } ED25519Signature;
 #endif /* _WANT_ED25519Signature_ */
@@ -150,7 +150,7 @@ typedef struct ETHSignature {
 	UVarInt Timestamp;  //`json:"timestamp,omitempty" form:"timestamp" query:"timestamp"`
 	VoteType Vote;  //`json:"vote,omitempty" form:"vote" query:"vote"`
 	Bytes32 TransactionHash;  //`json:"transactionHash,omitempty" form:"transactionHash" query:"transactionHash"`
-	//Bytes extraData[8];
+	Bytes extraData[8];
 
 } ETHSignature;
 #endif /* _WANT_ETHSignature_ */
@@ -166,7 +166,7 @@ typedef struct InternalSignature {
 	/// Cause is the hash of the transaction that produced the signed transaction.
 	Bytes32 Cause;  //`json:"cause,omitempty" form:"cause" query:"cause" validate:"required"`
 	Bytes32 TransactionHash;  //`json:"transactionHash,omitempty" form:"transactionHash" query:"transactionHash" validate:"required"`
-	//Bytes extraData[3];
+	Bytes extraData[3];
 
 } InternalSignature;
 #endif /* _WANT_InternalSignature_ */
@@ -186,7 +186,7 @@ typedef struct LegacyED25519Signature {
 	UVarInt SignerVersion;  //`json:"signerVersion,omitempty" form:"signerVersion" query:"signerVersion" validate:"required"`
 	VoteType Vote;  //`json:"vote,omitempty" form:"vote" query:"vote"`
 	Bytes32 TransactionHash;  //`json:"transactionHash,omitempty" form:"transactionHash" query:"transactionHash"`
-	//Bytes extraData[8];
+	Bytes extraData[8];
 
 } LegacyED25519Signature;
 #endif /* _WANT_LegacyED25519Signature_ */
@@ -206,7 +206,7 @@ typedef struct PartitionSignature {
 	/// SequenceNumber is the sequence number of the transaction.
 	UVarInt SequenceNumber;  //`json:"sequenceNumber,omitempty" form:"sequenceNumber" query:"sequenceNumber" validate:"required"`
 	Bytes32 TransactionHash;  //`json:"transactionHash,omitempty" form:"transactionHash" query:"transactionHash"`
-	//Bytes extraData[5];
+	Bytes extraData[5];
 
 } PartitionSignature;
 #endif /* _WANT_PartitionSignature_ */
@@ -226,7 +226,7 @@ typedef struct RCD1Signature {
 	UVarInt Timestamp;  //`json:"timestamp,omitempty" form:"timestamp" query:"timestamp"`
 	VoteType Vote;  //`json:"vote,omitempty" form:"vote" query:"vote"`
 	Bytes32 TransactionHash;  //`json:"transactionHash,omitempty" form:"transactionHash" query:"transactionHash"`
-	//Bytes extraData[8];
+	Bytes extraData[8];
 
 } RCD1Signature;
 #endif /* _WANT_RCD1Signature_ */
@@ -243,7 +243,7 @@ typedef struct ReceiptSignature {
 	Url SourceNetwork;  //`json:"sourceNetwork,omitempty" form:"sourceNetwork" query:"sourceNetwork" validate:"required"`
 	Receipt Proof;  //`json:"proof,omitempty" form:"proof" query:"proof" validate:"required"`
 	Bytes32 TransactionHash;  //`json:"transactionHash,omitempty" form:"transactionHash" query:"transactionHash"`
-	//Bytes extraData[4];
+	Bytes extraData[4];
 
 } ReceiptSignature;
 #endif /* _WANT_ReceiptSignature_ */
@@ -258,7 +258,7 @@ typedef struct RemoteSignature {
 	//uint8_t fieldsSet[3];
 	Url Destination;  //`json:"destination,omitempty" form:"destination" query:"destination" validate:"required"`
 	Signature Signature;  //`json:"signature,omitempty" form:"signature" query:"signature" validate:"required"`
-	//Bytes extraData[3];
+	Bytes extraData[3];
 
 } RemoteSignature;
 #endif /* _WANT_RemoteSignature_ */
@@ -276,7 +276,7 @@ typedef struct SignatureSet {
 	Bytes32 TransactionHash;  //`json:"transactionHash,omitempty" form:"transactionHash" query:"transactionHash"`
     size_t Signatures_length;
 	Signature* Signatures;  //`json:"signatures,omitempty" form:"signatures" query:"signatures" validate:"required"`
-	//Bytes extraData[5];
+	Bytes extraData[5];
 
 } SignatureSet;
 #endif /* _WANT_SignatureSet_ */
