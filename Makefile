@@ -44,10 +44,10 @@ APPVERSION_N = 0
 APPVERSION_P = 2 
 APPVERSION   = "$(APPVERSION_M).$(APPVERSION_N).$(APPVERSION_P)"
 
-ifeq ($(TARGET_NAME),TARGET_NANOS)
-    ICONNAME=icons/nanos_app_accumulate.gif
-else
+ifeq ($(TARGET_NAME),TARGET_NANOX)
     ICONNAME=icons/nanox_app_accumulate.gif
+else
+    ICONNAME=icons/nanos_app_accumulate.gif
 endif
 
 ################

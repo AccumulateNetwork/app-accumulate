@@ -57,6 +57,7 @@ int transactionHash(Transaction *v, uint8_t hash[static 32]) {
     crypto_hash_init(&ctx);
     explicit_bzero(hash, 32);
     getHeaderHash(&v->Header, hash);
+    return ErrorInvalidHashParameters;
     crypto_hash_update(&ctx, hash, 32);
     explicit_bzero(hash, 32);
     getBodyHash(&v->Body, hash);

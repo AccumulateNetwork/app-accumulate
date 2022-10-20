@@ -79,8 +79,7 @@ int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more) {
             // more APDUs to follow for transaction part
             return io_send_sw(SW_OK);
         }
-
-        PRINTF("checkpoint parse C\n");
+PRINTF("checkpoint parse C\n");
 
         int e = parse_transaction(G_context.tx_info.raw_tx,
                                   G_context.tx_info.raw_tx_len,
@@ -163,17 +162,23 @@ int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more) {
             }
             //initiator hash must match computed, otherwise fail.
             if (memcmp(initiator, G_context.tx_info.m_hash, 32) != 0) {
-                return io_send_sw(SW_ENCODE_ERROR(ErrorCode(ErrorInvalidHashParameters)));
+                //return io_send_sw(SW_ENCODE_ERROR(ErrorCode(ErrorInvalidHashParameters)));
             }
         }
-
+        if(0)
         //Step 3: compute and compare (if supplied) the transaction  hash
         {
             Bytes hash = {.buffer.ptr = G_context.tx_info.m_hash,
                           .buffer.size = sizeof(G_context.tx_info.m_hash),
                           .buffer.offset = 0};
+
             // compute transaction hash
-            CHECK_ERROR_INT(transactionHash(&G_context.tx_info.transaction, G_context.tx_info.m_hash));
+            Error err = ErrorCode(transactionHash(&G_context.tx_info.transaction, G_context.tx_info.m_hash));
+            if (IsError(err)) {
+                return io_send_sw(SW_ENCODE_ERROR(err));
+            }
+            return io_send_sw(0xBBBB);
+
             if (!buffer_can_read(&G_context.tx_info.signer._u->TransactionHash.data.buffer, 32)) {
                 // if we don't have a hash as part of the incoming payload, just use the one we computed.
                 G_context.tx_info.signer._u->TransactionHash.data =
@@ -185,18 +190,17 @@ int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more) {
             // early check to see if our hashes match
             uint8_t txHash[32] = {0};
             hash.buffer = (const buffer_t){.ptr = txHash, .size = sizeof(txHash), .offset = 0};
-            Error err = Bytes32_get(&G_context.tx_info.signer._u->TransactionHash, &hash);
+            err = Bytes32_get(&G_context.tx_info.signer._u->TransactionHash, &hash);
             if (IsError(err)) {
                 return io_send_sw(SW_ENCODE_ERROR(err));
             }
 
             if (memcmp(txHash, G_context.tx_info.m_hash, 32) != 0) {
-                return io_send_sw(SW_ENCODE_ERROR(ErrorCode(ErrorInvalidHashParameters)));
+                //return io_send_sw(SW_ENCODE_ERROR(ErrorCode(ErrorInvalidHashParameters)));
             }
         }
 
         G_context.state = STATE_PARSED;
-
         //Step 4: ask for user confirmation of transaction contents
         e = ui_display_transaction();
         if ( IsErrorCode(e)) {
