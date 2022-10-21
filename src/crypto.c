@@ -70,8 +70,6 @@ int crypto_derive_private_key(cx_ecfp_private_key_t *private_key,
                 NULL,
                 NULL,
                 0);
-            PRINTF("completed os_perso\n");
-            PRINTF("raw_private_key %.*H\n", 32, raw_private_key);
             cx_ecfp_init_private_key(curve.key_gen_curve,
                                      raw_private_key,
                                      sizeof(raw_private_key),
@@ -170,7 +168,6 @@ int crypto_sign_message(void) {
             default:
                 THROW(ErrorInvalidEnum);
             }
-            PRINTF("Signature: %.*H\n", sig_len, G_context.tx_info.signature);
         }
         CATCH_OTHER(e) {
             THROW(e);
