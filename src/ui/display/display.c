@@ -41,6 +41,7 @@
 
 action_validate_cb g_validate_callback;
 char g_welcome[32];
+int g_HaveMemoField;
 
 // Step with approve button
 UX_STEP_CB(ux_display_approve_step,
@@ -113,13 +114,20 @@ int ui_display_transaction(void) {
         return io_send_sw(SW_BAD_STATE);
     }
 
+    g_HaveMemoField = 0;
+
     explicit_bzero(&global, sizeof(global));
     global.current_state = STATIC_SCREEN;
+    if ( G_context.tx_info.transaction.Header.Memo.data.buffer.ptr &&
+            ( G_context.tx_info.transaction.Header.Memo.data.buffer.size -
+                G_context.tx_info.transaction.Header.Memo.data.buffer.offset )) {
+        g_HaveMemoField = 1;
+    }
     switch ((int)G_context.tx_info.transaction.Body._u->Type) {
         case TransactionTypeAddCredits: {
             PRINTF("AddCredits tx\n");
 
-            global.max = 3;
+            global.max = 3+ g_HaveMemoField;
             //do a dry run to check for errors
             for ( int i = 0; i < global.max; ++i) {
                 int e = ui_dynamic_display_add_credits(i);
@@ -142,7 +150,7 @@ int ui_display_transaction(void) {
                 return SW_DISPLAY_AMOUNT_FAIL;
             }
 
-            global.max = 1;
+            global.max = 1 + g_HaveMemoField;
             global.max += 2*s->To_length;
 
             //do a dry run to check for errors

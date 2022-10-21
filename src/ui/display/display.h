@@ -31,3 +31,4 @@ int ui_display_transaction(void);
 extern const ux_flow_step_t* const ux_dynamic_display_flow[];
 extern action_validate_cb g_validate_callback;
 extern char g_welcome[32];
+extern int g_HaveMemoField;

@@ -7,6 +7,8 @@ int ui_dynamic_display_send_tokens(int index) {
     if ( index == 0 ) {
         //display principal
         return display_transaction_principal();
+    } if ( index == global.max - 1 && g_HaveMemoField ) {
+        return display_memo_or_error();
     } else {
         //loop through transactions and display those.
         const int offset = 1;

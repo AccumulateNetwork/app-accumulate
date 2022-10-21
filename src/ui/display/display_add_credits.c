@@ -14,8 +14,7 @@ int ui_dynamic_display_add_credits(int index) {
                 snprintf(global.text, sizeof(global.text),"code %d", e.code);
                 return e.code;
             }
-        }
-        break;
+        } break;
         case 2: {
             uint256_t i;
             snprintf(global.title,sizeof(global.title), "Credits");
@@ -32,15 +31,9 @@ int ui_dynamic_display_add_credits(int index) {
             if ( !adjustDecimals(amountString,strlen(amountString),global.text,sizeof(global.text), CREDITS_PRECISION) ) {
                 return ErrorInvalidString;
             }
-        }
-        break;
-        default: {
-            snprintf(global.title, sizeof(global.title), "Invalid");
-            snprintf(global.text, sizeof(global.text), "Display State");
-            return ErrorInvalidField;
-        }
+        } break;
+        default:
+            return display_memo_or_error();
     }
-    return 0;
+    return ErrorNone;
 }
-
-
