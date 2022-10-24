@@ -62,8 +62,7 @@ static void test_encoding_apdu(void **state) {
 
     Signature signer;
     Transaction transaction;
-    uint8_t hash[32] = {0};
-    int e = parse_transaction(raw_tx, raw_tx_len, &signer, &transaction, &arena,hash, sizeof(hash));
+    int e = parse_transaction(raw_tx, raw_tx_len, &signer, &transaction, &arena);
     assert_false(IsError(ErrorCode(e)));
 }
 
