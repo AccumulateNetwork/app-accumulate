@@ -739,96 +739,7 @@ ACME_API int unmarshalerReadSendTokens(Unmarshaler *m, SendTokens *v) {
     int b = 0;
     uint64_t field = 0;
     v->Type = TransactionTypeSendTokens;
-#if 0
-    while ( b != m->buffer.size - m->buffer.offset ) {
-        if ( m->buffer.offset == m->buffer.size ) {
-            return n;
-        }
-        b = unmarshalerPeekField(m,&field);
-        if ( IsError(ErrorCode(b))) {
-            return b;
-        }
-        switch ( field ) {
-            case 1: {
-                if ( !buffer_seek_cur(&m->buffer,1) ) {
-                    return ErrorBufferTooSmall;
-                }
-                n += 1;
 
-                uint64_t type = 0;
-                b = uvarint_read(m->buffer.ptr+m->buffer.offset, m->buffer.size - m->buffer.offset, &type);
-                if ( !buffer_seek_cur(&m->buffer,b) ) {
-                    return ErrorBufferTooSmall;
-                }
-                if ( type != v->Type ) {
-                    return ErrorInvalidObject;
-                }
-                n += b;
-
-                break;
-            }
-            case 2: {
-                if ( !buffer_seek_cur(&m->buffer,1) ) {
-                    return ErrorBufferTooSmall;
-                }
-                n += 1;
-
-                if ( !buffer_seek_cur(&m->buffer,32) ) {
-                    return ErrorBufferTooSmall;
-                }
-                n += 32;
-                break;
-            }
-            case 3: {
-                if ( !buffer_seek_cur(&m->buffer,1) ) {
-                    return ErrorBufferTooSmall;
-                }
-                n += 1;
-                uint64_t size = 0;
-                b = uvarint_read(m->buffer.ptr+m->buffer.offset, m->buffer.size - m->buffer.offset, &size);
-                if ( !buffer_seek_cur(&m->buffer,b) ) {
-                    return ErrorBufferTooSmall;
-                }
-                n += b;
-
-                if ( !buffer_seek_cur(&m->buffer,size) ) {
-                    return ErrorBufferTooSmall;
-                }
-                n += b;
-
-                break;
-            }
-            case 4: {
-                //Unmarshaler m2 = NewUnmarshaler(&m->buffer,m->mempool);
-                while ( field == 4 ) {
-                    b = unmarshalerReadField(m, &field);
-                    if ( IsError(ErrorCode(b))) {
-                        return b;
-                    }
-                    n += 1;
-
-                    uint64_t size = 0;
-                    b = uvarint_read(m->buffer.ptr+m->buffer.offset, m->buffer.size - m->buffer.offset, &size);
-                    if ( !buffer_seek_cur(&m->buffer,b) ) {
-                        return ErrorBufferTooSmall;
-                    }
-                    n += b;
-
-                    //skip the object
-                    buffer_seek_cur(&m->buffer, size);
-                    n += size;
-                    field = 0;
-                    unmarshalerPeekField(m, &field);
-                }
-                return n;
-                //break;
-            }
-            default:
-                return n;
-        }
-    }
-#endif
-#if 1
     if ( m->buffer.offset == m->buffer.size ) {
         return n;
     }
@@ -975,7 +886,6 @@ ACME_API int unmarshalerReadSendTokens(Unmarshaler *m, SendTokens *v) {
         }
 
     }
-#endif
     return n;
 }
 
