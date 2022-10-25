@@ -59,8 +59,8 @@ static void test_hasher(void **state) {
     assert_string_equal(mdroot, expectedHashHex);
 }
 void getTestTransaction(Signature *signer, Transaction *transaction, buffer_t *arena) {
-    char *apdu_payload = "008b01020220e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11043b6163633a2f2f6336613632396639613635626632313135396335646662666662633836386563336165363163653436353131303865632f41434d450501069ca3e4b4ba3008c4dcfc1b86ccdd0cd7937fcb2619a2735b59f8119a43cd7d396690b5c017bf0400b6016b013b6163633a2f2f6336613632396639613635626632313135396335646662666662633836386563336165363163653436353131303865632f41434d45022aa4dd0e234834061b2ec1402b95e7888af941f6d47d3a5d82e15789c47c82c9030b6c65646765722074657374024701030443013b6163633a2f2f6639666562393361313063616632646466313633396336666634353934666262313939633964653963643130636134372f41434d4502043b9aca002036fbe60414509eb11b04b900d8d69191e456fac7b33a74842af7272968c308e5";
-
+    //char *apdu_payload = "008b01020220e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11043b6163633a2f2f6336613632396639613635626632313135396335646662666662633836386563336165363163653436353131303865632f41434d450501069ca3e4b4ba3008c4dcfc1b86ccdd0cd7937fcb2619a2735b59f8119a43cd7d396690b5c017bf0400b6016b013b6163633a2f2f6336613632396639613635626632313135396335646662666662633836386563336165363163653436353131303865632f41434d45022aa4dd0e234834061b2ec1402b95e7888af941f6d47d3a5d82e15789c47c82c9030b6c65646765722074657374024701030443013b6163633a2f2f6639666562393361313063616632646466313633396336666634353934666262313939633964653963643130636134372f41434d4502043b9aca002036fbe60414509eb11b04b900d8d69191e456fac7b33a74842af7272968c308e5";
+    char *apdu_payload = "0086010202208bb4df5d3604b431f46060ca34f358822be7264df2dbf3c4a5481b0a5fb83ce204366163633a2f2f323235393161323066396666386339386238336338323838653134613131363961663931343337323563343439653630050106f8d6acfac0300886f5e81ad8526894115bb306ff3e06a1c85475a1ddcb4a0558bc3a3848f2afc300a5015e013b6163633a2f2f3232353931613230663966663863393862383363383238386531346131313639616639313433373235633434396536302f41434d4502c90d59ed45e8d0c25f0cd751f7cf66e7a89b2b886b586d2e3fbfde5d6a87e6280243010e02366163633a2f2f323235393161323066396666386339386238336338323838653134613131363961663931343337323563343439653630030203e80480e1eb17";
     uint8_t *raw_tx = arena->ptr + arena->offset;
     hextobin(apdu_payload, strlen(apdu_payload), raw_tx,
              arena->size - arena->offset);
@@ -72,7 +72,6 @@ void getTestTransaction(Signature *signer, Transaction *transaction, buffer_t *a
     uint8_t hash[32] = {0};
     int e = parse_transaction(raw_tx, raw_tx_len, signer, transaction, arena);
     assert_false(IsError(ErrorCode(e)));
-
 }
 
 static void test_initiator(void **state) {
@@ -139,12 +138,34 @@ void test_transaction_hash(void **state) {
     int e = transactionHash(&transaction, hash);
     assert_false(IsErrorCode(e));
     assert_false(memcmp(hash, signer._u->TransactionHash.data.buffer.ptr+signer._u->TransactionHash.data.buffer.offset,32));
+
+}
+
+void test_metadata_signing_hash(void **state) {
+    (void) **state;
+    (void) **state;
+    uint8_t memory[1024] = {0};
+    buffer_t arena = {.ptr = memory, .size = sizeof(memory), 0};
+
+    Signature signer;
+    Transaction transaction;
+    getTestTransaction(&signer, &transaction, &arena);
+
+    uint8_t txHash[32] = {0};
+    int e = transactionHash(&transaction, txHash);
+    assert_false(IsErrorCode(e));
+    uint8_t hash[32] = {0};
+    e = metadataHash(&signer, txHash, hash);
+    assert_false(IsErrorCode(e));
+    assert_false(memcmp(hash, signer._u->TransactionHash.data.buffer.ptr+signer._u->TransactionHash.data.buffer.offset,32));
 }
 
 int main() {
-    const struct CMUnitTest tests[] = {cmocka_unit_test(test_hasher),
-                                        cmocka_unit_test(test_initiator),
-                                       cmocka_unit_test(test_transaction_hash)};
+    const struct CMUnitTest tests[] = {
+            cmocka_unit_test(test_hasher),
+            cmocka_unit_test(test_initiator),
+            cmocka_unit_test(test_transaction_hash),
+            cmocka_unit_test(test_metadata_signing_hash)};
 
     return cmocka_run_group_tests(tests, NULL, NULL);
 }

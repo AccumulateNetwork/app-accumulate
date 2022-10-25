@@ -1,5 +1,6 @@
 #include "utils.h"
 #include "common/hasher.h"
+#include "common/protocol/unions.h"
 
 int initiatorHash(Signature *s, uint8_t initiator[static 32]) {
     CHECK_ERROR_INT(s)
@@ -25,6 +26,51 @@ int initiatorHash(Signature *s, uint8_t initiator[static 32]) {
     CHECK_ERROR_CODE(hasherAddUVarInt(&hasher, &s->_u->Timestamp));
 
     CHECK_ERROR_CODE(MerkleDAGRoot(&hasher, initiator).code);
+    return ErrorNone;
+}
+
+bool isMetadataField(int field) {
+    switch (field) {
+        case SigTypeMarshalFieldType:
+        case SigTypeMarshalFieldPublicKey:
+        case SigTypeMarshalFieldSigner:
+        case SigTypeMarshalFieldTimestamp:
+        case SigTypeMarshalFieldSignerVersion:
+        case SigTypeMarshalFieldVote:
+            return true;
+        default:
+            return false;
+    }
+    return false;
+}
+
+int metadataHash(Signature *s, uint8_t txHash[static 32], uint8_t hash[static 32]) {
+    CHECK_ERROR_INT(s)
+    CHECK_ERROR_INT(s->_u)
+    if (s->_u->PublicKey.buffer.size == 0 || s->_u->PublicKey.buffer.ptr == 0 ) {
+        return ErrorInvalidObject;
+    }
+    int byteArrayLen = 0;
+    Bytes *byteArray;
+    byteArray = s->_u->extraData;
+    byteArrayLen = (int)sizeof(s->_u->extraData)/sizeof(Bytes);
+
+    //hash marshaled fields PublicKey, Signer, SignerVersion, Timestamp
+    HashContext ctx;
+    crypto_hash_init(&ctx);
+    for (int i = 0; i < byteArrayLen; i++) {
+        if ( byteArray[i].buffer.ptr && isMetadataField(i+1)) {
+            buffer_t *buff = &byteArray[i].buffer;
+            crypto_hash_update(&ctx,buff->ptr+buff->offset, buff->size-buff->offset);
+        }
+    }
+    crypto_hash_final(&ctx, hash, 32);
+
+    //combine hashes for metadata signing hash
+    crypto_hash_init(&ctx);
+    crypto_hash_update(&ctx, hash, 32);
+    crypto_hash_update(&ctx, txHash, 32);
+    crypto_hash_final(&ctx, hash, 32);
     return ErrorNone;
 }
 

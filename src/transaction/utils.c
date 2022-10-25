@@ -27,7 +27,7 @@
 #define PRINTF
 #endif
 
-#include "globals.h"
+//#include "globals.h"
 
 int parse_transaction(uint8_t *raw_tx, uint16_t raw_tx_len, Signature *signer, Transaction *transaction, buffer_t *arena) {
     PRINTF("checkpoint parse A\n");

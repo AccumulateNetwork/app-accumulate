@@ -166,7 +166,7 @@ PRINTF("checkpoint parse C\n");
             }
         }
 
-        //Step 3: compute and compare (if supplied) the transaction  hash
+        //Step 3: compute and compare (if supplied) the transaction  hash, then compute the signing hash
         {
             Bytes hash = {.buffer.ptr = G_context.tx_info.m_hash,
                           .buffer.size = sizeof(G_context.tx_info.m_hash),
@@ -194,9 +194,17 @@ PRINTF("checkpoint parse C\n");
                 return io_send_sw(SW_ENCODE_ERROR(err));
             }
 
+            //sanity check on the txHash
             if (memcmp(txHash, G_context.tx_info.m_hash, 32) != 0) {
                 return io_send_sw(SW_ENCODE_ERROR(ErrorCode(ErrorInvalidHashParameters)));
             }
+
+            //set the context signing hash.
+            e = metadataHash(&G_context.tx_info.signer,txHash, G_context.tx_info.m_hash);
+            if ( IsError(ErrorCode(e))) {
+                return io_send_sw(SW_ENCODE_ERROR(ErrorCode(e)));
+            }
+
         }
 
         G_context.state = STATE_PARSED;

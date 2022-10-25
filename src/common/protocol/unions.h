@@ -31,6 +31,18 @@ typedef struct {
         Bytes extraData[8];
 } SignatureTypeUnion;
 
+typedef enum {
+    SigTypeMarshalFieldType = 1,
+    SigTypeMarshalFieldPublicKey = 2,
+    SigTypeMarshalFieldSignature = 3,
+    SigTypeMarshalFieldSigner = 4,
+    SigTypeMarshalFieldSignerVersion = 5,
+    SigTypeMarshalFieldTimestamp = 6,
+    SigTypeMarshalFieldVote = 7,
+    SigTypeMarshalFieldTransactionHash = 8,
+    SigTypeMarshalFieldMax = SigTypeMarshalFieldTransactionHash,
+} SigTypeMarshalFields;
+
 typedef union {
         SignatureTypeUnion *_u;
         struct BTCSignature *_BTCSignature;

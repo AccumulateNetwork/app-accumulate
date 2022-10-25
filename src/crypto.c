@@ -23,12 +23,6 @@
 #include "memory.h"
 #include "globals.h"
 
-typedef struct  {
-    unsigned int mode;
-    cx_curve_t derivation_curve;
-    cx_curve_t key_gen_curve;
-} derivation_t;
-
 derivation_t inferCurve(const uint32_t *bip32_path, uint8_t bip32_path_len) {
     if ( bip32_path_len < 3 ) {
         THROW(ErrorBufferTooSmall);

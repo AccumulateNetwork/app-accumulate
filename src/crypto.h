@@ -61,3 +61,12 @@ int crypto_sign_message(void);
 
 void crypto_ripemd160(const uint8_t *in, uint16_t inlen, uint8_t out[static 20]);
 void crypto_hash160(const uint8_t *in, uint16_t inlen, uint8_t out[static 20]);
+
+typedef struct  {
+    unsigned int mode;
+    cx_curve_t derivation_curve;
+    cx_curve_t key_gen_curve;
+} derivation_t;
+
+derivation_t inferCurve(const uint32_t *bip32_path, uint8_t bip32_path_len);
+
