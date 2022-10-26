@@ -200,7 +200,7 @@ PRINTF("checkpoint parse C\n");
             }
 
             //set the context signing hash.
-            e = metadataHash(&G_context.tx_info.signer,txHash, G_context.tx_info.m_hash);
+            e = metadataHash(&G_context.tx_info.signer,txHash, G_context.tx_info.m_hash, G_context.tx_info.metadataHash);
             if ( IsError(ErrorCode(e))) {
                 return io_send_sw(SW_ENCODE_ERROR(ErrorCode(e)));
             }

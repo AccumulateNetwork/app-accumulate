@@ -42,13 +42,15 @@ int helper_send_response_pubkey() {
 }
 
 int helper_send_response_sig(void) {
-    uint8_t resp[1 + MAX_DER_SIG_LEN + 1 + 1] = {0};
+    uint8_t resp[1 + MAX_DER_SIG_LEN + 1 + 1 + 32] = {0};
     size_t offset = 0;
 
     resp[offset++] = G_context.tx_info.signature_len;
     memmove(resp + offset, G_context.tx_info.signature, G_context.tx_info.signature_len);
     offset += G_context.tx_info.signature_len;
     resp[offset++] = (uint8_t) G_context.tx_info.v;
+    memmove( resp + offset, G_context.tx_info.metadataHash, 32);
+    offset += 32;
 
     return io_send_response(&(const buffer_t){.ptr = resp, .size = offset, .offset = 0}, SW_OK);
 }

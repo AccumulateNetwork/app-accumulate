@@ -29,7 +29,7 @@ int initiatorHash(Signature *s, uint8_t initiator[static 32]) {
     return ErrorNone;
 }
 
-bool isMetadataField(int field) {
+bool isMetadataField(int field, SignatureType type) {
     switch (field) {
         case SigTypeMarshalFieldType:
         case SigTypeMarshalFieldPublicKey:
@@ -38,13 +38,18 @@ bool isMetadataField(int field) {
         case SigTypeMarshalFieldSignerVersion:
         case SigTypeMarshalFieldVote:
             return true;
+        case SigTypeMarshalFieldTransactionHash:
+            if ( type == SignatureTypeBTC || type == SignatureTypeBTCLegacy || type == SignatureTypeETH ) {
+                return true;
+            }
+            return false;
         default:
             return false;
     }
     return false;
 }
 
-int metadataHash(Signature *s, uint8_t txHash[static 32], uint8_t hash[static 32]) {
+int metadataHash(Signature *s, uint8_t txHash[static 32], uint8_t hash[static 32], uint8_t metadataHash[static 32]) {
     CHECK_ERROR_INT(s)
     CHECK_ERROR_INT(s->_u)
     if (s->_u->PublicKey.buffer.size == 0 || s->_u->PublicKey.buffer.ptr == 0 ) {
@@ -59,7 +64,7 @@ int metadataHash(Signature *s, uint8_t txHash[static 32], uint8_t hash[static 32
     HashContext ctx;
     crypto_hash_init(&ctx);
     for (int i = 0; i < byteArrayLen; i++) {
-        if ( byteArray[i].buffer.ptr && isMetadataField(i+1)) {
+        if ( byteArray[i].buffer.ptr && isMetadataField(i+1, s->_u->Type) ) {
             buffer_t *buff = &byteArray[i].buffer;
             crypto_hash_update(&ctx,buff->ptr+buff->offset, buff->size-buff->offset);
         }
@@ -69,6 +74,7 @@ int metadataHash(Signature *s, uint8_t txHash[static 32], uint8_t hash[static 32
     //combine hashes for metadata signing hash
     crypto_hash_init(&ctx);
     crypto_hash_update(&ctx, hash, 32);
+    memmove(metadataHash, hash, 32);
     crypto_hash_update(&ctx, txHash, 32);
     crypto_hash_final(&ctx, hash, 32);
     return ErrorNone;
