@@ -5,6 +5,7 @@
 
 #include "os.h"
 #include "cx.h"
+#include <common/error.h>
 
 /**
  * Derive private key given BIP32 path.

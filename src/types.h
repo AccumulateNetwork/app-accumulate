@@ -5,10 +5,10 @@
 
 #include "constants.h"
 #include "transaction/types.h"
-#include "common/bip32.h"
-#include "common/protocol/transaction.h"
-#include "common/protocol/signatures.h"
-#include "common/protocol/unions.h"
+#include <common/bip32.h>
+#include <protocol/transaction.h>
+#include <protocol/signatures.h>
+#include <protocol/unions.h>
 
 /**
  * Enumeration for the status of IO.

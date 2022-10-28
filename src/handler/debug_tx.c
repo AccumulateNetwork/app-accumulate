@@ -23,11 +23,11 @@
 #include "io.h"
 #include "sw.h"
 #include "types.h"
-#include "common/buffer.h"
+#include <common/buffer.h>
 #include "ui/display/display.h"
 #include "ux.h"
 #include "os.h"
-#include "common/protocol/signatures.h"
+#include <protocol/signatures.h>
 #include "ui/dynamic_display.h"
 
 

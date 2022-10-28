@@ -19,10 +19,10 @@
 #include <stdbool.h>  // bool
 #include <string.h>   // memmove
 
-#include "buffer.h"
-#include "read.h"
-#include "varint.h"
-#include "bip32.h"
+#include <common/buffer.h>
+#include <common/read.h>
+#include <common/varint.h>
+#include <common/bip32.h>
 
 bool buffer_can_read(const buffer_t *buffer, size_t n) {
     return buffer->size - buffer->offset >= n;

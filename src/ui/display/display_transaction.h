@@ -1,8 +1,8 @@
 #pragma once
 
-#include "common/error.h"
 #include "ux.h"
-#include "string.h"
+#include <common/error.h>
+#include <encoding/string.h>
 #include "types.h"
 #include "ui/dynamic_display.h"
 #include "globals.h"

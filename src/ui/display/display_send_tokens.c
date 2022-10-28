@@ -1,6 +1,6 @@
 
 #include "display_transaction.h"
-#include "common/protocol/transaction.h"
+#include <protocol/transaction.h>
 
 int ui_dynamic_display_send_tokens(int index) {
     PRINTF("Dynamic Display %d\n", index);

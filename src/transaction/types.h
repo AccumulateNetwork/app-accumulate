@@ -1,8 +1,9 @@
 #pragma once
 
+#include <string.h>  // memmove / strlen
 #include <stddef.h>  // size_t
 #include <stdint.h>  // uint*_t
-#include <common/encoding/encoding.h>
+#include <encoding/encoding.h>
 #define MAX_TX_LEN   510
 #define ADDRESS_LEN  20
 #define CHECKSUM_LEN 4

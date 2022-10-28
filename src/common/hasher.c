@@ -1,6 +1,6 @@
-#include "common/sha256.h"
-#include "common/hasher.h"
-#include <common/encoding/encoding.h>
+#include <common/sha256.h>
+#include <common/hasher.h>
+#include <encoding/encoding.h>
 
 //16*32 <- 512
 void MerkleStateInit(MerkleState *m) {

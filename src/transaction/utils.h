@@ -4,8 +4,8 @@
 #include <stdbool.h>  // bool
 
 #include "types.h"
-#include <common/protocol/signatures.h>
-#include <common/protocol/transaction.h>
+#include <protocol/signatures.h>
+#include <protocol/transaction.h>
 
 int readSignature(Unmarshaler *m, Signature *v);
 int readSignatureTypeUnion(Unmarshaler *m, SignatureTypeUnion *v);
