@@ -49,7 +49,7 @@ Error ErrorCode(int e) {
         case ErrorVarIntWrite:
             return (const Error){ErrorVarIntWrite, "varint write failed"};
         case ErrorResizeRequred:
-            return (const Error){ErrorResizeRequred, "resize required"};
+            return (const Error){ErrorResizeRequired, "resize required"};
         case ErrorInvalidBigInt:
             return (const Error){ErrorInvalidBigInt, "invalid big int"};
         case ErrorInvalidString:

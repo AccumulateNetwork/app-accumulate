@@ -10,76 +10,17 @@ set(DEBUG_SUPPORT_SRC
         common/internal/testing/sha3.h
         )
 
-set(COMMON_SRC
-        common/sha256.c
-        common/sha256.h
-        common/keccak.c
-        common/keccak.h
-        common/base58.c
-        common/base58.h
-        common/bip32.c
-        common/bip32.h
-        common/buffer.c
-        common/buffer.h
-        common/error.c
-        common/error.h
-        common/error.h
-        common/format.c
-        common/format.h
-        common/read.c
-        common/read.h
-        common/uint256.c
-        common/uint256.h
-        common/varint.c
-        common/varint.h
-        common/write.c
-        common/write.h
-        )
-
-set(ENCODER_SRC
-        common/encoding/uvarint.c
-        common/encoding/uvarint.h
-        common/encoding/varint.c
-        common/encoding/varint.h
-        common/encoding/marshaler.h
-        common/encoding/marshaler.c
-        common/encoding/bytes32.c
-        common/encoding/bytes32.h
-        common/encoding/bytes.c
-        common/encoding/bytes.h
-        common/encoding/bigint.c
-        common/encoding/bigint.h
-        common/encoding/bytes64.c
-        common/encoding/bytes64.h
-        common/encoding/encoding.h
-        common/encoding/string.c
-        common/encoding/string.h
-        common/encoding/url.c
-        common/encoding/url.h
-        )
-
-set(MAIN_SRC
-        address.c
-        address.h
-        crypto.c
-        crypto.h
-        io.c
-        io.h
-        main.c
-        constants.h
-        globals.h
-        offsets.h
-        sw.h
-        types.h
-        )
+file(GLOB_RECURSE ACC_SOURCE *.c *.h)
+file(GLOB_RECURSE ACC_HEADER ../include/*.h)
+list(REMOVE_ITEM ACC_SOURCE common/internal/*)
 
 add_library(accsup
-        ${ENCODER_SRC}
-        ${COMMON_SRC}
+        ${ACC_SOURCE}
+        ${ACC_HEADER}
         ${DEBUG_SUPPORT_SRC}
         )
 
-add_executable(accumulate 
+add_executable(accumulate
         ${MAIN_SRC}
         ${ENCODER_SRC}
         ${COMMON_SRC}

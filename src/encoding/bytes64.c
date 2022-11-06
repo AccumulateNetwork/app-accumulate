@@ -61,7 +61,7 @@ Bytes64 Bytes64_new(buffer_t *b, size_t n) {
 
     if (b) {
         int sizeNeeded = (int)(64*n);
-        if ( b->size - b->offset < sizeNeeded ) {
+        if ( (int)b->size - (int)b->offset < sizeNeeded ) {
             return init;
         }
         init.data.buffer.ptr = b->ptr;
@@ -73,6 +73,6 @@ Bytes64 Bytes64_new(buffer_t *b, size_t n) {
 }
 
 Bytes64 Bytes64_init(Bytes64_t *v) {
-    buffer_t buffer = { v, 64, 0};
+    buffer_t buffer = { v->x, 64, 0};
     return Bytes64_new(&buffer, 1);
 }

@@ -1,5 +1,6 @@
 
 #include <common/error.h>
+#include <common/varint.h>
 #include <encoding/uvarint.h>
 #include <encoding/encoding.h>
 
@@ -40,7 +41,7 @@ Error UVarInt_get(const UVarInt *v, uint64_t *n) {
         return ErrorCode(ErrorParameterNil);
     }
 
-    if ( !uvarint_read(v->data.buffer.ptr + v->data.buffer.offset, v->data.buffer.size - v->data.buffer.offset, n) ) {
+    if ( uvarint_read(v->data.buffer.ptr + v->data.buffer.offset, v->data.buffer.size - v->data.buffer.offset, n) < 0) {
         return ErrorCode(ErrorUVarIntRead);
     }
     return ErrorCode(ErrorNone);
@@ -50,7 +51,8 @@ int UVarInt_binarySize(const UVarInt *v) {
     CHECK_ERROR_INT(v)
 
     uint64_t val = 0;
-    if ( !uvarint_read((uint8_t*)v->data.buffer.ptr+v->data.buffer.offset, v->data.buffer.size - v->data.buffer.offset, &val) ) {
+
+    if ( uvarint_read((uint8_t*)v->data.buffer.ptr+v->data.buffer.offset, v->data.buffer.size - v->data.buffer.offset, &val) < 0) {
         return ErrorUVarIntRead;
     }
 

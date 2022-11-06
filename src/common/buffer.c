@@ -204,5 +204,5 @@ int hextobin(const char *hexStr, int hexLen, uint8_t *output, int outputLen) {
         output[outIdx] =
                 (h0 % 32 + 9) % 25 * 16 + (h1 % 32 + 9) % 25;
     }
-    return finalLen;
+    return (int)finalLen;
 }

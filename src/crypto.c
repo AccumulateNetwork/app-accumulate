@@ -20,7 +20,6 @@
 #include <stdbool.h>  // bool
 #include "common/error.h"
 #include "crypto.h"
-#include "memory.h"
 #include "globals.h"
 
 derivation_t inferCurve(const uint32_t *bip32_path, uint8_t bip32_path_len) {
@@ -60,12 +59,12 @@ int crypto_derive_private_key(cx_ecfp_private_key_t *private_key,
                 curve.derivation_curve,
                 bip32_path,
                 bip32_path_len,
-                raw_private_key,
+                (uint8_t*)raw_private_key,
                 NULL,
                 NULL,
                 0);
             cx_ecfp_init_private_key(curve.key_gen_curve,
-                                     raw_private_key,
+                                     (uint8_t*)raw_private_key,
                                      sizeof(raw_private_key),
                                      private_key);
         }
@@ -73,7 +72,7 @@ int crypto_derive_private_key(cx_ecfp_private_key_t *private_key,
             THROW(e);
         }
         FINALLY {
-            explicit_bzero(&raw_private_key, sizeof(raw_private_key));
+            explicit_bzero((void*)&raw_private_key, sizeof(raw_private_key));
         }
     }
     END_TRY;
@@ -183,10 +182,10 @@ int crypto_sign_message(void) {
 }
 
 #ifndef _NR_cx_hash_ripemd160
+cx_err_t cx_ripemd160_update(cx_ripemd160_t *ctx, const uint8_t *data, size_t len);
+cx_err_t cx_ripemd160_final(cx_ripemd160_t *ctx, uint8_t *digest);
 /** Missing in some SDKs, we implement it using the cxram section if needed. */
 size_t cx_hash_ripemd160(const uint8_t *in, size_t in_len, uint8_t *out, size_t out_len) {
-    //PRINT_STACK_POINTER();
-
     if (out_len < CX_RIPEMD160_SIZE) {
         return 0;
     }

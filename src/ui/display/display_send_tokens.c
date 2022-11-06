@@ -23,10 +23,6 @@ int ui_dynamic_display_send_tokens(int index) {
                 return e.code;
             }
             snprintf(global.title,sizeof(global.title), "Output %d URL", localIndex+1);
-            SendTokens *s = G_context.tx_info.transaction.Body._SendTokens;
-            PRINTF("URL : %.*s" , s->To[localIndex].Url.data.buffer.size - s->To[localIndex].Url.data.buffer.offset,
-                   s->To[localIndex].Url.data.buffer.ptr+s->To[localIndex].Url.data.buffer.offset);
-
         } else {
             //display the destination amount
             int localIndex = (index-offset-1)/2;

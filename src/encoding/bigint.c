@@ -39,11 +39,11 @@ Error BigInt_set(struct BigInt *s, const uint256_t *v) {
     if ( n < 0 ) {
         return ErrorCode(ErrorInvalidBigInt);
     }
-    if ( s->data.buffer.size-s->data.buffer.offset < n ) {
+    if ( (int)s->data.buffer.size-(int)s->data.buffer.offset < n ) {
         return ErrorCode(ErrorBufferTooSmall);
     }
 
-    int offset = sizeof(buffer) - n;
+    size_t offset = sizeof(buffer) - n;
     memmove(s->data.buffer.ptr+s->data.buffer.offset + offset, buffer, n);
     return ErrorCode(ErrorNone);
 }

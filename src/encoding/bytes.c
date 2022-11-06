@@ -6,7 +6,7 @@ int Bytes_binarySizeStatic(const struct Bytes *self) {
     if (!self) {
         return 0;
     }
-    return self->buffer.size - self->buffer.offset;
+    return (int)self->buffer.size - (int)self->buffer.offset;
 }
 
 int Bytes_binarySizeDynamic(const struct Bytes *self) {
@@ -14,7 +14,7 @@ int Bytes_binarySizeDynamic(const struct Bytes *self) {
         return 0;
     }
     int n = varint_size(self->buffer.size);
-    return n + self->buffer.size - self->buffer.offset;
+    return n + (int)self->buffer.size - (int)self->buffer.offset;
 }
 
 int Bytes_binarySize(const Bytes *v) {
@@ -23,6 +23,7 @@ int Bytes_binarySize(const Bytes *v) {
 
 ///alloc populate buffer for a given amount from mempool
 Error alloc(buffer_t *out, size_t amount, buffer_t *mempool) {
+    UNUSED(out);
     if ( !buffer_can_read(mempool, amount ) ) {
         return ErrorCode(ErrorParameterInsufficientData);
     }
@@ -49,14 +50,18 @@ int Bytes_copy(Bytes *dst, const Bytes *src) {
     }
 
     memmove((uint8_t*)(dst->buffer.ptr + dst->buffer.offset), src->buffer.ptr + src->buffer.offset, dst->buffer.size);
-    return dst->buffer.size;
+    return (int)dst->buffer.size;
 }
 
 Error Bytes_marshalJSON(const struct Bytes* self, struct Marshaler *outData) {
+    UNUSED(self);
+    UNUSED(outData);
     return ErrorCode(ErrorNotImplemented);
 }
 
 Error Bytes_unmarshalJSON(struct Bytes* self, struct Marshaler *data) {
+    UNUSED(self);
+    UNUSED(data);
     return ErrorCode(ErrorNotImplemented);
 }
 
@@ -74,6 +79,6 @@ Bytes Bytes_new(buffer_t *b, size_t n) {
 
 
 Bytes Bytes_init(Byte_t *v, size_t n) {
-    buffer_t buffer = { v, n, 0};
+    buffer_t buffer = { (uint8_t*)v, n, 0};
     return Bytes_new(&buffer, n);
 }

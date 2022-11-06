@@ -42,7 +42,7 @@ int readSendTokens(Unmarshaler *m, SendTokens *v) {
         v->extraData[field-1].buffer.size += b;
         n += b;
 
-        b = unmarshalerReadBytes32(m,&v->Hash.data);
+        b = unmarshalerReadBytes32(m,&v->Hash);
         CHECK_ERROR_CODE(b);
         v->extraData[field-1].buffer.size += b;
         n += b;
@@ -114,7 +114,7 @@ int readSendTokens(Unmarshaler *m, SendTokens *v) {
             }
             buffer_seek_cur(&m->buffer, size);
             v->extraData[field-1].buffer.size += b;
-            n += size;
+            n += (int)size;
         }
     }
     return n;

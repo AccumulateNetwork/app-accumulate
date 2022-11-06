@@ -17,12 +17,7 @@
 #include <stdint.h>   // uint*_t
 #include <stddef.h>   // size_t
 
-#include "varint.h"
-
-uint8_t uvarint_size(uint64_t value) {
-    uint8_t b[MaxVarintLen64] = {0};
-    return uvarint_write(b, 0, value);
-}
+#include <common/varint.h>
 
 uint8_t varint_size(int64_t value) {
     uint64_t ux = ((uint64_t)value) << 1;
@@ -33,31 +28,6 @@ uint8_t varint_size(int64_t value) {
 }
 
 
-int uvarint_read(const uint8_t *in, size_t in_len, uint64_t *value) {
-    uint64_t s = 0;
-    *value = 0;
-    for ( size_t i = 0; i < in_len; ++i ) {
-            if ( i == MaxVarintLen64 ) {
-                // Catch byte reads past MaxVarintLen64.
-                // See issue https://golang.org/issues/41185
-                *value = 0;
-                return -(int)(i + 1); // overflow
-            }
-            if ( in[i] < 0x80 ) {
-                if (i == MaxVarintLen64-1 && in[i] > 1) {
-                    *value = 0;
-                    return -(int)(i + 1); // overflow
-                }
-                *value |= ((uint64_t)in[i])<<s;
-                return (int)i + 1;
-            }
-            *value |= (uint64_t)(in[i]&0x7f) << s;
-            s += 7;
-    }
-    *value = 0;
-    return 0;
-}
-
 int varint_read(const uint8_t *in, size_t in_len, int64_t *value) {
     uint64_t ux = 0;
     int n = uvarint_read(in, in_len, &ux); // ok to continue in presence of error
@@ -66,17 +36,6 @@ int varint_read(const uint8_t *in, size_t in_len, int64_t *value) {
         *value = (int64_t )(~ux);
     }
     return n;
-}
-
-int uvarint_write(uint8_t *out, size_t offset, uint64_t value) {
-    size_t i = offset;
-    while ( value >= 0x80 ) {
-        out[offset++] = ((uint8_t)value) | 0x80;
-        value >>= 7;
-    }
-    out[offset++] = (uint8_t)value;
-    return (int)(offset - i);
-
 }
 
 int varint_write(uint8_t *out, size_t offset, int64_t value) {
