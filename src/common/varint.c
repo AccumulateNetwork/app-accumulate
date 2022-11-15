@@ -34,8 +34,8 @@ uint8_t varint_size(int64_t value) {
 
 
 int uvarint_read(const uint8_t *in, size_t in_len, uint64_t *value) {
-    //uint64_t x = 0;
     uint64_t s = 0;
+    *value = 0;
     for ( size_t i = 0; i < in_len; ++i ) {
             if ( i == MaxVarintLen64 ) {
                 // Catch byte reads past MaxVarintLen64.

@@ -53,6 +53,7 @@ add_executable(test_apdu_parser test_apdu_parser.c)
 add_executable(test_tx_parser test_tx_parser.c)
 add_executable(test_tx_utils test_tx_utils.c)
 add_executable(test_encoding test_encoding.c)
+add_executable(test_hasher test_hasher.c)
 
 add_library(base58 STATIC ../src/common/base58.c)
 add_library(bip32 STATIC ../src/common/bip32.c)
@@ -77,6 +78,8 @@ add_library(encoding STATIC ../src/common/encoding/bytes32.c ../src/common/encod
         ../src/transaction/add_credits.c ../src/transaction/token_recipient.c ../src/transaction/transaction.c)
 add_library(error STATIC ../src/common/error.c)
 add_library(sha256 STATIC ../src/common/sha256.c ../src/common/internal/testing/sha256.c)
+
+
 
 target_link_libraries(test_base58 PUBLIC ${CMOCKA_LIBRARY} gcov base58)
 target_link_libraries(test_bip32 PUBLIC ${CMOCKA_LIBRARY} gcov bip32 read)
@@ -107,6 +110,9 @@ target_link_libraries(test_encoding sha256 encoding uint256
         buffer varint error transaction_utils gcov
         ${CMOCKA_LIBRARY} read write format bip32)
 
+target_link_libraries(test_hasher PUBLIC sha256 encoding uint256
+        buffer varint error transaction_utils gcov
+        ${CMOCKA_LIBRARY} read write format bip32 )
 
 #target_link_libraries(test_envelope envelope encoding uint256
 #        buffer varint transaction_utils gcov
@@ -121,3 +127,4 @@ add_test(test_apdu_parser test_apdu_parser)
 add_test(test_tx_parser test_tx_parser)
 add_test(test_tx_utils test_tx_utils)
 add_test(test_encoding test_encoding)
+add_test(test_hasher test_hasher)

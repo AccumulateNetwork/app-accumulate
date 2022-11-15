@@ -219,91 +219,30 @@ int parse_transaction(uint8_t *raw_tx, uint16_t raw_tx_len, Signature *signer, T
         return ErrorBufferTooSmall;
     }
 
-    char outbuf[65] = {0};
+//    CHECK_ERROR_CODE(readTransaction(&transactionUnmarshaler, transaction));
 
-    format_hex(hash, 32, outbuf, sizeof(outbuf));
-    PRINTF("External HASH %s\n", outbuf);
+//        return ErrorUnknown;
+//    PRINTF("pre signer parse \n");
+//    CHECK_ERROR_CODE(readSignature(&signerUnmarshaler, signer));
+//    PRINTF("post signature parse \n");
 
-    format_hex(signer->_u->TransactionHash.data.buffer.ptr+signer->_u->TransactionHash.data.buffer.offset,
-               signer->_u->TransactionHash.data.buffer.size-signer->_u->TransactionHash.data.buffer.offset,
-               outbuf, sizeof(outbuf));
-    PRINTF("Transaction HASH %s\n", outbuf);
-
-    PRINTF("pre transaction parse A\n");
+    //    char outbuf[65] = {0};
+//
+//    format_hex(hash, 32, outbuf, sizeof(outbuf));
+//    PRINTF("External HASH %s\n", outbuf);
+//
+//    format_hex(signer->_u->TransactionHash.data.buffer.ptr+signer->_u->TransactionHash.data.buffer.offset,
+//               signer->_u->TransactionHash.data.buffer.size-signer->_u->TransactionHash.data.buffer.offset,
+//               outbuf, sizeof(outbuf));
+//    PRINTF("Transaction HASH %s\n", outbuf);
+//
+//    PRINTF("pre transaction parse A\n");
 
     //configure the arena
     int e = ErrorNone;
 
 
     PRINTF("DO TRANSACTION MAGIC\n");
-#if 0
-Unmarshaler *m = &transactionMarshaler;
-Transaction  *v = transaction;
-    {
-        PRINTF("READ TRANSACTION \n");
-        int n = 0;
-        int b = 0;
-        uint64_t field = 0;
-
-        PRINTF("READ TRANSACTION \n");
-
-        b = unmarshalerReadField(m, &field);
-        if ( IsError(ErrorCode(b))) {
-            return b;
-        }
-        n += b;
-
-
-        uint64_t size = 0;
-        b = unmarshalerReadUInt(m,&size);
-        CHECK_ERROR_CODE(b);
-
-        //buffer_seek_cur(&m->buffer, size);
-        PRINTF("READING HEADER \n");
-        {
-            n += b;
-            Unmarshaler m2 = {.buffer.ptr = m->buffer.ptr + m->buffer.offset, .buffer.size = size, .buffer.offset = 0,
-                              .mempool = m->mempool};
-            b = unmarshalerReadTransactionHeader(&m2, &v->Header);
-            if ( IsError(ErrorCode(b))) {
-                return b;
-            }
-            buffer_seek_cur(&m->buffer, b);
-        }
-        PRINTF("Done READ Header \n");
-
-
-        n += b;
-        b = unmarshalerReadField(m, &field);
-        if ( IsError(ErrorCode(b))) {
-            return b;
-        }
-        n += b;
-
-        PRINTF("READ TRANSACTION BODY\n");
-
-        size = 0;
-        b = unmarshalerReadUInt(m,&size);
-        CHECK_ERROR_CODE(b);
-
-        n += b;
-
-        {
-            Unmarshaler m3 = {.buffer.ptr = m->buffer.ptr + m->buffer.offset,
-                              .buffer.size = size,
-                              .buffer.offset = 0,
-                              .mempool = m->mempool};
-            b = readTransactionBody(&m3, &v->Body);
-            CHECK_ERROR_CODE(b);
-        }
-        buffer_seek_cur(&m->buffer, size);
-
-        n += b;
-    }
-
-#else
-
-#endif
 
     PRINTF("post transaction parse A\n");
 
