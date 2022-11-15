@@ -186,8 +186,8 @@ int ui_dynamic_display_add_credits(int index) {
                 strcpy(global.text, e.err);
                 return e.code;
             }
-            break;
         }
+        break;
         case 2: {
             uint256_t i;
             snprintf(global.title,sizeof(global.title), "Credits");
@@ -204,8 +204,8 @@ int ui_dynamic_display_add_credits(int index) {
             if ( !adjustDecimals(amountString,strlen(amountString),global.text,sizeof(global.text), CREDITS_PRECISION) ) {
                 return ErrorInvalidString;
             }
-            break;
         }
+        break;
         default: {
             strcpy(global.title, "Invalid");
             strcpy(global.text, "Display State");
@@ -285,7 +285,7 @@ int ui_display_transaction(Signature *signer, Transaction *transaction) {
         case TransactionTypeAddCredits: {
             PRINTF("AddCredits tx\n");
 
-            global.max = 2;
+            global.max = 3;
             //do a dry run to check for errors
             for ( int i = 0; i < global.max; ++i) {
                 int e = ui_dynamic_display_add_credits(i);
@@ -296,6 +296,7 @@ int ui_display_transaction(Signature *signer, Transaction *transaction) {
 
             strncpy(g_welcome, "Add Credits", sizeof(g_welcome));
             g_validate_callback = &ui_action_validate_transaction_hash;
+            global.dynamic_flow = ui_dynamic_display_add_credits;
             ux_flow_init(0, ux_dynamic_display_flow, NULL);
             break;
         }

@@ -1,7 +1,7 @@
 #pragma once
-//#if !defined(__x86_64__)
+#if !defined(__x86_64__)
 #include <bolos_target.h>
-//#endif
+#endif
 
 /**
  * Instruction class of the Accumulate application.
