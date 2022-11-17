@@ -2,7 +2,12 @@
 #include "dynamic_display.h"
 #include "os.h"
 #include "../glyphs.h"
+#include <stdbool.h>
 #include <types.h>
+
+#ifndef UNUSED
+#define UNUSED(X) (void)(X);
+#endif
 
 DynamicDisplay global;
 extern ux_state_t G_ux;
@@ -77,15 +82,16 @@ void bnnn_paging_edgecase() {
 }
 
 int step_test(int index) {
-    strcpy(global.title, "step_test");
-    snprintf(global.text,128,"%d |",index);
+    snprintf(global.title,sizeof(global.title), "step_test");
+    snprintf(global.text,sizeof (global.text),"<%d | >",index);
     return 0;
 }
 
-
-
-
 bool get_next_data(char *title, char *text, bool is_upper_delimiter, bool next) {
+    UNUSED(title);
+    UNUSED(text);
+    UNUSED(is_upper_delimiter);
+
     //adjust the step to current offset....
     global.index = (next)?++global.index:--global.index;
     if (global.index >= global.max) {

@@ -24,7 +24,7 @@
 #include "../types.h"
 #include "../io.h"
 #include "../sw.h"
-#include "../common/buffer.h"
+#include <common/buffer.h>
 #include "../handler/get_version.h"
 #include "../handler/get_app_name.h"
 #include "../handler/get_public_key.h"

@@ -1,8 +1,9 @@
 #pragma once
 
+#include <string.h>  // memmove / strlen
 #include <stddef.h>  // size_t
 #include <stdint.h>  // uint*_t
-#include <common/encoding/encoding.h>
+#include <encoding/encoding.h>
 #define MAX_TX_LEN   510
 #define ADDRESS_LEN  20
 #define CHECKSUM_LEN 4
@@ -22,17 +23,3 @@ typedef enum {
     WRONG_LENGTH_ERROR = -7
 } parser_status_e;
 
-typedef struct {
-    uint64_t nonce;
-    uint64_t value;     /// amount value (8 bytes)
-    uint8_t *to;        /// pointer to address (20 bytes)
-    uint8_t *memo;      /// memo (variable length)
-    uint64_t memo_len;  /// length of memo (8 bytes)
-} transaction_t;
-
-typedef struct {
-    UVarInt timestamp;     /// nonce (8 bytes)
-    UVarInt version;       //version
-    Bytes key;             //public key
-    Url signer;
-} signer_t;

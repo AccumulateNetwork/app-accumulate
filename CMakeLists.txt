@@ -31,7 +31,7 @@ execute_process(
     OUTPUT_VARIABLE GIT_REVISION
     OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-add_compile_options(-W -Wall -fPIC)
+add_compile_options(-W -Wall -fPIC -Werror)
 add_definitions(-DOS_LITTLE_ENDIAN -DNATIVE_64BITS -DGIT_REVISION=\"${GIT_REVISION}\" -DUNIT_TEST)
 
 option(
@@ -63,13 +63,8 @@ include_directories(
         $ENV{BOLOS_SDK}/include
         $ENV{BOLOS_SDK}/lib_ux/include/
         $ENV{BOLOS_SDK}/lib_cxng/include
-        ${CMAKE_SOURCE_DIR}/src
+        ${CMAKE_SOURCE_DIR}/include
 )
-
-
-#include_directories(sdk src)
-include_directories(src)
-include_directories(src/emu)
 
 if (PRECOMPILED_DEPENDENCIES_DIR)
   message(STATUS "Using OpenSSL and cmocka from ${PRECOMPILED_DEPENDENCIES_DIR}")
