@@ -2,6 +2,7 @@
 #include "display.h"
 #include "ui/action/validate.h"
 #include "ui/dynamic_display.h"
+#include "../../address.h"
 
 // Step with icon and text
 UX_STEP_NOCB(ux_display_confirm_addr_step, pn, {&C_icon_eye, "Confirm Key Name"});
@@ -23,6 +24,10 @@ int dynamic_display_address(int index) {
             snprintf(global.text,sizeof(global.text),"%s", G_context.pk_info.address_name);
             break;
         case 2:
+            explicit_bzero(global.text,sizeof(global.text));
+            snprintf(global.title, sizeof(global.title), "Multi-Hash");
+            encodeMultihash(G_context.pk_info.hash,sizeof(G_context.pk_info.hash), global.text, sizeof(global.text));
+        case 3:
             snprintf(global.title, sizeof(global.title), "Lite Identity");
             snprintf(global.text, sizeof(global.text), "%s", G_context.pk_info.lite_account);
             break;

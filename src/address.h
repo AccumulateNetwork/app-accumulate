@@ -36,6 +36,8 @@ Error getFctLiteAddress(pubkey_ctx_t *publicKey);
 
 Error getLiteAcmeAddress(pubkey_ctx_t *publicKey);
 
+Error encodeMultihash(const uint8_t *hash, uint8_t hashLength, char *out, uint8_t outLength);
+
 Error getNamedAddress(const char *prefix, uint8_t prefixLength, const uint8_t *hash,
                       uint8_t hashLength, char *out, uint8_t outLength);
 

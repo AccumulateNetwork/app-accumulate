@@ -164,6 +164,16 @@ Error getFctAddressStringFromRCDHash(uint8_t *rcdhash,char *out, int8_t outLen)
     return ErrorCode(ErrorNone);
 }
 
+Error encodeMultihash(const uint8_t *hash, uint8_t hashLength, char *out, uint8_t outLength) {
+    const uint64_t multihash_identity = 0;
+    uint8_t multiHash[MAX_HASH_LENGTH+16] = {0};
+    int n = uvarint_write(multiHash, 0, multihash_identity);
+    n += uvarint_write(multiHash,n,(uint64_t)hashLength);
+    memmove(&multiHash[n], hash, hashLength);
+    explicit_bzero(out,outLength);
+    return getNamedAddress("MHz",3,multiHash,n+hashLength, out, outLength);
+}
+
 Error getNamedAddress(const char *prefix, uint8_t prefixLength, const uint8_t *hash, uint8_t hashLength, char *out, uint8_t outLength) {
     if (prefixLength > MAX_PREFIX_LENGTH ) {
         return ErrorCode(ErrorInvalidString);
@@ -179,15 +189,17 @@ Error getNamedAddress(const char *prefix, uint8_t prefixLength, const uint8_t *h
     memmove(ac1, prefix, prefixLength);
     memmove(&ac1[prefixLength], hash, hashLength);
 
-    //3) compute checksum
+    //compute checksum
     {
         uint8_t checksum[32];
         sha256d(ac1, prefixLength+hashLength, checksum,sizeof(checksum));
         memmove(ac1+prefixLength+hashLength, checksum, CHECKSUM_LEN);
     }
 
-    memmove(ac1, prefix, prefixLength);
-    int ret = base58_encode(&ac1[prefixLength],hashLength+CHECKSUM_LEN, (char*) &out, outLength);
+    //encode address
+    explicit_bzero(out, outLength);
+    memmove(out, prefix, prefixLength);
+    int ret = base58_encode(&ac1[prefixLength],hashLength+CHECKSUM_LEN, (char*) &out[prefixLength], outLength);
     CHECK_ERROR(ret)
     return ErrorCode(ErrorNone);
 }
