@@ -36,6 +36,9 @@ Error getFctLiteAddress(pubkey_ctx_t *publicKey);
 
 Error getLiteAcmeAddress(pubkey_ctx_t *publicKey);
 
+Error getNamedAddress(const char *prefix, uint8_t prefixLength, const uint8_t *hash,
+                      uint8_t hashLength, char *out, uint8_t outLength);
+
 Error getLiteAcmeUrl(const uint8_t public_key[static 64],
                     uint8_t *out, size_t out_len,
                     int8_t *keyName, size_t keyNameLen);

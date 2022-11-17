@@ -24,6 +24,16 @@
 #define MAX_APPNAME_LEN 64
 
 /**
+ * Maximum length of address prefix.
+ */
+#define MAX_PREFIX_LENGTH 8
+
+/**
+ * Maximum length of hash.
+ */
+#define MAX_HASH_LENGTH 32
+
+/**
  * Maximum transaction length (bytes).
  */
 #ifdef TARGET_NANOS
