@@ -17,70 +17,66 @@ bool IsErrorCode(int e) {
 }
 
 Error ErrorCode(int e) {
-
-    static Error errors[] = {
-#ifdef WANT_TEXT
-    {ErrorNone, {0}},
-    {ErrorUnknown, "unknown"},
-    {ErrorInvalidEnum,"invalid enum"},
-    {ErrorInvalidObject,"invalid object"},
-    {ErrorNotImplemented, "not implemented"},
-    {ErrorTypeNotFound, "type not found"},
-    {ErrorParameterNil, "parameter is nil"},
-    {ErrorParameterInsufficientData,"insufficient buffer size"},
-    {ErrorBadCopy,"cannot copy buffer"},
-    {ErrorBufferTooSmall,"buffer size too small"},
-    {ErrorVarIntRead, "varint read failed"},
-    {ErrorVarIntWrite,"varint write failed"},
-    {ErrorResizeRequred,"resize required"},
-    {ErrorInvalidBigInt,"invalid big int"},
-    {ErrorInvalidString,"invalid string"},
-    {ErrorInvalidHashParameters, "invalid hash params"},
-    {ErrorUVarIntRead, "uvarint read failed"},
-    {ErrorUVarIntWrite,"uvarint write failed"},
-    {ErrorMempoolFull, "mempool full"},
-    {ErrorInvalidOffset, "invalid offset"},
-    {ErrorInvalidData, "invalid data"},
-    {ErrorBadKey, "bad key"},
-    {ErrorInvalidField, "invalid field"},
-    {ErrorExpectingType, "expecting type"},
-#else
-        {ErrorNone, {0}},
-        {ErrorUnknown, {0}},
-        {ErrorInvalidEnum,{0}},
-        {ErrorInvalidObject,{0}},
-        {ErrorNotImplemented, {0}},
-        {ErrorTypeNotFound, {0}},
-        {ErrorParameterNil, {0}},
-        {ErrorParameterInsufficientData,{0}},
-        {ErrorBadCopy,{0}},
-        {ErrorBufferTooSmall,{0}},
-        {ErrorVarIntRead, {0}},
-        {ErrorVarIntWrite,{0}},
-        {ErrorResizeRequred,{0}},
-        {ErrorInvalidBigInt,{0}},
-        {ErrorInvalidString,{0}},
-        {ErrorInvalidHashParameters, {0}},
-        {ErrorUVarIntRead, {0}},
-        {ErrorUVarIntWrite,{0}},
-        {ErrorMempoolFull, {0}},
-        {ErrorInvalidOffset, {0}},
-        {ErrorInvalidData, {0}},
-        {ErrorBadKey, {0}},
-        {ErrorInvalidField, {0}},
-        {ErrorExpectingType, {0}},
-#endif
-    };
     //if we have an error code greater than zero that makes it in here, then it is not intended as an error
     if ( (int)(e) >= 0 ) {
-        return errors[ErrorNone];
+        return (const Error){ErrorNone, {0}};
     }
 
-    //if we have an enum error that wasn't included in the list, then we have an error
-    if ( abs((int)e) >= (int)abs(ErrorMaxError) ) {
-        return errors[abs(ErrorInvalidEnum)];
+#if WANT_TEXT
+    switch (abs((int)e)) {
+        case ErrorNone:
+            return (const Error){ErrorNone, {0}};
+        case ErrorUnknown:
+            return (const Error){ErrorUnknown, "unknown"};
+        case ErrorInvalidEnum:
+            return (const Error){ErrorInvalidEnum, "invalid enum"};
+        case ErrorInvalidObject:
+            return (const Error){ErrorInvalidObject, "invalid object"};
+        case ErrorNotImplemented:
+            return (const Error){ErrorNotImplemented, "not implemented"};
+        case ErrorTypeNotFound:
+            return (const Error){ErrorTypeNotFound, "type not found"};
+        case ErrorParameterNil:
+            return (const Error){ErrorParameterNil, "parameter is nil"};
+        case ErrorParameterInsufficientData:
+            return (const Error){ErrorParameterInsufficientData, "insufficient buffer size"};
+        case ErrorBadCopy:
+            return (const Error){ErrorBadCopy, "cannot copy buffer"};
+        case ErrorBufferTooSmall:
+            return (const Error){ErrorBufferTooSmall, "buffer size too small"};
+        case ErrorVarIntRead:
+            return (const Error){ErrorVarIntRead, "varint read failed"};
+        case ErrorVarIntWrite:
+            return (const Error){ErrorVarIntWrite, "varint write failed"};
+        case ErrorResizeRequred:
+            return (const Error){ErrorResizeRequired, "resize required"};
+        case ErrorInvalidBigInt:
+            return (const Error){ErrorInvalidBigInt, "invalid big int"};
+        case ErrorInvalidString:
+            return (const Error){ErrorInvalidString, "invalid string"};
+        case ErrorInvalidHashParameters:
+            return (const Error){ErrorInvalidHashParameters, "invalid hash params"};
+        case ErrorUVarIntRead:
+            return (const Error){ErrorUVarIntRead, "uvarint read failed"};
+        case ErrorUVarIntWrite:
+            return (const Error){ErrorUVarIntWrite, "uvarint write failed"};
+        case ErrorMempoolFull:
+            return (const Error){ErrorMempoolFull, "mempool full"};
+        case ErrorInvalidOffset:
+            return (const Error){ErrorInvalidOffset, "invalid offset"};
+        case ErrorInvalidData:
+            return (const Error){ErrorInvalidData, "invalid data"};
+        case ErrorBadKey:
+            return (const Error){ErrorBadKey, "bad key"};
+        case ErrorInvalidField:
+            return (const Error){ErrorInvalidField, "invalid field"};
+        case ErrorExpectingType:
+            return (const Error){ErrorExpectingType, "expecting type"};
+        default:
+            return (const Error){ErrorInvalidEnum, "invalid enum"};
     }
-
-    return errors[abs((int)e)];
+#else
+    return (const Error){e, {0}};
+#endif
 }
 

@@ -20,15 +20,7 @@
 #include <stdbool.h>  // bool
 #include "common/error.h"
 #include "crypto.h"
-#include "cx.h"
-#include "memory.h"
 #include "globals.h"
-
-typedef struct  {
-    unsigned int mode;
-    cx_curve_t derivation_curve;
-    cx_curve_t key_gen_curve;
-} derivation_t;
 
 derivation_t inferCurve(const uint32_t *bip32_path, uint8_t bip32_path_len) {
     if ( bip32_path_len < 3 ) {
@@ -56,23 +48,23 @@ derivation_t inferCurve(const uint32_t *bip32_path, uint8_t bip32_path_len) {
 int crypto_derive_private_key(cx_ecfp_private_key_t *private_key,
                               const uint32_t *bip32_path,
                               uint8_t bip32_path_len) {
-    uint8_t raw_private_key[32] = {0};
+    volatile uint8_t raw_private_key[32] = {0};
+    volatile derivation_t curve = inferCurve(bip32_path, bip32_path_len);
+    explicit_bzero(private_key, sizeof(cx_ecfp_private_key_t));
 
     BEGIN_TRY {
         TRY {
-            derivation_t curve = inferCurve(bip32_path, bip32_path_len);
-            os_perso_derive_node_with_seed_key(
+            os_perso_derive_node_bip32_seed_key(
                 curve.mode,
                 curve.derivation_curve,
                 bip32_path,
                 bip32_path_len,
-                raw_private_key,
+                (uint8_t*)raw_private_key,
                 NULL,
                 NULL,
                 0);
-
             cx_ecfp_init_private_key(curve.key_gen_curve,
-                                     raw_private_key,
+                                     (uint8_t*)raw_private_key,
                                      sizeof(raw_private_key),
                                      private_key);
         }
@@ -80,7 +72,7 @@ int crypto_derive_private_key(cx_ecfp_private_key_t *private_key,
             THROW(e);
         }
         FINALLY {
-            explicit_bzero(&raw_private_key, sizeof(raw_private_key));
+            explicit_bzero((void*)&raw_private_key, sizeof(raw_private_key));
         }
     }
     END_TRY;
@@ -133,8 +125,7 @@ Error crypto_init_public_key(cx_ecfp_private_key_t *private_key,
     return ErrorCode(ErrorNone);
 }
 
-
-int crypto_sign_message() {
+int crypto_sign_message(void) {
     cx_ecfp_private_key_t private_key = {0};
     uint32_t info = 0;
     int sig_len = 0;
@@ -149,13 +140,13 @@ int crypto_sign_message() {
             switch (private_key.curve) {
             case CX_CURVE_256K1:
                sig_len = cx_ecdsa_sign(&private_key,
-                                       CX_RND_RFC6979 | CX_LAST,
-                                       CX_SHA256,
-                                       G_context.tx_info.m_hash,
-                                       sizeof(G_context.tx_info.m_hash),
-                                       G_context.tx_info.signature,
-                                       sizeof(G_context.tx_info.signature),
-                                       &info);
+                                        CX_RND_RFC6979 | CX_LAST,
+                                        CX_SHA256,
+                                        G_context.tx_info.m_hash,
+                                        sizeof(G_context.tx_info.m_hash),
+                                        G_context.tx_info.signature,
+                                        sizeof(G_context.tx_info.signature),
+                                        &info);
                 break;
             case CX_CURVE_Ed25519:
                 sig_len = cx_eddsa_sign(&private_key,
@@ -170,7 +161,6 @@ int crypto_sign_message() {
             default:
                 THROW(ErrorInvalidEnum);
             }
-            PRINTF("Signature: %.*H\n", sig_len, G_context.tx_info.signature);
         }
         CATCH_OTHER(e) {
             THROW(e);
@@ -192,10 +182,10 @@ int crypto_sign_message() {
 }
 
 #ifndef _NR_cx_hash_ripemd160
+cx_err_t cx_ripemd160_update(cx_ripemd160_t *ctx, const uint8_t *data, size_t len);
+cx_err_t cx_ripemd160_final(cx_ripemd160_t *ctx, uint8_t *digest);
 /** Missing in some SDKs, we implement it using the cxram section if needed. */
 size_t cx_hash_ripemd160(const uint8_t *in, size_t in_len, uint8_t *out, size_t out_len) {
-    //PRINT_STACK_POINTER();
-
     if (out_len < CX_RIPEMD160_SIZE) {
         return 0;
     }

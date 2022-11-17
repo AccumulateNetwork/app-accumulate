@@ -19,7 +19,7 @@
 #include <string.h>   // strncpy, memmove
 #include <stdbool.h>  // bool
 
-#include "format.h"
+#include <common/format.h>
 
 bool format_i64(char *dst, size_t dst_len, const int64_t value) {
     char temp[] = "-9223372036854775808";
@@ -134,7 +134,7 @@ int format_hex(const uint8_t *in, size_t in_len, char *out, size_t out_len) {
         return -1;
     }
 
-    const char hex[] = "0123456789ABCDEF";
+    const char hex[] = "0123456789abcdef";
     size_t i = 0;
     int written = 0;
 

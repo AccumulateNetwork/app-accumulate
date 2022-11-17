@@ -2,7 +2,7 @@
 
 #include "os.h"
 
-#include "../common/macros.h"
+#include <common/macros.h>
 
 /**
  * Length of public key.
@@ -42,4 +42,5 @@ int helper_send_response_pubkey(void);
  * @return zero or positive integer if success, -1 otherwise.
  *
  */
+
 int helper_send_response_sig(void);

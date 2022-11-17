@@ -34,11 +34,10 @@
 
 
 Error lite_address_from_pubkey(CoinType t, pubkey_ctx_t *publicKey) {
-    uint8_t address[32] = {0};
-    Error ret = Error_init(0);
+    Error ret = ErrorCode(ErrorUnknown);
     switch (t) {
         case CoinTypeAcme:
-            getLiteAcmeAddress(publicKey);
+            ret = getLiteAcmeAddress(publicKey);
             break;
         case CoinTypeFct:
             ret = getFctLiteAddress(publicKey);
@@ -50,7 +49,7 @@ Error lite_address_from_pubkey(CoinType t, pubkey_ctx_t *publicKey) {
             ret = getEthLiteIdentity(publicKey);
         }   break;
         default:
-            return ErrorCode(ErrorUnknown);
+            ret = ErrorCode(ErrorUnknown);
     };
     return ret;
 }
@@ -129,16 +128,17 @@ Error getLiteIdentityUrl(const uint8_t *keyHash, uint8_t keyHashLen, char *urlOu
     uint8_t checksum[32] = {0};
 
     //2) make url
-    int offset = 6;
-    strncpy((char*)urlOut, "acc://", offset);
+    const int schemeOffset = 6;
+    int offset = schemeOffset;
+    snprintf(urlOut,urlOutLen, "acc://");
     for ( int i = 0; i < 20; ++i ) {
         snprintf((char*)&urlOut[offset], urlOutLen - offset, "%02x", keyHash[i]);
         offset += 2;
     }
     //1) compute checksum of identity
-    sha256((uint8_t*)&urlOut[6], 20, checksum, sizeof(checksum));
+    sha256((uint8_t*)&urlOut[schemeOffset], offset-schemeOffset, checksum, sizeof(checksum));
 
-    snprintf((char*)&urlOut[offset], urlOutLen - offset, "%02x%02x%02x%02x", checksum[28], checksum[29],checksum[30],checksum[31]);
+    snprintf((char*)&urlOut[offset], urlOutLen - offset, "%02x%02x%02x%02x", checksum[28], checksum[29], checksum[30], checksum[31]);
 
     return ErrorCode(ErrorNone);
 }
@@ -328,42 +328,5 @@ bool adjustDecimals(const char *src, uint32_t srcLength, char *target,
         }
     }
     return true;
-}
-
-unsigned short fct_print_amount(uint64_t amount, int8_t *out,
-                                uint32_t outlen)
-{
-    char tmp[20];
-    char tmp2[25];
-    uint32_t numDigits = 0, i;
-    uint64_t base = 1;
-    while (base <= amount)
-    {
-        base *= 10;
-        numDigits++;
-    }
-    if (numDigits > sizeof(tmp) - 1)
-    {
-        THROW(EXCEPTION);
-    }
-    base /= 10;
-    for (i = 0; i < numDigits; i++)
-    {
-        tmp[i] = '0' + ((amount / base) % 10);
-        base /= 10;
-    }
-    tmp[i] = '\0';
-
-    strncpy(tmp2, "FCT ", 4); //"ғ"
-    adjustDecimals(tmp, i, tmp2 + 4, 25, 8);
-    if (strlen(tmp2) < outlen - 1)
-    {
-        strncpy((char*)out, tmp2, strlen(tmp2));
-    }
-    else
-    {
-        out[0] = '\0';
-    }
-    return strlen((char*)out);
 }
 

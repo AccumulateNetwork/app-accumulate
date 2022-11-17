@@ -5,10 +5,10 @@
 
 #include "constants.h"
 #include "transaction/types.h"
-#include "common/bip32.h"
-#include "common/protocol/transaction.h"
-#include "common/protocol/signatures.h"
-#include "common/protocol/unions.h"
+#include <common/bip32.h>
+#include <protocol/transaction.h>
+#include <protocol/signatures.h>
+#include <protocol/unions.h>
 
 /**
  * Enumeration for the status of IO.
@@ -73,7 +73,7 @@ typedef struct {
     uint8_t raw_public_key[65];  /// v, x-coordinate (32), y-coodinate (32)
     uint8_t public_key_length;   /// length of key, compressed / uncompressed
     uint8_t chain_code[32];      /// for public key derivation
-    char  address_name[64];
+    char  address_name[MAX_ACME_LITE_ACCOUNT_LEN];
     char  lite_account[MAX_ACME_LITE_ACCOUNT_LEN];
     uint8_t hash[32];
 } pubkey_ctx_t;
@@ -82,19 +82,15 @@ typedef struct {
  * Structure for transaction information context.
  */
 typedef struct {
-    uint8_t raw_tx[MAX_TRANSACTION_LEN /*+MAX_SIGNATURE_HEADER_LEN*/];  /// raw transaction serialized
-    size_t raw_tx_len;                    /// length of raw transaction
+    uint8_t memory[ARENA_SIZE];
+    uint8_t raw_tx[MAX_TRANSACTION_LEN];  /// raw transaction serialized
     buffer_t arena;
-//    union {
-//        ED25519Signature ed25519;
-//        RCD1Signature rcd;
-//        BTCSignature btc;
-//        ETHSignature eth;
-//    }
-    //ED25519Signature edsig;
     Signature signer;
     Transaction transaction;
-    uint8_t m_hash[32];                   /// message hash digest
+    size_t raw_tx_len;                    /// length of raw transaction
+    uint8_t metadataHash[32];
+    uint8_t initiatorHash[33];            /// initiator hash -> field (1 byte) + hash (32 bytes)
+    uint8_t m_hash[32];                   /// transaction / message hash digest
     uint8_t signature[MAX_DER_SIG_LEN];   /// transaction signature encoded in DER
     uint8_t signature_len;                /// length of transaction signature
     uint8_t v;                            /// parity of y-coordinate of R in ECDSA signature

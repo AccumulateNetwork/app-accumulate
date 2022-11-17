@@ -18,19 +18,19 @@
 #include <stdint.h>  // uint*_t
 #include <string.h>
 #include "debug_tx.h"
-#include "../constants.h"
-#include "../globals.h"
-#include "../io.h"
-#include "../sw.h"
-#include "../types.h"
-#include "common/buffer.h"
-#include "../ui/display.h"
-#include "os.h"
-#include "common/protocol/signatures.h"
-#include "../ui/dynamic_display.h"
-
+#include "constants.h"
+#include "globals.h"
+#include "io.h"
+#include "sw.h"
+#include "types.h"
+#include <common/buffer.h>
+#include "ui/display/display.h"
 #include "ux.h"
 #include "os.h"
+#include <protocol/signatures.h>
+#include "ui/dynamic_display.h"
+
+
 int handler_debug_tx() {
 #ifdef DEBUG_SEND_TOKENS
     PRINTF("checkpoint A\n");
