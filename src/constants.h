@@ -31,7 +31,7 @@
 /**
  * Maximum length of hash.
  */
-#define MAX_HASH_LENGTH 32
+#define MAX_HASH_LENGTH 32 + 16 //32 bytes + 16 multi-hash padding
 
 /**
  * Maximum transaction length (bytes).
