@@ -24,25 +24,22 @@
 #include "cx.h"
 
 #include "get_public_key.h"
-#include "common/error.h"
 #include "../globals.h"
 #include "../types.h"
 #include "../io.h"
 #include "../sw.h"
 #include "../crypto.h"
-#include "../common/buffer.h"
-#include "../ui/display.h"
+#include "../ui/display/display.h"
 #include "../helper/send_response.h"
 #include "address.h"
+#include <common/error.h>
+#include <common/buffer.h>
 
 int handler_get_public_key(buffer_t *cdata, bool display) {
     explicit_bzero(&G_context, sizeof(G_context));
     G_context.req_type = CONFIRM_ADDRESS;
     G_context.state = STATE_NONE;
     G_context.pk_info.public_key_length = sizeof(G_context.pk_info.raw_public_key);
-
-    cx_ecfp_private_key_t private_key = {0};
-    cx_ecfp_public_key_t public_key = {0};
 
     if (!buffer_read_u8(cdata, &G_context.bip32_path_len) ||
         !buffer_read_bip32_path(cdata, G_context.bip32_path, (size_t) G_context.bip32_path_len)) {
@@ -59,6 +56,9 @@ int handler_get_public_key(buffer_t *cdata, bool display) {
             return io_send_sw(SW_ENCODE_ERROR(ErrorCode(ErrorInvalidString)));
         }
     }
+
+    cx_ecfp_private_key_t private_key = {0};
+    cx_ecfp_public_key_t public_key = {0};
 
     // derive private key according to BIP32 path
     crypto_derive_private_key(&private_key,
@@ -83,7 +83,7 @@ int handler_get_public_key(buffer_t *cdata, bool display) {
 
     //if we have an address name supplied to us override the name we derived.
     if (addressNameLen > 0 ) {
-        strcpy(G_context.pk_info.address_name, addressName);
+        strncpy(G_context.pk_info.address_name, addressName,sizeof(G_context.pk_info.address_name)-1);
     }
 
     if (display) {

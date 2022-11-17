@@ -19,7 +19,7 @@
 #include <string.h>   // memmove, memset
 #include <stdbool.h>  // bool
 
-#include "base58.h"
+#include <common/base58.h>
 
 uint8_t const BASE58_TABLE[] = {
     0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,  //
