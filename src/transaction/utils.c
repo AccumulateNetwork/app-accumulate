@@ -27,8 +27,6 @@
 #define PRINTF
 #endif
 
-//#include "globals.h"
-
 int parse_transaction(uint8_t *raw_tx, uint16_t raw_tx_len, Signature *signer, Transaction *transaction, buffer_t *arena) {
     PRINTF("checkpoint parse A\n");
     // we have received all the APDU's so let's parse and sign
@@ -55,7 +53,6 @@ int parse_transaction(uint8_t *raw_tx, uint16_t raw_tx_len, Signature *signer, T
         PRINTF("post signature parse \n");
     }
 
-        //return ErrorInvalidObject;
     if (!buffer_seek_cur(&buf, len))  {
         PRINTF("signer buffer too small\n");
         return ErrorBufferTooSmall;
