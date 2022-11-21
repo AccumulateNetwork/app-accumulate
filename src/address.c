@@ -34,7 +34,7 @@
 
 
 Error lite_address_from_pubkey(CoinType t, pubkey_ctx_t *publicKey) {
-    Error ret = ErrorCode(ErrorUnknown);
+    Error ret;
     switch (t) {
         case CoinTypeAcme:
             ret = getLiteAcmeAddress(publicKey);
