@@ -10,6 +10,27 @@ services:
 variables:
   LEDGER_BUILDER_IMAGE: registry.gitlab.com/accumulatenetwork/ledger/app-accumulate
   APP_VERSION: "1.0.2"
+  BOLD_RED: '\e[1;31m'
+  NO_COLOR: '\e[0m'
+  SECTION: '\e[0K'
+
+.rules all:
+  rules:
+  - if: $CI_PIPELINE_SOURCE != ''
+
+
+lint:
+  stage: test
+  extends: [ .rules all ]
+  needs: []
+  before_script:
+    - function die { echo -e "${BOLD_RED}${1}${NO_COLOR}"; false; }
+  script:
+    - echo -e "${SECTION}section_start:`date +%s`:generate\r${SECTION}Verify code is correctly formatted"
+    - for i in `find . -type f \( -name "*.h" -o -name "*.c" \)`; do clang-format -i $i; done
+    - find src/ -type f \( -name "*.h" -o -name "*.c" \) -exec clang-format -i {} \;
+    - git diff --quiet || die "Please run clang-format.\n$(git ls-files -m)"
+    - echo -e "${SECTION}section_end:`date +%s`:generate\r${SECTION}"
 
 build docker image:
   stage: build-docker
