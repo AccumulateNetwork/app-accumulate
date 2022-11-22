@@ -1,6 +1,7 @@
 image: docker:20
 
-stages:          # List of stages for jobs, and their order of execution
+stages:
+  - test          # List of stages for jobs, and their order of execution
   - build-docker
   - build-firmware
 
@@ -21,7 +22,7 @@ variables:
 
 lint:
   stage: test
-  extends: [ .rules all ]
+  extends: .rules all
   needs: []
   before_script:
     - function die { echo -e "${BOLD_RED}${1}${NO_COLOR}"; false; }
