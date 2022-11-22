@@ -19,6 +19,12 @@ variables:
   rules:
   - if: $CI_PIPELINE_SOURCE != ''
 
+build docker image:
+  stage: build-docker
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build -t ${LEDGER_BUILDER_IMAGE} .
+    - docker push ${LEDGER_BUILDER_IMAGE}
 
 lint:
   stage: test
@@ -28,17 +34,9 @@ lint:
     - function die { echo -e "${BOLD_RED}${1}${NO_COLOR}"; false; }
   script:
     - echo -e "${SECTION}section_start:`date +%s`:generate\r${SECTION}Verify code is correctly formatted"
-    - for i in `find . -type f \( -name "*.h" -o -name "*.c" \)`; do clang-format -i $i; done
     - find src/ -type f \( -name "*.h" -o -name "*.c" \) -exec clang-format -i {} \;
-    - git diff --quiet || die "Please run clang-format.\n$(git ls-files -m)"
+    - git diff --quiet || die "[Error] Please run clang-format on the following files: \n$(git ls-files -m)"
     - echo -e "${SECTION}section_end:`date +%s`:generate\r${SECTION}"
-
-build docker image:
-  stage: build-docker
-  script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - docker build -t ${LEDGER_BUILDER_IMAGE} .
-    - docker push ${LEDGER_BUILDER_IMAGE}
 
 build-nano-s:
   stage: build-firmware
