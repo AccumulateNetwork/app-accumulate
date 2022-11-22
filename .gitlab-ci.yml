@@ -26,7 +26,7 @@ lint:
     - function die { echo -e "${BOLD_RED}${1}${NO_COLOR}"; false; }
   script:
     - echo -e "${SECTION}section_start:`date +%s`:generate\r${SECTION}Verify code is correctly formatted"
-      #- find src/ -type f \( -name "*.h" -o -name "*.c" \) -exec clang-format -i {} \;
+    - find src/ -type f \( -name "*.h" -o -name "*.c" \) -exec clang-format -i {} \;
       #- git diff --quiet || die "[Error] Please run clang-format on the following files: \n$(git ls-files -m)"
     - echo -e "${SECTION}section_end:`date +%s`:generate\r${SECTION}"
 
