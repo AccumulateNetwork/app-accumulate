@@ -21,8 +21,6 @@ variables:
 
 lint:
   stage: test
-  extends: .rules all
-  needs: []
   before_script:
     - function die { echo -e "${BOLD_RED}${1}${NO_COLOR}"; false; }
   script:
