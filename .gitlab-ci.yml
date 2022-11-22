@@ -25,6 +25,8 @@ lint:
   extends: .rules all
   needs: []
   before_script:
+    - apt-get update
+    - apt-get install -y clang-format git
     - function die { echo -e "${BOLD_RED}${1}${NO_COLOR}"; false; }
   script:
     - echo -e "${SECTION}section_start:`date +%s`:generate\r${SECTION}Verify code is correctly formatted"
