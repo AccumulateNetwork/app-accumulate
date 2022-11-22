@@ -1,5 +1,5 @@
-image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder:latest
-  #image: docker:20
+#image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder:latest
+image: docker:20
 
 stages: # List of stages for jobs, and their order of execution
   - test        
@@ -25,6 +25,7 @@ lint:
   before_script:
     - function die { echo -e "${BOLD_RED}${1}${NO_COLOR}"; false; }
   script:
+    - apt-get -y update && apt-get -y install git clang-format 
     - echo -e "${SECTION}section_start:`date +%s`:generate\r${SECTION}Verify code is correctly formatted"
     - find src/ -type f \( -name "*.h" -o -name "*.c" \) -exec clang-format -i {} \;
     - git diff --quiet || die "Please run clang-format on the following files\n$(git ls-files -m)"
@@ -59,12 +60,23 @@ build-nano-s:
 
 build-nano-splus:
   stage: build-firmware
+  image: ${LEDGER_BUILDER_IMAGE}
   variables:
     BOLOS_SDK: /opt/nanosplus-secure-sdk
     OUTPUT_PKG_NAME: app-accumulate-nano-splus
     PACKAGE_REGISTRY_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/nano-splus"
   script:
-    - docker run --rm -e BOLOS_SDK="${BOLOS_SDK}" -e OUTPUT_PKG_NAME="${OUTPUT_PKG_NAME}" -e CI_JOB_TOKEN="${CI_JOB_TOKEN}" -e APP_VERSION="${APP_VERSION}" -e PACKAGE_REGISTRY_URL=${PACKAGE_REGISTRY_URL} ${LEDGER_BUILDER_IMAGE}
+    - if [[ -z "${OUTPUT_PKG_NAME}" ]]; then OUTPUT_PKG_NAME="app-accumulate"; fi
+    - cd /app
+    - rm -rf bin obj debug dep output-scan-build dist
+    - mkdir -p dist
+    - make clean; make scan-build
+    - cp bin/app.elf "dist/${OUTPUT_PKG_NAME}.elf"
+    - cp bin/app.sha256 "dist/${OUTPUT_PKG_NAME}.sha256"
+    - cp bin/app.hex "dist/${OUTPUT_PKG_NAME}.hex"
+    - cp bin/app.apdu "dist/${OUTPUT_PKG_NAME}.apdu"
+    - zip -r dist/output-scan-build.zip output-scan-build/*
+    #- docker run --rm -e BOLOS_SDK="${BOLOS_SDK}" -e OUTPUT_PKG_NAME="${OUTPUT_PKG_NAME}" -e CI_JOB_TOKEN="${CI_JOB_TOKEN}" -e APP_VERSION="${APP_VERSION}" -e PACKAGE_REGISTRY_URL=${PACKAGE_REGISTRY_URL} ${LEDGER_BUILDER_IMAGE}
 
 build-nano-x:
   stage: build-firmware
