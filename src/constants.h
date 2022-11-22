@@ -31,22 +31,22 @@
 /**
  * Maximum length of hash.
  */
-#define MAX_HASH_LENGTH 32 + 16 //32 bytes + 16 multi-hash padding
+#define MAX_HASH_LENGTH 32 + 16  // 32 bytes + 16 multi-hash padding
 
 /**
  * Maximum transaction length (bytes).
  */
 #ifdef TARGET_NANOS
-#define MAX_DATA_ENTRY 1 //the nano s can only support smaller transactions
-#define ARENA_SIZE 512
+#define MAX_DATA_ENTRY 1  // the nano s can only support smaller transactions
+#define ARENA_SIZE     512
 #else
-#define MAX_DATA_ENTRY 2 //accumulate accepts a max size 20kb transaction + padding for arena
-#define ARENA_SIZE 512
+#define MAX_DATA_ENTRY 2  // accumulate accepts a max size 20kb transaction + padding for arena
+#define ARENA_SIZE     512
 #endif
 
 #define INITIATOR_FIELD_INDEX 1
 
-#define MAX_TRANSACTION_LEN 512*MAX_DATA_ENTRY //10270 //510
+#define MAX_TRANSACTION_LEN 512 * MAX_DATA_ENTRY  // 10270 //510
 
 /**
  * Maximum signature length (bytes).
@@ -63,5 +63,5 @@
  */
 #define EXPONENT_SMALLEST_UNIT 3
 
-#define ACME_PRECISION 8
+#define ACME_PRECISION    8
 #define CREDITS_PRECISION 4

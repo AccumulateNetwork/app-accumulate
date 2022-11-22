@@ -53,7 +53,6 @@ void ui_action_validate_transaction_hash(bool choice) {
     ui_menu_main();
 }
 
-
 void ui_action_validate_transaction(bool choice) {
     if (choice) {
         G_context.state = STATE_APPROVED;

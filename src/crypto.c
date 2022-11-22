@@ -23,14 +23,14 @@
 #include "globals.h"
 
 derivation_t inferCurve(const uint32_t *bip32_path, uint8_t bip32_path_len) {
-    if ( bip32_path_len < 3 ) {
+    if (bip32_path_len < 3) {
         THROW(ErrorBufferTooSmall);
     }
-    derivation_t derivation = { HDW_NORMAL, CX_CURVE_256K1, CX_CURVE_256K1};
-    switch ( bip32_path[1] ) {
+    derivation_t derivation = {HDW_NORMAL, CX_CURVE_256K1, CX_CURVE_256K1};
+    switch (bip32_path[1]) {
         case CoinTypeBtc:
         case CoinTypeEth:
-            //do nothing
+            // do nothing
             break;
         case CoinTypeFct:
             derivation.key_gen_curve = CX_CURVE_Ed25519;
@@ -54,17 +54,16 @@ int crypto_derive_private_key(cx_ecfp_private_key_t *private_key,
 
     BEGIN_TRY {
         TRY {
-            os_perso_derive_node_bip32_seed_key(
-                curve.mode,
-                curve.derivation_curve,
-                bip32_path,
-                bip32_path_len,
-                (uint8_t*)raw_private_key,
-                NULL,
-                NULL,
-                0);
+            os_perso_derive_node_bip32_seed_key(curve.mode,
+                                                curve.derivation_curve,
+                                                bip32_path,
+                                                bip32_path_len,
+                                                (uint8_t *) raw_private_key,
+                                                NULL,
+                                                NULL,
+                                                0);
             cx_ecfp_init_private_key(curve.key_gen_curve,
-                                     (uint8_t*)raw_private_key,
+                                     (uint8_t *) raw_private_key,
                                      sizeof(raw_private_key),
                                      private_key);
         }
@@ -72,7 +71,7 @@ int crypto_derive_private_key(cx_ecfp_private_key_t *private_key,
             THROW(e);
         }
         FINALLY {
-            explicit_bzero((void*)&raw_private_key, sizeof(raw_private_key));
+            explicit_bzero((void *) &raw_private_key, sizeof(raw_private_key));
         }
     }
     END_TRY;
@@ -82,22 +81,22 @@ int crypto_derive_private_key(cx_ecfp_private_key_t *private_key,
 
 Error crypto_init_public_key(cx_ecfp_private_key_t *private_key,
                              cx_ecfp_public_key_t *public_key,
-                             uint8_t *raw_public_key,//can be as large is 65 bytes
+                             uint8_t *raw_public_key,  // can be as large is 65 bytes
                              uint8_t *public_key_len,
                              bool compress) {
     // generate corresponding public key
     cx_ecfp_generate_pair(private_key->curve, public_key, private_key, 1);
 
-    //always compress ed25519
-    if ( !compress && public_key->curve != CX_CURVE_Ed25519) {
-        if (*public_key_len < 65 ) {
+    // always compress ed25519
+    if (!compress && public_key->curve != CX_CURVE_Ed25519) {
+        if (*public_key_len < 65) {
             return ErrorCode(ErrorBufferTooSmall);
         }
         *public_key_len = 65;
         memmove(raw_public_key, public_key->W, *public_key_len);
     } else {
         if (public_key->curve == CX_CURVE_256K1) {
-            if ( *public_key_len < 33 ) {
+            if (*public_key_len < 33) {
                 return ErrorCode(ErrorBufferTooSmall);
             }
             if (public_key->W[0] != 0x04) {
@@ -107,7 +106,7 @@ Error crypto_init_public_key(cx_ecfp_private_key_t *private_key,
             memmove(raw_public_key + 1, public_key->W + 1, 32);
             *public_key_len = 33;
         } else if (public_key->curve == CX_CURVE_Ed25519 && public_key->W[0] != 0xED) {
-            if ( *public_key_len < 32 ) {
+            if (*public_key_len < 32) {
                 return ErrorCode(ErrorBufferTooSmall);
             }
             for (uint8_t i = 0; i < *public_key_len; i++) {
@@ -131,35 +130,35 @@ int crypto_sign_message(void) {
     int sig_len = 0;
 
     // derive private key according to BIP32 path
-    crypto_derive_private_key(&private_key,
-                              G_context.bip32_path,
-                              G_context.bip32_path_len);
+    crypto_derive_private_key(&private_key, G_context.bip32_path, G_context.bip32_path_len);
 
     BEGIN_TRY {
         TRY {
             switch (private_key.curve) {
-            case CX_CURVE_256K1:
-               sig_len = cx_ecdsa_sign(&private_key,
-                                        CX_RND_RFC6979 | CX_LAST,
-                                        CX_SHA256,
-                                        G_context.tx_info.m_hash,
-                                        sizeof(G_context.tx_info.m_hash),
-                                        G_context.tx_info.signature,
-                                        sizeof(G_context.tx_info.signature),
-                                        &info);
-                break;
-            case CX_CURVE_Ed25519:
-                sig_len = cx_eddsa_sign(&private_key,
-                                        CX_LAST, CX_SHA512,
-                                        G_context.tx_info.m_hash,
-                                        sizeof(G_context.tx_info.m_hash),
-                                        NULL, 0,
-                                        G_context.tx_info.signature,
-                                        sizeof(G_context.tx_info.signature),
-                                        NULL);
-                break;
-            default:
-                THROW(ErrorInvalidEnum);
+                case CX_CURVE_256K1:
+                    sig_len = cx_ecdsa_sign(&private_key,
+                                            CX_RND_RFC6979 | CX_LAST,
+                                            CX_SHA256,
+                                            G_context.tx_info.m_hash,
+                                            sizeof(G_context.tx_info.m_hash),
+                                            G_context.tx_info.signature,
+                                            sizeof(G_context.tx_info.signature),
+                                            &info);
+                    break;
+                case CX_CURVE_Ed25519:
+                    sig_len = cx_eddsa_sign(&private_key,
+                                            CX_LAST,
+                                            CX_SHA512,
+                                            G_context.tx_info.m_hash,
+                                            sizeof(G_context.tx_info.m_hash),
+                                            NULL,
+                                            0,
+                                            G_context.tx_info.signature,
+                                            sizeof(G_context.tx_info.signature),
+                                            NULL);
+                    break;
+                default:
+                    THROW(ErrorInvalidEnum);
             }
         }
         CATCH_OTHER(e) {
@@ -176,7 +175,7 @@ int crypto_sign_message(void) {
     }
 
     G_context.tx_info.signature_len = sig_len;
-    G_context.tx_info.v = (uint8_t)(info & CX_ECCINFO_PARITY_ODD);
+    G_context.tx_info.v = (uint8_t) (info & CX_ECCINFO_PARITY_ODD);
 
     return 0;
 }
@@ -203,10 +202,9 @@ void crypto_ripemd160(const uint8_t *in, uint16_t inlen, uint8_t out[static 20])
 }
 
 void crypto_hash160(const uint8_t *in, uint16_t inlen, uint8_t out[static 20]) {
-    //PRINT_STACK_POINTER();
+    // PRINT_STACK_POINTER();
 
     uint8_t buffer[32];
     cx_hash_sha256(in, inlen, buffer, 32);
     crypto_ripemd160(buffer, 32, out);
 }
-

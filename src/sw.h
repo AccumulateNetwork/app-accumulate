@@ -61,5 +61,4 @@
  */
 #define SW_SIGNATURE_FAIL 0xB008
 
-
-#define SW_ENCODE_ERROR(e) (uint16_t)(0xAC00|abs(e.code))
+#define SW_ENCODE_ERROR(e) (uint16_t)(0xAC00 | abs(e.code))

@@ -27,12 +27,14 @@
 #define PRINTF
 #endif
 
-int parse_transaction(uint8_t *raw_tx, uint16_t raw_tx_len, Signature *signer, Transaction *transaction, buffer_t *arena) {
+int parse_transaction(uint8_t *raw_tx,
+                      uint16_t raw_tx_len,
+                      Signature *signer,
+                      Transaction *transaction,
+                      buffer_t *arena) {
     PRINTF("checkpoint parse A\n");
     // we have received all the APDU's so let's parse and sign
-    buffer_t buf = {.ptr = raw_tx,
-                    .size = raw_tx_len,
-                    .offset = 0};
+    buffer_t buf = {.ptr = raw_tx, .size = raw_tx_len, .offset = 0};
 
     // now we need to go through the transaction and identify the header, body, and hash
     uint16_t len = 0;
@@ -44,16 +46,16 @@ int parse_transaction(uint8_t *raw_tx, uint16_t raw_tx_len, Signature *signer, T
     // set the signer buffer
     {
         Unmarshaler signerUnmarshaler = {.buffer.ptr = buf.ptr + buf.offset,
-                                       .buffer.size = len,
-                                       .buffer.offset = 0,
-                                       .mempool = arena};
+                                         .buffer.size = len,
+                                         .buffer.offset = 0,
+                                         .mempool = arena};
         PRINTF("pre signer parse \n");
         int e = readSignature(&signerUnmarshaler, signer);
         CHECK_ERROR_CODE(e);
         PRINTF("post signature parse \n");
     }
 
-    if (!buffer_seek_cur(&buf, len))  {
+    if (!buffer_seek_cur(&buf, len)) {
         PRINTF("signer buffer too small\n");
         return ErrorBufferTooSmall;
     }
@@ -68,9 +70,9 @@ int parse_transaction(uint8_t *raw_tx, uint16_t raw_tx_len, Signature *signer, T
     // set the transaction buffer
     {
         Unmarshaler transactionUnmarshaler = {.buffer.ptr = buf.ptr + buf.offset,
-                                            .buffer.size = len,
-                                            .buffer.offset = 0,
-                                            .mempool = arena};
+                                              .buffer.size = len,
+                                              .buffer.offset = 0,
+                                              .mempool = arena};
         int e = readTransaction(&transactionUnmarshaler, transaction);
         CHECK_ERROR_CODE(e);
     }
@@ -82,4 +84,3 @@ int parse_transaction(uint8_t *raw_tx, uint16_t raw_tx_len, Signature *signer, T
 
     return ErrorNone;
 }
-

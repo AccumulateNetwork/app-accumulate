@@ -70,17 +70,17 @@ UX_STEP_NOCB(ux_display_review_begin_step,
              });
 
 UX_FLOW(ux_dynamic_display_flow,
-        &ux_display_review_begin_step, //static ux
+        &ux_display_review_begin_step,  // static ux
 
-        &step_upper_delimiter, // A special step that serves as the upper delimiter. It won't print anything on the screen.
-        &step_generic, // The generic step that will actually display stuff on the screen.
-        &step_lower_delimiter, // A special step that serves as the lower delimiter. It won't print anything on the screen.
+        &step_upper_delimiter,  // A special step that serves as the upper delimiter. It won't print
+                                // anything on the screen.
+        &step_generic,          // The generic step that will actually display stuff on the screen.
+        &step_lower_delimiter,  // A special step that serves as the lower delimiter. It won't print
+                                // anything on the screen.
 
         &ux_display_approve_step,
         &ux_display_reject_step,
-        FLOW_LOOP
-);
-
+        FLOW_LOOP);
 
 int ui_display_address() {
     if (G_context.req_type != CONFIRM_ADDRESS || G_context.state != STATE_NONE) {
@@ -89,10 +89,10 @@ int ui_display_address() {
     }
 
     global.max = 4;
-    //do a dry run to check for errors
-    for ( int i = 0; i < global.max; ++i) {
+    // do a dry run to check for errors
+    for (int i = 0; i < global.max; ++i) {
         int e = dynamic_display_address(i);
-        if ( e < 0 ) {
+        if (e < 0) {
             return e;
         }
     }
@@ -104,7 +104,6 @@ int ui_display_address() {
 
     return 0;
 }
-
 
 int ui_display_transaction(void) {
     PRINTF("checkpoint pre display tx 1\n");
@@ -118,51 +117,51 @@ int ui_display_transaction(void) {
 
     explicit_bzero(&global, sizeof(global));
     global.current_state = STATIC_SCREEN;
-    if ( G_context.tx_info.transaction.Header.Memo.data.buffer.ptr &&
-            ( G_context.tx_info.transaction.Header.Memo.data.buffer.size -
-                G_context.tx_info.transaction.Header.Memo.data.buffer.offset )) {
+    if (G_context.tx_info.transaction.Header.Memo.data.buffer.ptr &&
+        (G_context.tx_info.transaction.Header.Memo.data.buffer.size -
+         G_context.tx_info.transaction.Header.Memo.data.buffer.offset)) {
         g_HaveMemoField = 1;
     }
-    switch ((int)G_context.tx_info.transaction.Body._u->Type) {
+    switch ((int) G_context.tx_info.transaction.Body._u->Type) {
         case TransactionTypeAddCredits: {
             PRINTF("AddCredits tx\n");
 
-            global.max = 3+ g_HaveMemoField;
-            //do a dry run to check for errors
-            for ( int i = 0; i < global.max; ++i) {
+            global.max = 3 + g_HaveMemoField;
+            // do a dry run to check for errors
+            for (int i = 0; i < global.max; ++i) {
                 int e = ui_dynamic_display_add_credits(i);
-                if ( e < 0 ) {
+                if (e < 0) {
                     return e;
                 }
             }
 
-            snprintf(g_welcome,sizeof(g_welcome), "Add Credits");
+            snprintf(g_welcome, sizeof(g_welcome), "Add Credits");
             g_validate_callback = &ui_action_validate_transaction_hash;
             global.dynamic_flow = ui_dynamic_display_add_credits;
             ux_flow_init(0, ux_dynamic_display_flow, NULL);
             break;
         }
         case TransactionTypeSendTokens: {
-            //set up the global dynamic display for send tokens
+            // set up the global dynamic display for send tokens
             SendTokens *s = G_context.tx_info.transaction.Body._SendTokens;
-            if ( s->To_length == 0 ) {
+            if (s->To_length == 0) {
                 PRINTF("SendTokens tx amount failing\n");
                 return SW_DISPLAY_AMOUNT_FAIL;
             }
 
             global.max = 1 + g_HaveMemoField;
-            global.max += 2*s->To_length;
+            global.max += 2 * s->To_length;
 
-            //do a dry run to check for errors
-            for ( int i = 0; i < global.max; ++i) {
+            // do a dry run to check for errors
+            for (int i = 0; i < global.max; ++i) {
                 int e = ui_dynamic_display_send_tokens(i);
-                if ( e < 0 ) {
+                if (e < 0) {
                     return e;
                 }
             }
 
             global.dynamic_flow = ui_dynamic_display_send_tokens;
-            snprintf(g_welcome,sizeof(g_welcome), "Send Tokens");
+            snprintf(g_welcome, sizeof(g_welcome), "Send Tokens");
             g_validate_callback = &ui_action_validate_transaction_hash;
             ux_flow_init(0, ux_dynamic_display_flow, NULL);
             break;
@@ -173,4 +172,3 @@ int ui_display_transaction(void) {
 
     return 0;
 }
-

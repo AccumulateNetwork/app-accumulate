@@ -31,11 +31,11 @@ Error RawJson_set(RawJson *v, const char *s) {
 }
 
 RawJson RawJson_new(buffer_t *b, size_t n) {
-    RawJson init = { { {0,0,0}}};
+    RawJson init = {{{0, 0, 0}}};
 
     if (b) {
         int sizeNeeded = n;
-        if ( (int)b->size - (int)b->offset < sizeNeeded ) {
+        if ((int) b->size - (int) b->offset < sizeNeeded) {
             return init;
         }
         init.data.buffer.ptr = b->ptr;

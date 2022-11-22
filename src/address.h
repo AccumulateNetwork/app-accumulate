@@ -23,8 +23,7 @@
  * @return true if success, false otherwise.
  *
  */
-//bool address_from_pubkey(const uint8_t public_key[static 64], uint8_t *out, size_t out_len);
-
+// bool address_from_pubkey(const uint8_t public_key[static 64], uint8_t *out, size_t out_len);
 
 Error lite_address_from_pubkey(CoinType t, pubkey_ctx_t *publicKey);
 
@@ -38,18 +37,29 @@ Error getLiteAcmeAddress(pubkey_ctx_t *publicKey);
 
 Error encodeMultihash(const uint8_t *hash, uint8_t hashLength, char *out, uint8_t outLength);
 
-Error getNamedAddress(const char *prefix, uint8_t prefixLength, const uint8_t *hash,
-                      uint8_t hashLength, char *out, uint8_t outLength);
+Error getNamedAddress(const char *prefix,
+                      uint8_t prefixLength,
+                      const uint8_t *hash,
+                      uint8_t hashLength,
+                      char *out,
+                      uint8_t outLength);
 
 Error getLiteAcmeUrl(const uint8_t public_key[static 64],
-                    uint8_t *out, size_t out_len,
-                    int8_t *keyName, size_t keyNameLen);
+                     uint8_t *out,
+                     size_t out_len,
+                     int8_t *keyName,
+                     size_t keyNameLen);
 
-bool adjustDecimals(const char *src, uint32_t srcLength, char *target,
-                    uint32_t targetLength, uint8_t decimals);
+bool adjustDecimals(const char *src,
+                    uint32_t srcLength,
+                    char *target,
+                    uint32_t targetLength,
+                    uint8_t decimals);
 
-Error getLiteIdentityUrl(const uint8_t *keyHash, uint8_t keyHashLen,
-                        char *urlOut, size_t urlOutLen);
+Error getLiteIdentityUrl(const uint8_t *keyHash,
+                         uint8_t keyHashLen,
+                         char *urlOut,
+                         size_t urlOutLen);
 //
-//Error resolvePublicKey( CoinType type, pubkey_ctx_t *publicKey,
+// Error resolvePublicKey( CoinType type, pubkey_ctx_t *publicKey,
 //                       uint8_t *out, size_t *inoutlen);
