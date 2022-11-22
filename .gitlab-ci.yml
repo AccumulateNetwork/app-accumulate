@@ -27,8 +27,7 @@ lint:
   script:
     - echo -e "${SECTION}section_start:`date +%s`:generate\r${SECTION}Verify code is correctly formatted"
     - find src/ -type f \( -name "*.h" -o -name "*.c" \) -exec clang-format -i {} \;
-    - GITFILES=$(git ls-files -m)
-    - git diff --quiet || die "Please run clang-format on the following files\n$GITFILES"
+    - git diff --quiet || die "Please run clang-format on the following files\n$(git ls-files -m)"
     - echo -e "${SECTION}section_end:`date +%s`:generate\r${SECTION}"
 
 build docker image:
