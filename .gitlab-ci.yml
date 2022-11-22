@@ -1,5 +1,5 @@
 #image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder:latest
-image: docker:20
+image: docker:20-git
 
 stages: # List of stages for jobs, and their order of execution
   - test        
@@ -25,7 +25,7 @@ lint:
   before_script:
     - function die { echo -e "${BOLD_RED}${1}${NO_COLOR}"; false; }
   script:
-    - apt-get -y update && apt-get -y install git clang-format 
+    - apt-get -y update && apt-get -y install clang-format 
     - echo -e "${SECTION}section_start:`date +%s`:generate\r${SECTION}Verify code is correctly formatted"
     - find src/ -type f \( -name "*.h" -o -name "*.c" \) -exec clang-format -i {} \;
     - git diff --quiet || die "Please run clang-format on the following files\n$(git ls-files -m)"
