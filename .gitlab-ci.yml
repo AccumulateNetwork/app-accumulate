@@ -39,12 +39,23 @@ build docker image:
 
 build-nano-s:
   stage: build-firmware
+  image: ${LEDGER_BUILDER_IMAGE}
   variables:
     BOLOS_SDK: /opt/nanos-secure-sdk
     OUTPUT_PKG_NAME: app-accumulate-nano-s
     PACKAGE_REGISTRY_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/nano-s"
   script:
-    - docker run --rm -e BOLOS_SDK="${BOLOS_SDK}" -e OUTPUT_PKG_NAME="${OUTPUT_PKG_NAME}" -e CI_JOB_TOKEN="${CI_JOB_TOKEN}" -e APP_VERSION="${APP_VERSION}" -e PACKAGE_REGISTRY_URL=${PACKAGE_REGISTRY_URL} ${LEDGER_BUILDER_IMAGE}
+    - if [[ -z "${OUTPUT_PKG_NAME}" ]]; then OUTPUT_PKG_NAME="app-accumulate"; fi
+    - cd /app
+    - rm -rf bin obj debug dep output-scan-build dist
+    - mkdir -p dist
+    - make clean; make scan-build
+    - cp bin/app.elf "dist/${OUTPUT_PKG_NAME}.elf"
+    - cp bin/app.sha256 "dist/${OUTPUT_PKG_NAME}.sha256"
+    - cp bin/app.hex "dist/${OUTPUT_PKG_NAME}.hex"
+    - cp bin/app.apdu "dist/${OUTPUT_PKG_NAME}.apdu"
+    - zip -r dist/output-scan-build.zip output-scan-build/*
+      #- docker run --rm -e BOLOS_SDK="${BOLOS_SDK}" -e OUTPUT_PKG_NAME="${OUTPUT_PKG_NAME}" -e CI_JOB_TOKEN="${CI_JOB_TOKEN}" -e APP_VERSION="${APP_VERSION}" -e PACKAGE_REGISTRY_URL=${PACKAGE_REGISTRY_URL} ${LEDGER_BUILDER_IMAGE}
 
 build-nano-splus:
   stage: build-firmware
