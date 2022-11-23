@@ -38,27 +38,9 @@ build docker image:
     - docker build -t ${LEDGER_BUILDER_IMAGE} .
     - docker push ${LEDGER_BUILDER_IMAGE}
 
-.builder:
-  image: ${LEDGER_BUILDER_IMAGE}
-  before_script:
-    - function die { echo -e "${BOLD_RED}${1}${NO_COLOR}"; false; }
-      #  - |
-      #function build_firmware {
-      #if [[ -z "${OUTPUT_PKG_NAME}" ]]; then OUTPUT_PKG_NAME="app-accumulate"; fi
-      #  cd /app
-      #  rm -rf bin obj debug dep output-scan-build dist
-      #  mkdir -p dist
-      #  make clean; make scan-build
-      #  [ "$(ls -A output-scan-build)" ] && zip -r dist/output-scan-build.zip output-scan-build/* && die "static analysis scan detected errors"
-      #  cp bin/app.elf "dist/${OUTPUT_PKG_NAME}.elf"
-      #  cp bin/app.sha256 "dist/${OUTPUT_PKG_NAME}.sha256"
-      #  cp bin/app.hex "dist/${OUTPUT_PKG_NAME}.hex"
-      #  cp bin/app.apdu "dist/${OUTPUT_PKG_NAME}.apdu"
-      #}
-
 build-nano-s:
   stage: build-firmware
-  extends: [ .builder ] 
+  image: ${LEDGER_BUILDER_IMAGE}
   variables:
     BOLOS_SDK: /opt/nanos-secure-sdk
     OUTPUT_PKG_NAME: app-accumulate-nano-s
@@ -77,7 +59,7 @@ build-nano-s:
 
 build-nano-splus:
   stage: build-firmware
-  extends: [ .builder ] 
+  image: ${LEDGER_BUILDER_IMAGE}
   variables:
     BOLOS_SDK: /opt/nanosplus-secure-sdk
     OUTPUT_PKG_NAME: app-accumulate-nano-splus
@@ -97,7 +79,7 @@ build-nano-splus:
 
 build-nano-x:
   stage: build-firmware
-  extends: [ .builder ] 
+  image: ${LEDGER_BUILDER_IMAGE}
   variables:
     BOLOS_SDK: /opt/nanox-secure-sdk
     OUTPUT_PKG_NAME: app-accumulate-nano-x
