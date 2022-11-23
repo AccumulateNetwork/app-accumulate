@@ -39,6 +39,7 @@ build docker image:
     - docker push ${LEDGER_BUILDER_IMAGE}
 
 .builder:
+  image: ${LEDGER_BUILDER_IMAGE}
   before_script:
     - function die { echo -e "${BOLD_RED}${1}${NO_COLOR}"; false; }
     - |
