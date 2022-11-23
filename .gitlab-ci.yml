@@ -29,12 +29,18 @@ variables:
         make clean; make scan-build
         if [ "$(ls -A output-scan-build)" ]; then 
           zip -r dist/output-scan-build.zip output-scan-build/* 
+          curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file "dist/output-scan-build.zip" "${PACKAGE_REGISTRY_URL}/${APP_VERSION}/output-scan-build.zip"
           die "static analysis scan detected errors"
         fi
         cp bin/app.elf "dist/${OUTPUT_PKG_NAME}.elf"
         cp bin/app.sha256 "dist/${OUTPUT_PKG_NAME}.sha256"
         cp bin/app.hex "dist/${OUTPUT_PKG_NAME}.hex"
         cp bin/app.apdu "dist/${OUTPUT_PKG_NAME}.apdu"
+        echo uploading assets to package to "${PACKAGE_REGISTRY_URL}/${APP_VERSION}/"
+        curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file "dist/$OUTPUT_PKG_NAME.elf" "${PACKAGE_REGISTRY_URL}/${APP_VERSION}/${OUTPUT_PKG_NAME}.elf"
+        curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file "dist/$OUTPUT_PKG_NAME.sha256" "${PACKAGE_REGISTRY_URL}/${APP_VERSION}/${OUTPUT_PKG_NAME}.sha256"
+        curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file "dist/$OUTPUT_PKG_NAME.hex" "${PACKAGE_REGISTRY_URL}/${APP_VERSION}/${OUTPUT_PKG_NAME}.hex"
+        curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file "dist/$OUTPUT_PKG_NAME.apdu" "${PACKAGE_REGISTRY_URL}/${APP_VERSION}/${OUTPUT_PKG_NAME}.apdu"
      }
 
 .rules all:
@@ -66,19 +72,8 @@ build-nano-s:
     BOLOS_SDK: /opt/nanos-secure-sdk
     OUTPUT_PKG_NAME: app-accumulate-nano-s
     PACKAGE_REGISTRY_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/nano-s"
-  before_script:
-    - function die { echo -e "${BOLD_RED}${1}${NO_COLOR}"; false; }
   script:
-    - if [[ -z "${OUTPUT_PKG_NAME}" ]]; then OUTPUT_PKG_NAME="app-accumulate"; fi
-    - cd /app
-    - rm -rf bin obj debug dep output-scan-build dist
-    - mkdir -p dist
-    - make clean; make scan-build
-    - if [[ "$(ls -A output-scan-build)" ]]; then zip -r dist/output-scan-build.zip output-scan-build/*; die "static analysis scan detected errors"; fi
-    - cp bin/app.elf "dist/${OUTPUT_PKG_NAME}.elf"
-    - cp bin/app.sha256 "dist/${OUTPUT_PKG_NAME}.sha256"
-    - cp bin/app.hex "dist/${OUTPUT_PKG_NAME}.hex"
-    - cp bin/app.apdu "dist/${OUTPUT_PKG_NAME}.apdu"
+    - fwbuild
 
 build-nano-splus:
   stage: build-firmware
