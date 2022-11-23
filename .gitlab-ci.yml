@@ -45,6 +45,8 @@ build-nano-s:
     BOLOS_SDK: /opt/nanos-secure-sdk
     OUTPUT_PKG_NAME: app-accumulate-nano-s
     PACKAGE_REGISTRY_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/nano-s"
+  before_script:
+    - function die { echo -e "${BOLD_RED}${1}${NO_COLOR}"; false; }
   script:
     - if [[ -z "${OUTPUT_PKG_NAME}" ]]; then OUTPUT_PKG_NAME="app-accumulate"; fi
     - cd /app
@@ -64,6 +66,8 @@ build-nano-splus:
     BOLOS_SDK: /opt/nanosplus-secure-sdk
     OUTPUT_PKG_NAME: app-accumulate-nano-splus
     PACKAGE_REGISTRY_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/nano-splus"
+  before_script:
+    - function die { echo -e "${BOLD_RED}${1}${NO_COLOR}"; false; }
   script:
     - if [[ -z "${OUTPUT_PKG_NAME}" ]]; then OUTPUT_PKG_NAME="app-accumulate"; fi
     - cd /app
@@ -84,6 +88,8 @@ build-nano-x:
     BOLOS_SDK: /opt/nanox-secure-sdk
     OUTPUT_PKG_NAME: app-accumulate-nano-x
     PACKAGE_REGISTRY_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/nano-x"
+  before_script:
+    - function die { echo -e "${BOLD_RED}${1}${NO_COLOR}"; false; }
   script:
     - if [[ -z "${OUTPUT_PKG_NAME}" ]]; then OUTPUT_PKG_NAME="app-accumulate"; fi
     - cd /app
