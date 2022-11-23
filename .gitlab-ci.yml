@@ -16,6 +16,24 @@ variables:
   NO_COLOR: '\e[0m'
   SECTION: '\e[0K'
 
+.builder:
+  image: ${LEDGER_BUILDER_IMAGE}
+  before_script:
+   - function die { echo -e "${BOLD_RED}${1}${NO_COLOR}"; false; }
+   - |
+     function fwbuild {
+        if [[ -z "${OUTPUT_PKG_NAME}" ]]; then OUTPUT_PKG_NAME="app-accumulate"; fi
+        cd /app
+        rm -rf bin obj debug dep output-scan-build dist
+        mkdir -p dist
+        make clean; make scan-build
+        if [[ "$(ls -A output-scan-build)" ]]; then zip -r dist/output-scan-build.zip output-scan-build/*; die "static analysis scan detected errors"; fi
+        cp bin/app.elf "dist/${OUTPUT_PKG_NAME}.elf"
+        cp bin/app.sha256 "dist/${OUTPUT_PKG_NAME}.sha256"
+        cp bin/app.hex "dist/${OUTPUT_PKG_NAME}.hex"
+        cp bin/app.apdu "dist/${OUTPUT_PKG_NAME}.apdu"
+     }
+
 .rules all:
   rules:
   - if: $CI_PIPELINE_SOURCE != ''
@@ -40,7 +58,7 @@ build docker image:
 
 build-nano-s:
   stage: build-firmware
-  image: ${LEDGER_BUILDER_IMAGE}
+  extends: .builder
   variables:
     BOLOS_SDK: /opt/nanos-secure-sdk
     OUTPUT_PKG_NAME: app-accumulate-nano-s
@@ -53,7 +71,7 @@ build-nano-s:
     - rm -rf bin obj debug dep output-scan-build dist
     - mkdir -p dist
     - make clean; make scan-build
-    - [ "$(ls -A output-scan-build)" ] && zip -r dist/output-scan-build.zip output-scan-build/* && die "static analysis scan detected errors"
+    - if [[ "$(ls -A output-scan-build)" ]]; then zip -r dist/output-scan-build.zip output-scan-build/*; die "static analysis scan detected errors"; fi
     - cp bin/app.elf "dist/${OUTPUT_PKG_NAME}.elf"
     - cp bin/app.sha256 "dist/${OUTPUT_PKG_NAME}.sha256"
     - cp bin/app.hex "dist/${OUTPUT_PKG_NAME}.hex"
@@ -61,44 +79,20 @@ build-nano-s:
 
 build-nano-splus:
   stage: build-firmware
-  image: ${LEDGER_BUILDER_IMAGE}
+  extends: .builder
   variables:
     BOLOS_SDK: /opt/nanosplus-secure-sdk
     OUTPUT_PKG_NAME: app-accumulate-nano-splus
     PACKAGE_REGISTRY_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/nano-splus"
-  before_script:
-    - function die { echo -e "${BOLD_RED}${1}${NO_COLOR}"; false; }
   script:
-    - if [[ -z "${OUTPUT_PKG_NAME}" ]]; then OUTPUT_PKG_NAME="app-accumulate"; fi
-    - cd /app
-    - rm -rf bin obj debug dep output-scan-build dist
-    - mkdir -p dist
-    - make clean; make scan-build
-    - [ "$(ls -A output-scan-build)" ] && zip -r dist/output-scan-build.zip output-scan-build/* && die "static analysis scan detected errors"
-    - cp bin/app.elf "dist/${OUTPUT_PKG_NAME}.elf"
-    - cp bin/app.sha256 "dist/${OUTPUT_PKG_NAME}.sha256"
-    - cp bin/app.hex "dist/${OUTPUT_PKG_NAME}.hex"
-    - cp bin/app.apdu "dist/${OUTPUT_PKG_NAME}.apdu"
-    #- docker run --rm -e BOLOS_SDK="${BOLOS_SDK}" -e OUTPUT_PKG_NAME="${OUTPUT_PKG_NAME}" -e CI_JOB_TOKEN="${CI_JOB_TOKEN}" -e APP_VERSION="${APP_VERSION}" -e PACKAGE_REGISTRY_URL=${PACKAGE_REGISTRY_URL} ${LEDGER_BUILDER_IMAGE}
+    - fwbuild
 
 build-nano-x:
   stage: build-firmware
-  image: ${LEDGER_BUILDER_IMAGE}
+  extends: .builder
   variables:
     BOLOS_SDK: /opt/nanox-secure-sdk
     OUTPUT_PKG_NAME: app-accumulate-nano-x
     PACKAGE_REGISTRY_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/nano-x"
-  before_script:
-    - function die { echo -e "${BOLD_RED}${1}${NO_COLOR}"; false; }
   script:
-    - if [[ -z "${OUTPUT_PKG_NAME}" ]]; then OUTPUT_PKG_NAME="app-accumulate"; fi
-    - cd /app
-    - rm -rf bin obj debug dep output-scan-build dist
-    - mkdir -p dist
-    - make clean; make scan-build
-    - [ "$(ls -A output-scan-build)" ] && zip -r dist/output-scan-build.zip output-scan-build/* && die "static analysis scan detected errors"
-    - cp bin/app.elf "dist/${OUTPUT_PKG_NAME}.elf"
-    - cp bin/app.sha256 "dist/${OUTPUT_PKG_NAME}.sha256"
-    - cp bin/app.hex "dist/${OUTPUT_PKG_NAME}.hex"
-    - cp bin/app.apdu "dist/${OUTPUT_PKG_NAME}.apdu"
-    #- docker run --rm -e BOLOS_SDK="${BOLOS_SDK}" -e OUTPUT_PKG_NAME="${OUTPUT_PKG_NAME}" -e CI_JOB_TOKEN="${CI_JOB_TOKEN}" -e APP_VERSION="${APP_VERSION}" -e PACKAGE_REGISTRY_URL=${PACKAGE_REGISTRY_URL} ${LEDGER_BUILDER_IMAGE}
+    - fwbuild
