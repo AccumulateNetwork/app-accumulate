@@ -40,8 +40,8 @@ build docker image:
 
 .builder:
   before_script:
+    - function die { echo -e "${BOLD_RED}${1}${NO_COLOR}"; false; }
     - |
-      function die { echo -e "${BOLD_RED}${1}${NO_COLOR}"; false; }
       function build_firmware {
         if [[ -z "${OUTPUT_PKG_NAME}" ]]; then OUTPUT_PKG_NAME="app-accumulate"; fi
         cd /app
