@@ -26,7 +26,7 @@ variables:
         cd /app
         rm -rf bin obj debug dep output-scan-build dist
         mkdir -p dist
-        make clean; make scan-build
+        make clean; make scan-build SCAN_BUILD="scan-build -disable-checker deadcode.DeadStores"
         if [ "$(ls -A output-scan-build)" ]; then 
           zip -r dist/output-scan-build.zip output-scan-build/* 
           curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file "dist/output-scan-build.zip" "${PACKAGE_REGISTRY_URL}/${APP_VERSION}/output-scan-build.zip"
