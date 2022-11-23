@@ -3,43 +3,26 @@
 #include <setjmp.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h>
 
 #include <cmocka.h>
 
 #include "common/buffer.h"
-#include <common/encoding/encoding.h>
+#include <encoding/encoding.h>
 #include <common/sha256.h>
-#define ACME_HEADER
-#include <common/protocol/enum.h>
-#include <common/protocol/transaction.h>
-#include <common/protocol/unions.h>
-#include <common/protocol/signatures.h>
+#include <protocol/enum.h>
+#include <protocol/transaction.h>
+#include <protocol/signatures.h>
 #include <transaction/utils.h>
 
-#define WANT_DEBUG_TX_CODE
+#define WANT_DEBUG_TX_CODE 0
 
-typedef struct {
-   Bytes32 a;
-   Bytes64 b;
-   String c;
-   BigInt d;
-   VarInt e;
-} test_e; //encoder
-
-test_e init_test_e_from_buffer(buffer_t *buffer) {
-    test_e init;
-    init.a = Bytes32_new(buffer, 1);
-    init.b = Bytes64_new(buffer, 1);
-    init.c = String_new(buffer, 16);
-    init.d = BigInt_new(buffer);
-    init.e = VarInt_new(buffer);
-    return init;
-}
 static void test_encoding_apdu(void **state) {
+    UNUSED(state);
 
     char *apdu_payload = "008b01020220e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11043b6163633a2f2f6336613632396639613635626632313135396335646662666662633836386563336165363163653436353131303865632f41434d450501069ca3e4b4ba3008c4dcfc1b86ccdd0cd7937fcb2619a2735b59f8119a43cd7d396690b5c017bf0400b6016b013b6163633a2f2f6336613632396639613635626632313135396335646662666662633836386563336165363163653436353131303865632f41434d45022aa4dd0e234834061b2ec1402b95e7888af941f6d47d3a5d82e15789c47c82c9030b6c65646765722074657374024701030443013b6163633a2f2f6639666562393361313063616632646466313633396336666634353934666262313939633964653963643130636134372f41434d4502043b9aca002036fbe60414509eb11b04b900d8d69191e456fac7b33a74842af7272968c308e5";
     uint8_t raw_tx[1024] = {0};
-    hextobin(apdu_payload, strlen(apdu_payload), raw_tx, sizeof(raw_tx));
+    hextobin(apdu_payload, (int)strlen(apdu_payload), raw_tx, sizeof(raw_tx));
 
 #if WANT_DEBUG_TX_CODE
     printf("G_context.tx_info.raw_tx_len = 0;\n");
@@ -52,12 +35,8 @@ static void test_encoding_apdu(void **state) {
     printf("//%d\n",raw_tx_len);
 #endif
 
-    int raw_tx_len = strlen(apdu_payload)/2;
+    int raw_tx_len = (int)strlen(apdu_payload)/2;
     // we have received all the APDU's so let's parse and sign
-    buffer_t buf = {.ptr = raw_tx,
-            .size = raw_tx_len,
-            .offset = 0};
-
     buffer_t arena = {.ptr = raw_tx + raw_tx_len, .size = sizeof(raw_tx) - raw_tx_len, 0};
 
     Signature signer;
@@ -67,16 +46,17 @@ static void test_encoding_apdu(void **state) {
 }
 
 static void test_encoding_transaction(void **state) {
+    UNUSED(state);
 
     //PreSignature: {"type":"ed25519","publicKey":"e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11","signer":"acc://c6a629f9a65bf21159c5dfbffbc868ec3ae61ce4651108ec/ACME","signerVersion":1,"timestamp":1664460962464,"transactionHash":"2e1a5959275faaf81dadecbc7c1b27ae43f06793ff45d514f45a3afc77bd0dfd"}
     char *PreSignature = "01020220e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11043b6163633a2f2f6336613632396639613635626632313135396335646662666662633836386563336165363163653436353131303865632f41434d45050106a0f5eaccb830082e1a5959275faaf81dadecbc7c1b27ae43f06793ff45d514f45a3afc77bd0dfd";
     char *PreSignature2 = "01020220e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11043b6163633a2f2f6336613632396639613635626632313135396335646662666662633836386563336165363163653436353131303865632f41434d450501068489f5adba3008981c8ae4417483e896ab9004e75102dd3c2eebe755937ec6e17b9d83f4044895";
     //Transaction: {"header":{"principal":"acc://c6a629f9a65bf21159c5dfbffbc868ec3ae61ce4651108ec/ACME","initiator":"cf45be0d838a5f2a1a9801b794769b95e5657bebd23de07caa6f81f4cdd2d49f","memo":"ledger test"},"body":{"type":"sendTokens","hash":"0000000000000000000000000000000000000000000000000000000000000000","to":[{"url":"acc://f9feb93a10caf2ddf1639c6ff4594fbb199c9de9cd10ca47/ACME","amount":"1000000000"}]}}
     char *Transaction = "016b013b6163633a2f2f6336613632396639613635626632313135396335646662666662633836386563336165363163653436353131303865632f41434d4502cf45be0d838a5f2a1a9801b794769b95e5657bebd23de07caa6f81f4cdd2d49f030b6c65646765722074657374024701030443013b6163633a2f2f6639666562393361313063616632646466313633396336666634353934666262313939633964653963643130636134372f41434d4502043b9aca00";
-    char *TransactionHash = "421ed18da7d2bcf31cd58f9479ce2e7c5c316ecf72ca466c8f8b3e094f964fc7";
+    //char *TransactionHash = "421ed18da7d2bcf31cd58f9479ce2e7c5c316ecf72ca466c8f8b3e094f964fc7";
 
     uint8_t transaction[1024] = {0};
-    hextobin(Transaction, strlen(Transaction), transaction, sizeof(transaction));
+    hextobin(Transaction, (int)strlen(Transaction), transaction, sizeof(transaction));
 
     uint8_t arena[1024] = {0};
 
@@ -88,22 +68,21 @@ static void test_encoding_transaction(void **state) {
     int n = unmarshalerReadTransaction(&um, &t);
     assert_false(IsError(ErrorCode(n)));
 
-    int expectedLen = strlen(Transaction)/2;
+    int expectedLen = (int)strlen(Transaction)/2;
     assert_true(expectedLen == n);
 
     //now test out the Signature processor
     uint8_t preSignature[1024] = {0};
-    hextobin(PreSignature2, strlen(PreSignature), preSignature, sizeof(preSignature));
+    hextobin(PreSignature2, (int)strlen(PreSignature), preSignature, sizeof(preSignature));
 
     buffer_t sigbuffer = { preSignature, sizeof(preSignature), 0 };
     um = NewUnmarshaler(&sigbuffer, &mempool);
-    Signature s;
     ED25519Signature ed;
 
-    n = unmarshalerReadED25519Signature(&um, &ed);//unmarshalerReadSignature(&um, &s);
+    n = unmarshalerReadED25519Signature(&um, &ed);
     assert_false(IsError(ErrorCode(n)));
 
-    expectedLen = strlen(PreSignature)/2;
+    expectedLen = (int)strlen(PreSignature)/2;
     assert_true(expectedLen == n);
 
 }
@@ -112,7 +91,6 @@ static void test_encoding_bytes(void **state) {
     (void) state;
 
     Bytes32_t bt;
-    Error err = Error_init(0);
 
     Bytes32 b = Bytes32_init(&bt);
 
@@ -180,7 +158,7 @@ static void test_encoding_varint(void **state) {
     UVarInt expected_uvarint = UVarInt_new(&expected_uvarint_buffer);
 
     uint8_t marshalBuffer[1024] = {0};
-    buffer_t buffer = { &marshalBuffer, sizeof (marshalBuffer), 0};
+    buffer_t buffer = { marshalBuffer, sizeof (marshalBuffer), 0};
 
     //test marshaler
     Marshaler m = NewMarshaler(&buffer);
@@ -208,7 +186,7 @@ static void test_encoding_varint(void **state) {
 
     //test the varint unmarshaler
     enc = marshalerGetEncodedBuffer(&m);
-    u = NewUnmarshaler(&enc, arena);
+    u = NewUnmarshaler(&enc, &mempool);
     VarInt test_varint_unmarshal = VarInt_new(0);
     code = unmarshalerReadVarInt(&u, &test_varint_unmarshal );
     assert_false(IsError(ErrorCode(code)));
@@ -218,9 +196,11 @@ static void test_encoding_varint(void **state) {
 #include <common/format.h>
 
 static void test_encoding_bigint(void **state) {
+    UNUSED(state);
+
     const char *hex = "000165e2d19bbebe548e2189e84824a90aa900f2d2ede8ff5d65383be3bece06e85f430a07fb170f";
     uint8_t out[1024] = {0};
-    int n = hextobin(hex, strlen(hex), out, sizeof(out));
+    int n = hextobin(hex, (int)strlen(hex), out, sizeof(out));
     assert_true(n == strlen(hex)/2);
 
     const char *bigpi = "314159265358979323846264338327950288419716939937510582097494459";
@@ -240,7 +220,7 @@ static void test_encoding_bigint(void **state) {
 
     memset(out, 0, sizeof(out));
 
-    int outlen = tobytes256(&bigpi2, out, sizeof(out));
+    int outlen = tobytes256(&bigpi2,(uint8_t*) out, sizeof(out));
     assert_true(outlen > 0);
     //writeu256BE(&bigpi2, out);
 
@@ -248,20 +228,20 @@ static void test_encoding_bigint(void **state) {
     format_hex(out, outlen, str, sizeof(str));
     printf("-> %s\n", str);
 
-    tostring256(&bigpi2, 16,out, sizeof(out));
+    tostring256(&bigpi2, 16,(char *)out, sizeof(out));
     printf("%s\n", out);
 
     printf("bits %d\n", bits256(&bigpi2));
 
-    tostring256(&number, 16,out, sizeof(out));
+    tostring256(&number, 16,(char*)out, sizeof(out));
     printf("%s\n", out);
     assert_true(equal256(&number, &bigpi2));
 
-    buffer_t arena[1024] = {0};
-    buffer_t mempool = { &arena, sizeof (arena), 0};
+    uint8_t arena[1024] = {0};
+    buffer_t mempool = { arena, sizeof (arena), 0};
 
     uint8_t marshalBuffer[1024] = {0};
-    buffer_t buffer = { &marshalBuffer, sizeof (marshalBuffer), 0};
+    buffer_t buffer = { marshalBuffer, sizeof (marshalBuffer), 0};
 
     //test marshaler
     BigInt bi = BigInt_new(&mempool);
@@ -287,14 +267,15 @@ static void test_encoding_bigint(void **state) {
 }
 
 static void test_encoding_strings(void **state) {
+    UNUSED(state);
     uint8_t marshalBuffer[1024] = {0};
-    buffer_t buffer = { &marshalBuffer, sizeof (marshalBuffer), 0};
+    buffer_t buffer = { marshalBuffer, sizeof (marshalBuffer), 0};
 
     const char *expected_string = "the quick brown fox jumps over the lazy dog";
 
     char sbuf[256] = {0};
 
-    buffer_t stringbuf = { sbuf, sizeof(sbuf), 0};
+    buffer_t stringbuf = { (uint8_t*)sbuf, sizeof(sbuf), 0};
     String s = String_new(&stringbuf,sizeof(sbuf));
 
     String_set(&s, expected_string);
@@ -319,13 +300,16 @@ static void test_encoding_strings(void **state) {
 
 }
 
-int main() {
+int main(int argc, char *argv[]) {
+    UNUSED(argc);
+    UNUSED(argv);
     const struct CMUnitTest tests[] = {
                         cmocka_unit_test(test_encoding_bytes),
                         cmocka_unit_test(test_encoding_varint),
                         cmocka_unit_test(test_encoding_bigint),
                         cmocka_unit_test(test_encoding_strings),
-                        cmocka_unit_test(test_encoding_apdu), //cmocka_unit_test(test_encoding_transaction),
+                        cmocka_unit_test(test_encoding_apdu),
+                        cmocka_unit_test(test_encoding_transaction),
     };
 
     return cmocka_run_group_tests(tests, NULL, NULL);

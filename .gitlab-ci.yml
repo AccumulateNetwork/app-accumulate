@@ -17,8 +17,10 @@ variables:
   SECTION: '\e[0K'
 
 .builder:
-  image: ${LEDGER_BUILDER_IMAGE}
+  #image: ${LEDGER_BUILDER_IMAGE}
+  image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder:latest
   before_script:
+   - apk add zip wget curl 
    - function die { echo -e "${BOLD_RED}${1}${NO_COLOR}"; false; }
    - |
      function fwbuild {

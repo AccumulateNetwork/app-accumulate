@@ -162,7 +162,9 @@ void test_metadata_signing_hash(void **state) {
     assert_false(memcmp(hash, signer._u->TransactionHash.data.buffer.ptr+signer._u->TransactionHash.data.buffer.offset,32));
 }
 
-int main() {
+int main(int argc, char *argv[]) {
+    UNUSED(argc);
+    UNUSED(argv);
     const struct CMUnitTest tests[] = {
             cmocka_unit_test(test_hasher),
             cmocka_unit_test(test_initiator),

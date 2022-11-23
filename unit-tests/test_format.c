@@ -7,6 +7,7 @@
 
 #include <cmocka.h>
 
+#include "common/error.h"
 #include "common/format.h"
 
 static void test_format_i64(void **state) {
@@ -95,7 +96,9 @@ static void test_format_hex(void **state) {
     assert_int_equal(-1, format_hex(address, sizeof(address), output, sizeof(address)));
 }
 
-int main() {
+int main(int argc, char *argv[]) {
+    UNUSED(argc);
+    UNUSED(argv);
     const struct CMUnitTest tests[] = {cmocka_unit_test(test_format_i64),
                                        cmocka_unit_test(test_format_u64),
                                        cmocka_unit_test(test_format_fpu64),

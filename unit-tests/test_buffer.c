@@ -3,9 +3,11 @@
 #include <setjmp.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h>
+
 
 #include <cmocka.h>
-
+#include "common/error.h"
 #include "common/buffer.h"
 
 static void test_buffer_can_read(void **state) {
@@ -144,7 +146,9 @@ static void test_buffer_move(void **state) {
     assert_false(buffer_move(&buf, output2, sizeof(output2)));  // can't read 5 bytes
 }
 
-int main() {
+int main(int argc, char *argv[]) {
+    UNUSED(argc);
+    UNUSED(argv);
     const struct CMUnitTest tests[] = {cmocka_unit_test(test_buffer_can_read),
                                        cmocka_unit_test(test_buffer_seek),
                                        cmocka_unit_test(test_buffer_read),

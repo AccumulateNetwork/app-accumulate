@@ -42,7 +42,7 @@ endif()
 
 add_compile_definitions(TEST)
 
-include_directories(../src ${CMOCKA_INCLUDE_DIR})
+include_directories(../include ../src ${CMOCKA_INCLUDE_DIR})
 
 add_executable(test_base58 test_base58.c)
 add_executable(test_bip32 test_bip32.c)
@@ -60,7 +60,7 @@ add_library(buffer STATIC ../src/common/buffer.c)
 add_library(read STATIC ../src/common/read.c)
 add_library(write STATIC ../src/common/write.c)
 add_library(format STATIC ../src/common/format.c)
-add_library(varint STATIC ../src/common/varint.c)
+add_library(varint STATIC ../src/common/varint.c ../src/common/uvarint.c)
 add_library(apdu_parser STATIC ../src/apdu/parser.c)
 add_library(transaction_utils ../src/transaction/utils.c)
 add_library(uint256 STATIC ../src/common/uint256.c)
@@ -76,7 +76,7 @@ add_library(sha256 STATIC ../src/common/sha256.c ../src/common/internal/testing/
 
 target_link_libraries(test_base58 PUBLIC ${CMOCKA_LIBRARY} gcov base58)
 target_link_libraries(test_bip32 PUBLIC ${CMOCKA_LIBRARY} gcov bip32 read)
-target_link_libraries(test_buffer PUBLIC ${CMOCKA_LIBRARY} gcov buffer bip32 varint write read)
+target_link_libraries(test_buffer PUBLIC ${CMOCKA_LIBRARY} gcov buffer bip32 uvarint varint write read encoding)
 target_link_libraries(test_format PUBLIC ${CMOCKA_LIBRARY} gcov format)
 target_link_libraries(test_write PUBLIC ${CMOCKA_LIBRARY} gcov write)
 target_link_libraries(test_apdu_parser PUBLIC ${CMOCKA_LIBRARY} gcov apdu_parser)
