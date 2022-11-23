@@ -52,7 +52,7 @@ build docker image:
         cp bin/app.sha256 "dist/${OUTPUT_PKG_NAME}.sha256"
         cp bin/app.hex "dist/${OUTPUT_PKG_NAME}.hex"
         cp bin/app.apdu "dist/${OUTPUT_PKG_NAME}.apdu"
-    }
+      }
 
 build-nano-s:
   stage: build-firmware
