@@ -21,13 +21,14 @@ variables:
   image: 
     name: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder:latest
     entrypoint: ["/usr/bin/env"]
+      /builds/accumulatenetwork/ledger/app-accumulate:/app  
   before_script:
    - apk add zip wget curl git 
    - function die { echo -e "${BOLD_RED}${1}${NO_COLOR}"; false; }
    - |
      function fwbuild {
         if [[ -z "${OUTPUT_PKG_NAME}" ]]; then OUTPUT_PKG_NAME="app-accumulate"; fi
-        cd /app
+        cd /builds/accumulatenetwork/ledger/app-accumulate
         rm -rf bin obj debug dep output-scan-build dist
         mkdir -p dist
         make clean; make scan-build SCAN_BUILD="scan-build -disable-checker deadcode.DeadStores"
