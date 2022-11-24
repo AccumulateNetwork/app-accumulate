@@ -7,8 +7,9 @@
 
 
 #include <cmocka.h>
-#include "common/error.h"
-#include "common/buffer.h"
+#include <common/error.h>
+#include <common/buffer.h>
+#include <common/uvarint.h>
 
 static void test_buffer_can_read(void **state) {
     (void) state;

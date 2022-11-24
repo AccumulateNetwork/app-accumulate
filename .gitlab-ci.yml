@@ -18,8 +18,9 @@ variables:
 
 .builder:
   #image: ${LEDGER_BUILDER_IMAGE}
-  image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder:latest
-  entrypoint: ["/usr/bin/env"]
+  image: 
+    name: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder:latest
+    entrypoint: ["/usr/bin/env"]
   before_script:
    - apk add zip wget curl git 
    - function die { echo -e "${BOLD_RED}${1}${NO_COLOR}"; false; }
