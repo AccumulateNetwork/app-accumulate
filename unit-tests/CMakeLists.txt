@@ -62,7 +62,7 @@ add_library(write STATIC ../src/common/write.c)
 add_library(format STATIC ../src/common/format.c)
 add_library(varint STATIC ../src/common/varint.c ../src/common/uvarint.c)
 add_library(apdu_parser STATIC ../src/apdu/parser.c)
-add_library(transaction_utils ../src/transaction/utils.c)
+add_library(transaction_utils ../src/transaction/utils.c ../src/protocol/unions.c ../src/protocol/enum.c)
 add_library(uint256 STATIC ../src/common/uint256.c)
 add_library(encoding STATIC ../src/encoding/bytes32.c ../src/encoding/bytes64.c
         ../src/encoding/string_enc.c ../src/encoding/varint_enc.c ../src/encoding/bigint.c
@@ -71,19 +71,20 @@ add_library(encoding STATIC ../src/encoding/bytes32.c ../src/encoding/bytes64.c
         ../src/encoding/bytes.c  ../src/protocol/enum.c ../src/transaction/utils.c
         ../src/transaction/signer.c ../src/transaction/header.c ../src/transaction/send_tokens.c
         ../src/transaction/add_credits.c ../src/transaction/token_recipient.c ../src/transaction/transaction.c)
+
 add_library(error STATIC ../src/common/error.c)
 add_library(sha256 STATIC ../src/common/sha256.c ../src/common/internal/testing/sha256.c)
 
 target_link_libraries(test_base58 PUBLIC ${CMOCKA_LIBRARY} gcov base58)
 target_link_libraries(test_bip32 PUBLIC ${CMOCKA_LIBRARY} gcov bip32 read)
-target_link_libraries(test_buffer PUBLIC ${CMOCKA_LIBRARY} gcov buffer bip32 uvarint varint write read encoding)
+target_link_libraries(test_buffer PUBLIC ${CMOCKA_LIBRARY} gcov buffer bip32 varint write read encoding)
 target_link_libraries(test_format PUBLIC ${CMOCKA_LIBRARY} gcov format)
 target_link_libraries(test_write PUBLIC ${CMOCKA_LIBRARY} gcov write)
 target_link_libraries(test_apdu_parser PUBLIC ${CMOCKA_LIBRARY} gcov apdu_parser)
 
-target_link_libraries(test_encoding sha256 encoding uint256
+target_link_libraries(test_encoding sha256  uint256
         buffer varint error transaction_utils gcov
-        ${CMOCKA_LIBRARY} read write format bip32)
+        ${CMOCKA_LIBRARY} read write format bip32 encoding hasher)
 
 target_link_libraries(test_hasher PUBLIC sha256 encoding uint256
         buffer varint error transaction_utils gcov

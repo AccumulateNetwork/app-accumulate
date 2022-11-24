@@ -20,11 +20,12 @@ variables:
   #image: ${LEDGER_BUILDER_IMAGE}
   image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder:latest
   before_script:
-   - apk add zip wget curl 
+   - apk add zip wget curl git 
    - function die { echo -e "${BOLD_RED}${1}${NO_COLOR}"; false; }
    - |
      function fwbuild {
         if [[ -z "${OUTPUT_PKG_NAME}" ]]; then OUTPUT_PKG_NAME="app-accumulate"; fi
+        find /
         cd /app
         rm -rf bin obj debug dep output-scan-build dist
         mkdir -p dist

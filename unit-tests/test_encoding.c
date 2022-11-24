@@ -65,7 +65,7 @@ static void test_encoding_transaction(void **state) {
     buffer_t txbuffer = {transaction, sizeof(transaction), 0};
     Unmarshaler um = NewUnmarshaler(&txbuffer,&mempool);
     struct Transaction t;
-    int n = unmarshalerReadTransaction(&um, &t);
+    int n = readTransaction(&um, &t);
     assert_false(IsError(ErrorCode(n)));
 
     int expectedLen = (int)strlen(Transaction)/2;
@@ -77,9 +77,10 @@ static void test_encoding_transaction(void **state) {
 
     buffer_t sigbuffer = { preSignature, sizeof(preSignature), 0 };
     um = NewUnmarshaler(&sigbuffer, &mempool);
-    ED25519Signature ed;
+    //ED25519Signature ed;
+    Signature s;// = {._ED25519Signature = &ed };
 
-    n = unmarshalerReadED25519Signature(&um, &ed);
+    n = readSignature(&um, &s);
     assert_false(IsError(ErrorCode(n)));
 
     expectedLen = (int)strlen(PreSignature)/2;
