@@ -18,7 +18,7 @@ variables:
   #image: ${LEDGER_BUILDER_IMAGE}
   image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder:latest 
   before_script:
-   - apk add zip wget curl git 
+   - apk add zip wget curl git clang-format cmake cmocka cmocka-dev
    - function die { echo -e "${BOLD_RED}${1}${NO_COLOR}"; false; }
    - |
      function fwbuild {
@@ -49,10 +49,8 @@ variables:
 
 lint:
   stage: test
-  before_script:
-    - function die { echo -e "${BOLD_RED}${1}${NO_COLOR}"; false; }
+  extends: .builder
   script:
-    - apk add clang-format 
     - echo -e "${SECTION}section_start:`date +%s`:generate\r${SECTION}Verify code is correctly formatted"
     - find src/ -type f \( -name "*.h" -o -name "*.c" \) -exec clang-format -i {} \;
     - git diff --quiet || die "Please run clang-format on the following files\n$(git ls-files -m)"
@@ -60,13 +58,12 @@ lint:
 
 unit-tests:
   stage: test
-  before_script:
-    - apk add clang-format cmake cmocka cmocka-dev
+  extends: .builder
   script:
     - cd unit-tests
     - cmake -Bbuild -H. && make -C build
     - make
-    - ctest .
+    - ctest . || die "one or more unit tests failed"
 
 build-nano-s:
   stage: build-firmware
