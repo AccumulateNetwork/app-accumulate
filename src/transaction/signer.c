@@ -31,21 +31,23 @@ int initiatorHash(Signature *s, uint8_t initiator[static 32]) {
 
 bool isMetadataField(int field, SignatureType type) {
     switch (field) {
-        case SigTypeMarshalFieldType:
-        case SigTypeMarshalFieldPublicKey:
-        case SigTypeMarshalFieldSigner:
-        case SigTypeMarshalFieldTimestamp:
-        case SigTypeMarshalFieldSignerVersion:
-        case SigTypeMarshalFieldVote:
-            return true;
         case SigTypeMarshalFieldTransactionHash:
-            if (type == SignatureTypeBTC || type == SignatureTypeBTCLegacy ||
-                type == SignatureTypeETH) {
+            if ( type == SignatureTypeDelegated ) {
                 return true;
             }
-            return false;
+            break;
+        case SigTypeMarshalFieldSignature:
+            switch(type) {
+                case SignatureTypeReceipt:
+                case SignatureTypeInternal:
+                case SignatureTypePartition:
+                    return true;
+                default:
+                    return false;
+            }
+            break;
         default:
-            return false;
+            return true;
     }
     return false;
 }
