@@ -61,7 +61,7 @@ lint:
 unit-tests:
   stage: test
   script:
-    - apg-get -y update && apt-get -y install clang-format cmake
+    - apt-get -y update && apt-get -y install clang-format cmake libcmocka0 libcmocka-dev
     - cd unit-tests
     - cmake -Bbuild -H. && make -C build
     - make
