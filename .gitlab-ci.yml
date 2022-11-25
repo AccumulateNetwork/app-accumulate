@@ -18,7 +18,7 @@ variables:
   #image: ${LEDGER_BUILDER_IMAGE}
   image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder:latest 
   before_script:
-   - apk add zip wget curl git clang-format cmake cmocka cmocka-dev
+   - apk add zip wget curl git clang cmake cmocka cmocka-dev
    - function die { echo -e "${BOLD_RED}${1}${NO_COLOR}"; false; }
    - |
      function fwbuild {
