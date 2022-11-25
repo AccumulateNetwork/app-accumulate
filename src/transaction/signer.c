@@ -32,12 +32,12 @@ int initiatorHash(Signature *s, uint8_t initiator[static 32]) {
 bool isMetadataField(int field, SignatureType type) {
     switch (field) {
         case SigTypeMarshalFieldTransactionHash:
-            if ( type == SignatureTypeDelegated ) {
+            if (type == SignatureTypeDelegated) {
                 return true;
             }
             break;
         case SigTypeMarshalFieldSignature:
-            switch(type) {
+            switch (type) {
                 case SignatureTypeReceipt:
                 case SignatureTypeInternal:
                 case SignatureTypePartition:
