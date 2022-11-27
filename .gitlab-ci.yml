@@ -36,11 +36,15 @@ variables:
         cp bin/app.sha256 "dist/${OUTPUT_PKG_NAME}.sha256"
         cp bin/app.hex "dist/${OUTPUT_PKG_NAME}.hex"
         cp bin/app.apdu "dist/${OUTPUT_PKG_NAME}.apdu"
+        cp debug/app.map "dist/${OUTPUT_PKG_NAME}.map"
+        cp debug/app.asm "dist/${OUTPUT_PKG_NAME}.asm"
         echo uploading assets to package to "${PACKAGE_REGISTRY_URL}/${APP_VERSION}/"
         curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file "dist/$OUTPUT_PKG_NAME.elf" "${PACKAGE_REGISTRY_URL}/${APP_VERSION}/${OUTPUT_PKG_NAME}.elf"
         curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file "dist/$OUTPUT_PKG_NAME.sha256" "${PACKAGE_REGISTRY_URL}/${APP_VERSION}/${OUTPUT_PKG_NAME}.sha256"
         curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file "dist/$OUTPUT_PKG_NAME.hex" "${PACKAGE_REGISTRY_URL}/${APP_VERSION}/${OUTPUT_PKG_NAME}.hex"
         curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file "dist/$OUTPUT_PKG_NAME.apdu" "${PACKAGE_REGISTRY_URL}/${APP_VERSION}/${OUTPUT_PKG_NAME}.apdu"
+        curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file "dist/$OUTPUT_PKG_NAME.map" "${PACKAGE_REGISTRY_URL}/${APP_VERSION}/${OUTPUT_PKG_NAME}.map"
+        curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file "dist/$OUTPUT_PKG_NAME.asm" "${PACKAGE_REGISTRY_URL}/${APP_VERSION}/${OUTPUT_PKG_NAME}.asm"
      }
 
 .rules all:
