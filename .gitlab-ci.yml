@@ -20,6 +20,11 @@ variables:
   before_script:
    - apk add zip wget curl git clang cmake cmocka cmocka-dev
    - function die { echo -e "${BOLD_RED}${1}${NO_COLOR}"; false; }
+   - function make_nanos {
+        BOLOS_SDK=/opt/nanos-secure-sdk
+        cd /builds/accumulatenetwork/ledger/app-accumulate
+        make clean; make
+     }
    - |
      function fwbuild {
         if [[ -z "${OUTPUT_PKG_NAME}" ]]; then OUTPUT_PKG_NAME="app-accumulate"; fi
@@ -70,6 +75,22 @@ unit-tests:
     - make
     - ctest . || die "one or more unit tests failed"
 
+e2e-tests:
+  stage: test
+  extends: .builder
+  before_script:
+    - pushd /
+    - git clone https://github.com/LedgerHQ/speculos.git
+    - popd
+  script:
+    - make_nanos
+    - /speculos/speculos.py bin/app.elf --seed "yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow" --button-port 42000 --display headless &
+    - declare -g SPECULOS_PID=$!
+    - cd tests
+    - pip install -r requirements.txt
+    - pytest --headless || die
+    - kill -9 $SPECULOS_PID || true
+      
 build-nano-s:
   stage: build-firmware
   extends: .builder
