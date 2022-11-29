@@ -82,7 +82,11 @@ e2e-tests:
     - pushd /
     - git clone https://github.com/LedgerHQ/speculos.git
     - apk update
-    - apk add python3 py3-pip python3-dev python3-pyqt5 python3-construct python3-flask-restful python3-jsonschema python3-mnemonic python3-pil python3-pyelftools python3-requests qemu-user-static
+    - apk add python3 py3-pip 
+    - python3 -m ensurepip
+    - pip3 install --no-cache --upgrade pip setuptools
+    - pip install -U Flask
+      #- apk add python3 py3-pip python3-dev python3-pyqt5 python3-construct python3-flask-restful python3-jsonschema python3-mnemonic python3-pil python3-pyelftools python3-requests qemu-user-static
     - cd speculos
     - cmake -Bbuild -H.
     - make -C build/
