@@ -16,7 +16,7 @@ variables:
 .builder:
   image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder:latest 
   before_script:
-   - apk add zip wget curl git clang cmake cmocka cmocka-dev
+   - apk add zip wget curl git clang cmake cmocka cmocka-dev python-dev
    - function die { echo -e "${BOLD_RED}${1}${NO_COLOR}"; false; }
    - |
      function make_nanos {
