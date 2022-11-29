@@ -82,7 +82,8 @@ e2e-tests:
     - pushd /
     - git clone https://github.com/LedgerHQ/speculos.git
     - apk update
-    - apk add python3 py3-pip 
+    - apk add python3 py3-pip gcc-arm-none-eabi
+    - alias arm-linux-gnueabihf-gcc=arm-none-eabi-gcc
     - python3 -m ensurepip
     - pip3 install --no-cache --upgrade pip setuptools
     - pip install -U Flask
