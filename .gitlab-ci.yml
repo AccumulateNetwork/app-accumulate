@@ -77,13 +77,13 @@ unit-tests:
 
 e2e-tests:
   stage: test
-  extends: .builder
   script:
     - pushd /
     - git clone https://github.com/LedgerHQ/speculos.git
-    - apk update
-    - apk add python3 py3-pip gcc-arm-none-eabi
-    - alias arm-linux-gnueabihf-gcc=arm-none-eabi-gcc
+    - apt install \
+      cmake gcc-arm-linux-gnueabihf libc6-dev-armhf-cross gdb-multiarch \
+      python3-pyqt5 python3-construct python3-flask-restful python3-jsonschema \
+      python3-mnemonic python3-pil python3-pyelftools python3-requests \
     - python3 -m ensurepip
     - pip3 install --no-cache --upgrade pip setuptools
     - pip install -U Flask
