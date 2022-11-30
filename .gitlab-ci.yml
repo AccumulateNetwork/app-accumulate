@@ -82,8 +82,8 @@ unit-tests:
 speculos-nanos:
   stage: e2e-tests
   image: 
-    name: ghcr.io/ledgerhq/speculos
-    entrypoint: ["/bin/bash"]
+    name: ghcr.io/ledgerhq/speculos:latest
+    entrypoint: [""]
   variables:
     PACKAGE_REGISTRY_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/nano-s"
   script:
