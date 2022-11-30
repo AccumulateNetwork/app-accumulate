@@ -82,15 +82,16 @@ unit-tests:
 speculos-nanos:
   stage: e2e-tests
   image: ghcr.io/ledgerhq/speculos
+  entrypoint: /bin/bash
   variables:
     PACKAGE_REGISTRY_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/nano-s"
   script:
     #- function die { echo -e "${BOLD_RED}${1}${NO_COLOR}"; false; }
     - apt update && apt install -y wget
-      #- wget "${PACKAGE_REGISTRY_URL}/${APP_VERSION}/${NANOS_OUTPUT_PKG_NAME}.elf" || die "failed: wget ${PACKAGE_REGISTRY_URL}/${APP_VERSION}/${NANOS_OUTPUT_PKG_NAME}.elf"
-    - /speculos/speculos.py bin/app.elf --seed "yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow" --button-port 42000 --display headless &
+    - wget "${PACKAGE_REGISTRY_URL}/${APP_VERSION}/${NANOS_OUTPUT_PKG_NAME}.elf" || die "failed: wget ${PACKAGE_REGISTRY_URL}/${APP_VERSION}/${NANOS_OUTPUT_PKG_NAME}.elf"
+    - /speculos/speculos.py ${NANOS_OUTPUT_PKG_NAME}.elf --seed "yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow" --button-port 42000 --display headless &
     - declare -g SPECULOS_PID=$!
-    - cd tests
+    - cd /builds/accumulatenetwork/ledger/app-accumulate/tests
     - pip install -r requirements.txt
     - pytest --headless || die
     - kill -9 $SPECULOS_PID || true
