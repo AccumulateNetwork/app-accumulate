@@ -1,8 +1,9 @@
 image: docker:20-git
 
 stages: # List of stages for jobs, and their order of execution
-  - test        
+  - tests        
   - build-firmware
+  - e2e-tests        
 
 services:
   - docker:dind
@@ -12,6 +13,9 @@ variables:
   BOLD_RED: '\e[1;31m'
   NO_COLOR: '\e[0m'
   SECTION: '\e[0K'
+  NANOS_OUTPUT_PKG_NAME: app-accumulate-nano-s
+  NANOSP_OUTPUT_PKG_NAME: app-accumulate-nano-splus
+  NANOX_OUTPUT_PKG_NAME: app-accumulate-nano-x
 
 .builder:
   image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder:latest 
@@ -75,13 +79,15 @@ unit-tests:
     - make
     - ctest . || die "one or more unit tests failed"
 
-e2e-tests:
-  stage: test
+speculos-nanos:
+  stage: e2e-test
   image: ghcr.io/ledgerhq/speculos
+  variables:
+    PACKAGE_REGISTRY_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/nano-s"
   before_script:
     - function die { echo -e "${BOLD_RED}${1}${NO_COLOR}"; false; }
     - apt update && apt install -y wget
-    - wget "${PACKAGE_REGISTRY_URL}/${APP_VERSION}/${OUTPUT_PKG_NAME}.elf" || die "failed: wget ${PACKAGE_REGISTRY_URL}/${APP_VERSION}/${OUTPUT_PKG_NAME}.elf"
+    - wget "${PACKAGE_REGISTRY_URL}/${APP_VERSION}/${OUTPUT_PKG_NAME}.elf" || die "failed: wget ${PACKAGE_REGISTRY_URL}/${APP_VERSION}/${NANOS_OUTPUT_PKG_NAME}.elf"
   script:
     - /speculos/speculos.py bin/app.elf --seed "yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow" --button-port 42000 --display headless &
     - declare -g SPECULOS_PID=$!
@@ -95,7 +101,7 @@ build-nano-s:
   extends: .builder
   variables:
     BOLOS_SDK: /opt/nanos-secure-sdk
-    OUTPUT_PKG_NAME: app-accumulate-nano-s
+    OUTPUT_PKG_NAME: "${NANOS_OUTPUT_PKG_NAME}"
     PACKAGE_REGISTRY_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/nano-s"
   script:
     - fwbuild
@@ -105,7 +111,7 @@ build-nano-splus:
   extends: .builder
   variables:
     BOLOS_SDK: /opt/nanosplus-secure-sdk
-    OUTPUT_PKG_NAME: app-accumulate-nano-splus
+    OUTPUT_PKG_NAME: "${NANOSP_OUTPUT_PKG_NAME}"
     PACKAGE_REGISTRY_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/nano-splus"
   script:
     - fwbuild
@@ -115,7 +121,7 @@ build-nano-x:
   extends: .builder
   variables:
     BOLOS_SDK: /opt/nanox-secure-sdk
-    OUTPUT_PKG_NAME: app-accumulate-nano-x
+    OUTPUT_PKG_NAME: "${NANOX_OUTPUT_PKG_NAME}"
     PACKAGE_REGISTRY_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/nano-x"
   script:
     - fwbuild
