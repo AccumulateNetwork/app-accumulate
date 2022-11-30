@@ -88,8 +88,8 @@ speculos-nanos:
     PACKAGE_REGISTRY_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/nano-s"
   script:
     #- function die { echo -e "${BOLD_RED}${1}${NO_COLOR}"; false; }
-    - apt update && apt install -y wget
-    - echo "${PACKAGE_REGISTRY_URL}/${APP_VERSION}/${NANOS_OUTPUT_PKG_NAME}.elf"
+    - apt update && apt install -y wget build-essential
+    - echo ${PACKAGE_REGISTRY_URL}/${APP_VERSION}/${NANOS_OUTPUT_PKG_NAME}.elf
     - wget "${PACKAGE_REGISTRY_URL}/${APP_VERSION}/${NANOS_OUTPUT_PKG_NAME}.elf"
       # || die "failed: wget ${PACKAGE_REGISTRY_URL}/${APP_VERSION}/${NANOS_OUTPUT_PKG_NAME}.elf"
     - /speculos/speculos.py ${NANOS_OUTPUT_PKG_NAME}.elf --seed "yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow" --button-port 42000 --display headless &
