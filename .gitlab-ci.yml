@@ -80,7 +80,7 @@ unit-tests:
     - ctest . || die "one or more unit tests failed"
 
 speculos-nanos:
-  stage: e2e-test
+  stage: e2e-tests
   image: ghcr.io/ledgerhq/speculos
   variables:
     PACKAGE_REGISTRY_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/nano-s"
