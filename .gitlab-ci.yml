@@ -2,7 +2,7 @@ image: docker:20-git
 
 stages: # List of stages for jobs, and their order of execution
   #- test        
-    #- build-firmware
+  #- build-firmware
   - e2e-tests        
 
 services:
@@ -81,8 +81,9 @@ unit-tests:
 
 speculos-nanos:
   stage: e2e-tests
-  image: ghcr.io/ledgerhq/speculos
-  entrypoint: /bin/bash
+  image: 
+    name: ghcr.io/ledgerhq/speculos
+    entrypoint: ["/bin/bash"]
   variables:
     PACKAGE_REGISTRY_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/nano-s"
   script:
