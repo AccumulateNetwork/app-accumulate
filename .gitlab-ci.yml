@@ -78,7 +78,6 @@ unit-tests:
 e2e-tests:
   stage: test
   script:
-    - pushd /
     - git clone https://github.com/LedgerHQ/speculos.git
     - apt install \
       cmake gcc-arm-linux-gnueabihf libc6-dev-armhf-cross gdb-multiarch \
@@ -91,9 +90,9 @@ e2e-tests:
     - cd speculos
     - cmake -Bbuild -H.
     - make -C build/
-    - popd
+    - cd -
     - make_nanos || die "failed to build nano s firmware"
-    - /speculos/speculos.py bin/app.elf --seed "yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow" --button-port 42000 --display headless &
+    - speculos/speculos.py bin/app.elf --seed "yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow" --button-port 42000 --display headless &
     - declare -g SPECULOS_PID=$!
     - cd tests
     - pip install -r requirements.txt
