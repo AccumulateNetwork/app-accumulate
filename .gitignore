@@ -21,6 +21,7 @@ cmake-*/
 .cmake/
 output-scan-build
 unit-tests/Testing
+Dart*
 
 # Fuzzing
 fuzzing/build/
