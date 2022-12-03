@@ -7,8 +7,7 @@ def test_get_public_key(cmd):
 
     print("public key" + str(pub_key.hex()))
     assert len(pub_key) == 32
-    assert pub_key.hex() == "229c50b909dd57a40086670e4f258824d622f9407b2518422e4ef37879643120"
-    #assert len(chain_code) == 32
+    assert pub_key.hex() == "e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11"
 
     pub_key2, chain_code2 = cmd.get_public_key(
         bip32_path="m/44'/0'/0'/0/0",
@@ -17,7 +16,6 @@ def test_get_public_key(cmd):
 
     print("btc public key" + str(pub_key2.hex()))
     assert len(pub_key2) == 33
-    #assert len(chain_code2) == 32
 
     pub_key3, chain_code3 = cmd.get_public_key(
         bip32_path="m/44'/131'/0'/0/0",

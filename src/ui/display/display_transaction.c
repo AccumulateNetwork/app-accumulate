@@ -12,7 +12,7 @@ int display_transaction_principal(void) {
     }
     // display principal
     Error e =
-        Url_get(&G_context.tx_info.transaction.Header.Principal, global.text, sizeof(global.text));
+        Url_get(&G_context.tx_info.transaction->Header.Principal, global.text, sizeof(global.text));
     if (IsError(e)) {
         snprintf(global.title, sizeof(global.title), "error");
         snprintf(global.text, sizeof(global.text), "code %d", e.code);
@@ -25,7 +25,7 @@ int display_transaction_principal(void) {
 int display_memo_or_error(void) {
     if (g_HaveMemoField) {
         snprintf(global.title, sizeof(global.title), "Memo");
-        Error e = String_get(&G_context.tx_info.transaction.Header.Memo,
+        Error e = String_get(&G_context.tx_info.transaction->Header.Memo,
                              global.text,
                              sizeof(global.text));
         if (IsError(e)) {

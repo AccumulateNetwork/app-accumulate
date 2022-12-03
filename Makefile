@@ -83,6 +83,7 @@ else
     DEFINES += HAVE_BAGL_FONT_OPEN_SANS_LIGHT_16PX
 endif
 
+DEBUG=1
 ifneq ($(DEBUG),0)
     DEFINES += HAVE_PRINTF
     ifeq ($(TARGET_NAME),TARGET_NANOX)
@@ -109,7 +110,6 @@ $(info GCCPATH is not set: arm-none-eabi-* will be used from PATH)
 endif
 
 CC      := $(CLANGPATH)clang
-
 
 CFLAGS  += -O3 -Os -Wall
 ifeq ($(DEBUG),0)

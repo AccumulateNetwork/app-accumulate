@@ -27,6 +27,20 @@
 #define PRINTF
 #endif
 
+int parse_envelope(uint8_t *raw_tx,
+                   uint16_t raw_tx_len,
+                   Envelope *env,
+                   buffer_t *arena) {
+    Unmarshaler envUnmarshaler = {.buffer.ptr = raw_tx,
+            .buffer.size = raw_tx_len,
+            .buffer.offset = 0,
+            .mempool = arena};
+    int e = readEnvelope(&envUnmarshaler, env);
+    CHECK_ERROR_CODE(e);
+
+    return ErrorNone;
+}
+
 int parse_transaction(uint8_t *raw_tx,
                       uint16_t raw_tx_len,
                       Signature *signer,

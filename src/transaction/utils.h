@@ -7,6 +7,7 @@
 #include <protocol/signatures.h>
 #include <protocol/transaction.h>
 
+int readEnvelope(Unmarshaler *m, Envelope *v);
 int readSignature(Unmarshaler *m, Signature *v);
 int readSignatureTypeUnion(Unmarshaler *m, SignatureTypeUnion *v);
 int readTransactionHeader(Unmarshaler *m, TransactionHeader *v);
@@ -24,8 +25,7 @@ int metadataHash(Signature *s,
                  uint8_t hash[static 32],
                  uint8_t metadataHash[static 32]);
 
-int parse_transaction(uint8_t *raw_tx,
+int parse_envelope(uint8_t *raw_tx,
                       uint16_t raw_tx_len,
-                      Signature *signer,
-                      Transaction *transaction,
+                      Envelope *env,
                       buffer_t *arena);

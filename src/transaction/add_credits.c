@@ -22,13 +22,14 @@ int readAddCredits(Unmarshaler *m, AddCredits *v) {
         n += b;
         v->extraData[field - 1].buffer.size += b;
 
-        // ensure we are the correct union type
+        //ensure we are the correct union type
         uint64_t type = 0;
         b = unmarshalerReadUInt(m, &type);
         CHECK_ERROR_CODE(b);
         if (type != v->Type) {
             return ErrorInvalidObject;
         }
+
         n += b;
         v->extraData[field - 1].buffer.size += b;
     }
@@ -46,6 +47,7 @@ int readAddCredits(Unmarshaler *m, AddCredits *v) {
 
         b = unmarshalerReadUrl(m, &v->Recipient);
         CHECK_ERROR_CODE(b);
+
         n += b;
         v->extraData[field - 1].buffer.size += b;
     }
@@ -53,9 +55,7 @@ int readAddCredits(Unmarshaler *m, AddCredits *v) {
         return n;
     }
     b = unmarshalerPeekField(m, &field);
-    if (IsError(ErrorCode(b))) {
-        return b;
-    }
+    CHECK_ERROR_CODE(b);
     if (field == 3) {
         v->extraData[field - 1].buffer.ptr = m->buffer.ptr + m->buffer.offset;
         b = unmarshalerReadField(m, &field);
@@ -65,6 +65,7 @@ int readAddCredits(Unmarshaler *m, AddCredits *v) {
 
         b = unmarshalerReadBigInt(m, &v->Amount);
         CHECK_ERROR_CODE(b);
+
         n += b;
         v->extraData[field - 1].buffer.size += b;
     }
@@ -82,6 +83,7 @@ int readAddCredits(Unmarshaler *m, AddCredits *v) {
 
         b = unmarshalerReadUVarInt(m, &v->Oracle);
         CHECK_ERROR_CODE(b);
+
         n += b;
         v->extraData[field - 1].buffer.size += b;
     }

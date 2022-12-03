@@ -16,7 +16,7 @@ int ui_dynamic_display_send_tokens(int index) {
         if (((index - offset) % 2) == 0) {
             // display the destination URL
             int localIndex = (index - offset) / 2;
-            Error e = Url_get(&G_context.tx_info.transaction.Body._SendTokens->To[localIndex].Url,
+            Error e = Url_get(&G_context.tx_info.transaction->Body._SendTokens->To[localIndex].Url,
                               global.text,
                               sizeof(global.text));
             if (IsError(e)) {
@@ -29,17 +29,17 @@ int ui_dynamic_display_send_tokens(int index) {
             // display the destination amount
             int localIndex = (index - offset - 1) / 2;
             snprintf(global.title, sizeof(global.title), "Output %d Amount", localIndex + 1);
-            if (localIndex > (int) G_context.tx_info.transaction.Body._SendTokens->To_length) {
+            if (localIndex > (int) G_context.tx_info.transaction->Body._SendTokens->To_length) {
                 snprintf(global.title, sizeof(global.title), "Send To error");
                 snprintf(global.text,
                          sizeof(global.text),
                          "out of bounds %d>%d",
                          localIndex,
-                         G_context.tx_info.transaction.Body._SendTokens->To_length);
+                         G_context.tx_info.transaction->Body._SendTokens->To_length);
                 return ErrorInvalidData;
             }
             uint256_t i;
-            BigInt *amount = &G_context.tx_info.transaction.Body._SendTokens->To[localIndex].Amount;
+            BigInt *amount = &G_context.tx_info.transaction->Body._SendTokens->To[localIndex].Amount;
             int e = frombytes256(amount->data.buffer.ptr + amount->data.buffer.offset,
                                  amount->data.buffer.size - amount->data.buffer.offset,
                                  &i);

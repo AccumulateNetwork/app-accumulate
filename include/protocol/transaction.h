@@ -17,7 +17,7 @@ extern "C" {
 #endif
 
 #define _WANT_AddCredits_    1
-#define _WANT_Envelope_    0
+#define _WANT_Envelope_    1
 #define _WANT_SendTokens_    1
 #define _WANT_TokenRecipient_    1
 #define _WANT_Transaction_    1
@@ -59,21 +59,7 @@ typedef struct AddCredits {
 } AddCredits;
 #endif /* _WANT_AddCredits_ */
 
-#if _WANT_Envelope_
-typedef struct Envelope {
-    
-    //
 
-	//uint8_t fieldsSet[3];
-    size_t Signatures_length;
-	Signature* Signatures;  //`json:"signatures,omitempty" form:"signatures" query:"signatures" validate:"required"`
-	Bytes TxHash;  //`json:"txHash,omitempty" form:"txHash" query:"txHash"`
-    size_t Transaction_length;
-	Transaction* Transaction;  //`json:"transaction,omitempty" form:"transaction" query:"transaction"`
-	//Bytes extraData[3];
-
-} Envelope;
-#endif /* _WANT_Envelope_ */
 
 #if _WANT_TokenRecipient_
 typedef struct TokenRecipient {
@@ -132,6 +118,22 @@ typedef struct Transaction {
     Bytes extraData[3];
 } Transaction;
 #endif /* _WANT_Transaction_ */
+
+#if _WANT_Envelope_
+typedef struct Envelope {
+
+    //
+
+    //uint8_t fieldsSet[3];
+    size_t Signatures_length;
+    Signature* Signatures;  //`json:"signatures,omitempty" form:"signatures" query:"signatures" validate:"required"`
+    Bytes TxHash;  //`json:"txHash,omitempty" form:"txHash" query:"txHash"`
+    size_t Transaction_length;
+    Transaction* Transaction;  //`json:"transaction,omitempty" form:"transaction" query:"transaction"`
+    Bytes extraData[3];
+
+} Envelope;
+#endif /* _WANT_Envelope_ */
 
 #if _WANT_TransactionStatus_
 typedef struct TransactionStatus {

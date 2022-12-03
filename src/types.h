@@ -85,8 +85,8 @@ typedef struct {
     uint8_t memory[ARENA_SIZE];
     uint8_t raw_tx[MAX_TRANSACTION_LEN];  /// raw transaction serialized
     buffer_t arena;
-    Signature signer;
-    Transaction transaction;
+    Signature *signer;
+    Transaction *transaction;
     size_t raw_tx_len;  /// length of raw transaction
     uint8_t metadataHash[32];
     uint8_t initiatorHash[33];           /// initiator hash -> field (1 byte) + hash (32 bytes)

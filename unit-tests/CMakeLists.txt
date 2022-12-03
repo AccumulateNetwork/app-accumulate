@@ -62,7 +62,7 @@ add_library(write STATIC ../src/common/write.c)
 add_library(format STATIC ../src/common/format.c)
 add_library(varint STATIC ../src/common/varint.c ../src/common/uvarint.c)
 add_library(apdu_parser STATIC ../src/apdu/parser.c)
-add_library(transaction_utils ../src/transaction/utils.c ../src/protocol/unions.c ../src/protocol/enum.c)
+add_library(transaction_utils ../src/transaction/utils.c ../src/protocol/unions.c ../src/protocol/enum.c ../src/protocol/envelope.c)
 add_library(uint256 STATIC ../src/common/uint256.c)
 add_library(encoding STATIC ../src/encoding/bytes32.c ../src/encoding/bytes64.c
         ../src/encoding/string_enc.c ../src/encoding/varint_enc.c ../src/encoding/bigint.c

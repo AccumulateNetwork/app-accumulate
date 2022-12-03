@@ -45,8 +45,27 @@ static void test_encoding_apdu(void **state) {
     assert_false(IsError(ErrorCode(e)));
 }
 
+static void test_encoding_envelope(void **state) {
+    UNUSED(state);
+
+    char *addCreditsEnv = "016c01020220229c50b909dd57a40086670e4f258824d622f9407b2518422e4ef37879643120041d6163633a2f2f6c6974652d746f6b656e2d6163636f756e742e61636d65050106d285d8cc04089fd8eab83fc71d96e16b7d9f71328ba9178122e97a06199e8ee57417b3569b2b035e0140011d6163633a2f2f6c6974652d746f6b656e2d6163636f756e742e61636d6502e91600a1d0afe20619d924aaeb2171bc1f8d20a3ad9baa2212364cbb95f09cef021a010e02136163633a2f2f6164692e61636d652f70616765030164";
+    uint8_t envelope[1024] = {0};
+    hextobin(addCreditsEnv, (int)strlen(addCreditsEnv), envelope, sizeof(envelope));
+
+    uint8_t arena[1024] = {0};
+
+    memset(&arena, 0, sizeof(arena));
+    buffer_t mempool = {arena,sizeof(arena), 0};
+    buffer_t envbuffer = {envelope, sizeof(envelope), 0};
+    Unmarshaler um = NewUnmarshaler(&envbuffer,&mempool);
+    struct Envelope e;
+
+    int n = readEnvelope(&um, &e);
+    assert_false(IsError(ErrorCode(n)));
+}
 static void test_encoding_transaction(void **state) {
     UNUSED(state);
+
 
     //PreSignature: {"type":"ed25519","publicKey":"e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11","signer":"acc://c6a629f9a65bf21159c5dfbffbc868ec3ae61ce4651108ec/ACME","signerVersion":1,"timestamp":1664460962464,"transactionHash":"2e1a5959275faaf81dadecbc7c1b27ae43f06793ff45d514f45a3afc77bd0dfd"}
     char *PreSignature = "01020220e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11043b6163633a2f2f6336613632396639613635626632313135396335646662666662633836386563336165363163653436353131303865632f41434d45050106a0f5eaccb830082e1a5959275faaf81dadecbc7c1b27ae43f06793ff45d514f45a3afc77bd0dfd";
@@ -311,6 +330,7 @@ int main(int argc, char *argv[]) {
                         cmocka_unit_test(test_encoding_strings),
                         cmocka_unit_test(test_encoding_apdu),
                         cmocka_unit_test(test_encoding_transaction),
+                        cmocka_unit_test(test_encoding_envelope)
     };
 
     return cmocka_run_group_tests(tests, NULL, NULL);

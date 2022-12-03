@@ -2,7 +2,7 @@
 #include "display_transaction.h"
 
 int ui_dynamic_display_add_credits(int index) {
-    AddCredits *ac = G_context.tx_info.transaction.Body._AddCredits;
+    AddCredits *ac = G_context.tx_info.transaction->Body._AddCredits;
     switch (index) {
         case 0:
             return display_transaction_principal();

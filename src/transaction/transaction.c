@@ -186,8 +186,6 @@ int readTransactionBody(Unmarshaler *m, TransactionBody *v) {
             CHECK_ERROR_CODE(b);
 
             n += b;
-            // todo: compute body hash
-
             break;
 
         case TransactionTypeSendTokens:
@@ -205,8 +203,6 @@ int readTransactionBody(Unmarshaler *m, TransactionBody *v) {
 
             PRINTF("Unmarshal Read Send Tokens Complete\n");
             n += b;
-            // todo: compute body hash
-
             break;
 
         default:
