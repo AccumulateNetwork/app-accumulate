@@ -14,7 +14,6 @@ int readEnvelope(Unmarshaler *m, Envelope *v) {
 
     explicit_bzero(v->extraData, sizeof(v->extraData));
 
-    
     if (m->buffer.offset == m->buffer.size) {
         return n;
     }
@@ -22,8 +21,8 @@ int readEnvelope(Unmarshaler *m, Envelope *v) {
     CHECK_ERROR_CODE(b);
     if (field == 1) {
         v->extraData[field - 1].buffer.ptr = m->buffer.ptr + m->buffer.offset;
-        
-        Unmarshaler m2 = NewUnmarshaler(&m->buffer,m->mempool);
+
+        Unmarshaler m2 = NewUnmarshaler(&m->buffer, m->mempool);
         v->Signatures_length = 0;
         while (field == 1) {
             b = unmarshalerReadField(&m2, &field);
@@ -31,7 +30,7 @@ int readEnvelope(Unmarshaler *m, Envelope *v) {
             uint64_t size = 0;
             b = unmarshalerReadUInt(&m2, &size);
             CHECK_ERROR_CODE(b);
-            //skip the object
+            // skip the object
             buffer_seek_cur(&m2.buffer, size);
 
             v->Signatures_length++;
@@ -39,7 +38,7 @@ int readEnvelope(Unmarshaler *m, Envelope *v) {
             unmarshalerPeekField(&m2, &field);
         }
 
-        //now unmarshal for real...
+        // now unmarshal for real...
         v->Signatures = (Signature *) unmarshalerAlloc(m, v->Signatures_length * sizeof(Signature));
         CHECK_ERROR_INT(v->Signatures);
         for (size_t i = 0; i < v->Signatures_length; ++i) {
@@ -57,14 +56,14 @@ int readEnvelope(Unmarshaler *m, Envelope *v) {
             v->extraData[field - 1].buffer.size += b;
             {
                 Unmarshaler m3 = {.buffer.ptr = m->buffer.ptr + m->buffer.offset,
-                                                  .buffer.size = size,
-                                                  .buffer.offset = 0,
-                                                  .mempool = m->mempool};
+                                  .buffer.size = size,
+                                  .buffer.offset = 0,
+                                  .mempool = m->mempool};
                 b = readSignature(&m3, &v->Signatures[i]);
                 CHECK_ERROR_CODE(b);
             }
             buffer_seek_cur(&m->buffer, size);
-            b = size; //skip over any remainder
+            b = size;  // skip over any remainder
 
             n += (int) b;
             v->extraData[field - 1].buffer.size += b;
@@ -81,10 +80,10 @@ int readEnvelope(Unmarshaler *m, Envelope *v) {
         CHECK_ERROR_CODE(b);
         n += b;
         v->extraData[field - 1].buffer.size += b;
-        
+
         b = unmarshalerReadBytes(m, &v->TxHash);
         CHECK_ERROR_CODE(b);
-        
+
         n += b;
         v->extraData[field - 1].buffer.size += b;
     }
@@ -95,8 +94,8 @@ int readEnvelope(Unmarshaler *m, Envelope *v) {
     CHECK_ERROR_CODE(b);
     if (field == 3) {
         v->extraData[field - 1].buffer.ptr = m->buffer.ptr + m->buffer.offset;
-        
-        Unmarshaler m2 = NewUnmarshaler(&m->buffer,m->mempool);
+
+        Unmarshaler m2 = NewUnmarshaler(&m->buffer, m->mempool);
         v->Transaction_length = 0;
         while (field == 3) {
             b = unmarshalerReadField(&m2, &field);
@@ -104,7 +103,7 @@ int readEnvelope(Unmarshaler *m, Envelope *v) {
             uint64_t size = 0;
             b = unmarshalerReadUInt(&m2, &size);
             CHECK_ERROR_CODE(b);
-            //skip the object
+            // skip the object
             buffer_seek_cur(&m2.buffer, size);
 
             v->Transaction_length++;
@@ -112,8 +111,9 @@ int readEnvelope(Unmarshaler *m, Envelope *v) {
             unmarshalerPeekField(&m2, &field);
         }
 
-        //now unmarshal for real...
-        v->Transaction = (Transaction *) unmarshalerAlloc(m, v->Transaction_length * sizeof(Transaction));
+        // now unmarshal for real...
+        v->Transaction =
+            (Transaction *) unmarshalerAlloc(m, v->Transaction_length * sizeof(Transaction));
         CHECK_ERROR_INT(v->Transaction);
         for (size_t i = 0; i < v->Transaction_length; ++i) {
             b = unmarshalerReadField(m, &field);
@@ -130,22 +130,21 @@ int readEnvelope(Unmarshaler *m, Envelope *v) {
             v->extraData[field - 1].buffer.size += b;
             {
                 Unmarshaler m3 = {.buffer.ptr = m->buffer.ptr + m->buffer.offset,
-                                                  .buffer.size = size,
-                                                  .buffer.offset = 0,
-                                                  .mempool = m->mempool};
+                                  .buffer.size = size,
+                                  .buffer.offset = 0,
+                                  .mempool = m->mempool};
                 b = readTransaction(&m3, &v->Transaction[i]);
                 CHECK_ERROR_CODE(b);
             }
             buffer_seek_cur(&m->buffer, size);
-            b = size; //skip over any remainder
+            b = size;  // skip over any remainder
 
             n += (int) b;
             v->extraData[field - 1].buffer.size += b;
         }
     }
 
-	return n;
+    return n;
 }
-
 
 #endif /* _WANT_Envelope_ */

@@ -17,7 +17,7 @@ typedef struct MerkleState {
     int pendingLen;
     int count;
     buffer_t arena;
-    uint8_t hashes[MAX_PENDING*32];
+    uint8_t hashes[MAX_PENDING * 32];
 } MerkleState;
 
 void MerkleStateInit(MerkleState *m);

@@ -22,7 +22,7 @@ int readAddCredits(Unmarshaler *m, AddCredits *v) {
         n += b;
         v->extraData[field - 1].buffer.size += b;
 
-        //ensure we are the correct union type
+        // ensure we are the correct union type
         uint64_t type = 0;
         b = unmarshalerReadUInt(m, &type);
         CHECK_ERROR_CODE(b);

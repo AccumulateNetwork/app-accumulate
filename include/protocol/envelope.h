@@ -3,7 +3,6 @@
 
 #include <encoding/encoding.h>
 
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -15,7 +14,7 @@ extern "C" {
 #endif
 
 #ifndef _WANT_Envelope_
-#define _WANT_Envelope_    1
+#define _WANT_Envelope_ 1
 #endif
 
 /// Forward Declarations
@@ -24,21 +23,20 @@ struct Envelope;
 /// Data Structures
 #if _WANT_Envelope_
 typedef struct Envelope {
-
     size_t Signatures_length;
-	Signature* Signatures;  //`json:"signatures,omitempty" form:"signatures" query:"signatures" validate:"required"`
-	Bytes TxHash;  //`json:"txHash,omitempty" form:"txHash" query:"txHash"`
+    Signature* Signatures;  //`json:"signatures,omitempty" form:"signatures" query:"signatures"
+                            //validate:"required"`
+    Bytes TxHash;           //`json:"txHash,omitempty" form:"txHash" query:"txHash"`
     size_t Transaction_length;
-	Transaction* Transaction;  //`json:"transaction,omitempty" form:"transaction" query:"transaction"`
-	Bytes extraData[3];
+    Transaction*
+        Transaction;  //`json:"transaction,omitempty" form:"transaction" query:"transaction"`
+    Bytes extraData[3];
 } Envelope;
 
-ACME_API int readEnvelope(Unmarshaler *m, Envelope *v);
+ACME_API int readEnvelope(Unmarshaler* m, Envelope* v);
 
 #endif /* _WANT_Envelope_ */
 
 #ifdef __cplusplus
 }
 #endif
-
-

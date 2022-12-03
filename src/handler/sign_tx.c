@@ -114,15 +114,15 @@ int processEnvelope() {
         return e;
     }
 
-    //TODO (future version): if blind signing is enabled, then we should accept env.Transaction_length == 0
-    //but for now check to make sure there is one (and only one) signer and transaction object
+    // TODO (future version): if blind signing is enabled, then we should accept
+    // env.Transaction_length == 0 but for now check to make sure there is one (and only one) signer
+    // and transaction object
     if (env.Signatures_length != 1 && env.Transaction_length != 1) {
         return ErrorInvalidObject;
     }
 
     G_context.tx_info.transaction = &env.Transaction[0];
     G_context.tx_info.signer = &env.Signatures[0];
-
 
     // Next, do some sanity checks on the transaction to make sure it looks reasonable. These
     // checks include ensuring the correct public key is used, the initiator hash (if supplied)
@@ -135,7 +135,8 @@ int processEnvelope() {
         return e;
     }
 
-    // Step 2: compute the initiator hash with given inputs, if signer supplied one, then compare it, otherwise set it
+    // Step 2: compute the initiator hash with given inputs, if signer supplied one, then compare
+    // it, otherwise set it
     e = computeInitiatorHash();
     if (IsError(ErrorCode(e))) {
         return e;
@@ -200,21 +201,19 @@ int computeInitiatorHash() {
     if (!buffer_can_read(&G_context.tx_info.transaction->Header.Initiator.data.buffer, 32)) {
         TransactionHeader *header = &G_context.tx_info.transaction->Header;
         header->Initiator.data.buffer =
-                (const buffer_t){.ptr = &G_context.tx_info.initiatorHash[1],
-                        .size = 32,
-                        .offset = 0};
+            (const buffer_t){.ptr = &G_context.tx_info.initiatorHash[1], .size = 32, .offset = 0};
         // required for transaction hash generation
         header->extraData[INITIATOR_FIELD_INDEX].buffer =
-                (const buffer_t){.ptr = G_context.tx_info.initiatorHash,
-                        .size = sizeof(G_context.tx_info.initiatorHash),
-                        .offset = 0};
+            (const buffer_t){.ptr = G_context.tx_info.initiatorHash,
+                             .size = sizeof(G_context.tx_info.initiatorHash),
+                             .offset = 0};
     }
 
     // early check to see if our hashes match
     uint8_t initiator[32] = {0};
     Bytes hash = (const Bytes){.buffer.ptr = initiator,
-            .buffer.size = sizeof(initiator),
-            .buffer.offset = 0};
+                               .buffer.size = sizeof(initiator),
+                               .buffer.offset = 0};
     Error err = Bytes32_get(&G_context.tx_info.transaction->Header.Initiator, &hash);
     if (IsError(err)) {
         return err.code;
@@ -230,8 +229,8 @@ int computeInitiatorHash() {
 
 int computeTransactionHash() {
     Bytes hash = {.buffer.ptr = G_context.tx_info.m_hash,
-            .buffer.size = sizeof(G_context.tx_info.m_hash),
-            .buffer.offset = 0};
+                  .buffer.size = sizeof(G_context.tx_info.m_hash),
+                  .buffer.offset = 0};
 
     // compute transaction hash
     int e = transactionHash(G_context.tx_info.transaction, G_context.tx_info.m_hash);
@@ -243,9 +242,9 @@ int computeTransactionHash() {
         // if we don't have a hash as part of the incoming payload, just use the one we
         // computed.
         G_context.tx_info.signer->_u->TransactionHash.data =
-                (const Bytes){.buffer.ptr = G_context.tx_info.m_hash,
-                        .buffer.size = sizeof(G_context.tx_info.m_hash),
-                        .buffer.offset = 0};
+            (const Bytes){.buffer.ptr = G_context.tx_info.m_hash,
+                          .buffer.size = sizeof(G_context.tx_info.m_hash),
+                          .buffer.offset = 0};
     }
 
     // early check to see if our hashes match

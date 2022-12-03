@@ -25,7 +25,4 @@ int metadataHash(Signature *s,
                  uint8_t hash[static 32],
                  uint8_t metadataHash[static 32]);
 
-int parse_envelope(uint8_t *raw_tx,
-                      uint16_t raw_tx_len,
-                      Envelope *env,
-                      buffer_t *arena);
+int parse_envelope(uint8_t *raw_tx, uint16_t raw_tx_len, Envelope *env, buffer_t *arena);

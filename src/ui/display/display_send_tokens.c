@@ -39,7 +39,8 @@ int ui_dynamic_display_send_tokens(int index) {
                 return ErrorInvalidData;
             }
             uint256_t i;
-            BigInt *amount = &G_context.tx_info.transaction->Body._SendTokens->To[localIndex].Amount;
+            BigInt *amount =
+                &G_context.tx_info.transaction->Body._SendTokens->To[localIndex].Amount;
             int e = frombytes256(amount->data.buffer.ptr + amount->data.buffer.offset,
                                  amount->data.buffer.size - amount->data.buffer.offset,
                                  &i);

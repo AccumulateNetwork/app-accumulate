@@ -9,7 +9,6 @@ int readTransactionHeader(Unmarshaler *m, TransactionHeader *v) {
 
     explicit_bzero(v->extraData, sizeof(v->extraData));
 
-
     if (m->buffer.offset == m->buffer.size) {
         return n;
     }

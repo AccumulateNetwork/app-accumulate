@@ -1,19 +1,19 @@
 /*******************************************************************************
-*   Ledger Blue
-*   (c) 2016 Ledger
-*
-*  Licensed under the Apache License, Version 2.0 (the "License");
-*  you may not use this file except in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*      http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing, software
-*  distributed under the License is distributed on an "AS IS" BASIS,
-*  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-*  See the License for the specific language governing permissions and
-*  limitations under the License.
-********************************************************************************/
+ *   Ledger Blue
+ *   (c) 2016 Ledger
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ ********************************************************************************/
 
 // Adapted from https://github.com/calccrypto/uint256_t
 
@@ -21,14 +21,18 @@
 #include <stdbool.h>
 #include <common/buffer.h>
 
-typedef struct uint128_t { uint64_t elements[2]; } uint128_t;
+typedef struct uint128_t {
+    uint64_t elements[2];
+} uint128_t;
 
-typedef struct uint256_t { uint128_t elements[2]; } uint256_t;
+typedef struct uint256_t {
+    uint128_t elements[2];
+} uint256_t;
 
 #define UPPER_P(x) x->elements[0]
 #define LOWER_P(x) x->elements[1]
-#define UPPER(x) x.elements[0]
-#define LOWER(x) x.elements[1]
+#define UPPER(x)   x.elements[0]
+#define LOWER(x)   x.elements[1]
 
 void readu128BE(const uint8_t *buffer, uint128_t *target);
 void readu256BE(const uint8_t *buffer, uint256_t *target);
@@ -65,7 +69,7 @@ void divmod256(const uint256_t *l, const uint256_t *r, uint256_t *div, uint256_t
 bool tostring128(const uint128_t *number, uint32_t base, char *out, uint32_t outLength);
 bool tostring256(const uint256_t *number, uint32_t base, char *out, uint32_t outLength);
 
-///returns the number of bytes populated in "out" or -1 on error.
+/// returns the number of bytes populated in "out" or -1 on error.
 int tobytes256(const uint256_t *number, uint8_t *out, uint32_t outLength);
 
 void readu256LE(const uint8_t *buffer, uint256_t *target);

@@ -17,11 +17,9 @@ extern "C" {
 #define WANT_ENUM_STRING_CONVERSION 0
 
 typedef struct {
-   const char *name;
-   uint64_t e;
+    const char *name;
+    uint64_t e;
 } enum_t;
-
-
 
 typedef enum {
 
@@ -41,7 +39,6 @@ typedef enum {
     AccountAuthOperationTypeRemoveAuthority = 4,
 
 } AccountAuthOperationType;
-
 
 typedef enum {
 
@@ -87,11 +84,11 @@ typedef enum {
     // AccountTypeLiteIdentity is a lite identity account.
     AccountTypeLiteIdentity = 15,
 
-    // AccountTypeSyntheticLedger is a ledger that tracks the status of produced and received synthetic transactions.
+    // AccountTypeSyntheticLedger is a ledger that tracks the status of produced and received
+    // synthetic transactions.
     AccountTypeSyntheticLedger = 16,
 
 } AccountType;
-
 
 typedef enum {
 
@@ -102,7 +99,6 @@ typedef enum {
     AllowedTransactionBitUpdateAccountAuth = 2,
 
 } AllowedTransactionBit;
-
 
 typedef enum {
 
@@ -117,7 +113,6 @@ typedef enum {
 
 } BookType;
 
-
 typedef enum {
 
     // DataEntryTypeUnknown .
@@ -130,7 +125,6 @@ typedef enum {
     DataEntryTypeAccumulate = 2,
 
 } DataEntryType;
-
 
 typedef enum {
 
@@ -146,14 +140,15 @@ typedef enum {
     // KeyPageOperationTypeAdd adds a key to the page.
     KeyPageOperationTypeAdd = 3,
 
-    // KeyPageOperationTypeSetThreshold sets the signing threshold (the M of "M of N" signatures required).
+    // KeyPageOperationTypeSetThreshold sets the signing threshold (the M of "M of N" signatures
+    // required).
     KeyPageOperationTypeSetThreshold = 4,
 
-    // KeyPageOperationTypeUpdateAllowed updates the transactions the key page is allowed to execute.
+    // KeyPageOperationTypeUpdateAllowed updates the transactions the key page is allowed to
+    // execute.
     KeyPageOperationTypeUpdateAllowed = 5,
 
 } KeyPageOperationType;
-
 
 typedef enum {
 
@@ -168,7 +163,6 @@ typedef enum {
 
 } ObjectType;
 
-
 typedef enum {
 
     // PartitionTypeDirectory .
@@ -178,7 +172,6 @@ typedef enum {
     PartitionTypeBlockValidator = 2,
 
 } PartitionType;
-
 
 typedef enum {
 
@@ -223,7 +216,6 @@ typedef enum {
 
 } SignatureType;
 
-
 typedef enum {
 
     // TransactionMaxUser is the highest number reserved for user transactions.
@@ -237,7 +229,6 @@ typedef enum {
 
 } TransactionMax;
 
-
 typedef enum {
 
     // TransactionTypeUnknown represents an unknown transaction type.
@@ -246,49 +237,63 @@ typedef enum {
     // TransactionTypeCreateIdentity creates an ADI, which produces a synthetic chain.
     TransactionTypeCreateIdentity = 1,
 
-    // TransactionTypeCreateTokenAccount creates an ADI token account, which produces a synthetic chain create transaction.
+    // TransactionTypeCreateTokenAccount creates an ADI token account, which produces a synthetic
+    // chain create transaction.
     TransactionTypeCreateTokenAccount = 2,
 
-    // TransactionTypeSendTokens transfers tokens between token accounts, which produces a synthetic deposit tokens transaction.
+    // TransactionTypeSendTokens transfers tokens between token accounts, which produces a synthetic
+    // deposit tokens transaction.
     TransactionTypeSendTokens = 3,
 
-    // TransactionTypeCreateDataAccount creates an ADI Data Account, which produces a synthetic chain create transaction.
+    // TransactionTypeCreateDataAccount creates an ADI Data Account, which produces a synthetic
+    // chain create transaction.
     TransactionTypeCreateDataAccount = 4,
 
-    // TransactionTypeWriteData writes data to an ADI Data Account, which *does not* produce a synthetic transaction.
+    // TransactionTypeWriteData writes data to an ADI Data Account, which *does not* produce a
+    // synthetic transaction.
     TransactionTypeWriteData = 5,
 
-    // TransactionTypeWriteDataTo writes data to a Lite Data Account, which produces a synthetic write data transaction.
+    // TransactionTypeWriteDataTo writes data to a Lite Data Account, which produces a synthetic
+    // write data transaction.
     TransactionTypeWriteDataTo = 6,
 
-    // TransactionTypeAcmeFaucet produces a synthetic deposit tokens transaction that deposits ACME tokens into a lite token account.
+    // TransactionTypeAcmeFaucet produces a synthetic deposit tokens transaction that deposits ACME
+    // tokens into a lite token account.
     TransactionTypeAcmeFaucet = 7,
 
-    // TransactionTypeCreateToken creates a token issuer, which produces a synthetic chain create transaction.
+    // TransactionTypeCreateToken creates a token issuer, which produces a synthetic chain create
+    // transaction.
     TransactionTypeCreateToken = 8,
 
-    // TransactionTypeIssueTokens issues tokens to a token account, which produces a synthetic token deposit transaction.
+    // TransactionTypeIssueTokens issues tokens to a token account, which produces a synthetic token
+    // deposit transaction.
     TransactionTypeIssueTokens = 9,
 
-    // TransactionTypeBurnTokens burns tokens from a token account, which produces a synthetic burn tokens transaction.
+    // TransactionTypeBurnTokens burns tokens from a token account, which produces a synthetic burn
+    // tokens transaction.
     TransactionTypeBurnTokens = 10,
 
     // TransactionTypeCreateLiteTokenAccount create a lite token account.
     TransactionTypeCreateLiteTokenAccount = 11,
 
-    // TransactionTypeCreateKeyPage creates a key page, which produces a synthetic chain create transaction.
+    // TransactionTypeCreateKeyPage creates a key page, which produces a synthetic chain create
+    // transaction.
     TransactionTypeCreateKeyPage = 12,
 
-    // TransactionTypeCreateKeyBook creates a key book, which produces a synthetic chain create transaction.
+    // TransactionTypeCreateKeyBook creates a key book, which produces a synthetic chain create
+    // transaction.
     TransactionTypeCreateKeyBook = 13,
 
-    // TransactionTypeAddCredits converts ACME tokens to credits, which produces a synthetic deposit credits transaction.
+    // TransactionTypeAddCredits converts ACME tokens to credits, which produces a synthetic deposit
+    // credits transaction.
     TransactionTypeAddCredits = 14,
 
-    // TransactionTypeUpdateKeyPage adds, removes, or updates keys in a key page, which *does not* produce a synthetic transaction.
+    // TransactionTypeUpdateKeyPage adds, removes, or updates keys in a key page, which *does not*
+    // produce a synthetic transaction.
     TransactionTypeUpdateKeyPage = 15,
 
-    // TransactionTypeLockAccount sets a major block height that prevents tokens from being transferred out of a lite token account until that height has been reached.
+    // TransactionTypeLockAccount sets a major block height that prevents tokens from being
+    // transferred out of a lite token account until that height has been reached.
     TransactionTypeLockAccount = 16,
 
     // TransactionTypeUpdateAccountAuth updates authorization for an account.
@@ -312,10 +317,12 @@ typedef enum {
     // TransactionTypeSyntheticDepositCredits deposits credits into a credit holder.
     TransactionTypeSyntheticDepositCredits = 52,
 
-    // TransactionTypeSyntheticBurnTokens returns tokens to a token issuer's pool of issuable tokens.
+    // TransactionTypeSyntheticBurnTokens returns tokens to a token issuer's pool of issuable
+    // tokens.
     TransactionTypeSyntheticBurnTokens = 53,
 
-    // TransactionTypeSyntheticForwardTransaction forwards a transaction from one partition to another.
+    // TransactionTypeSyntheticForwardTransaction forwards a transaction from one partition to
+    // another.
     TransactionTypeSyntheticForwardTransaction = 54,
 
     // TransactionTypeSystemGenesis initializes system chains.
@@ -331,7 +338,6 @@ typedef enum {
     TransactionTypeSystemWriteData = 99,
 
 } TransactionType;
-
 
 typedef enum {
 
@@ -349,9 +355,6 @@ typedef enum {
 
 } VoteType;
 
-
-
-
 typedef struct {
     Bytes data;
 } AccountAuthOperationType_t;
@@ -361,12 +364,12 @@ ACME_API uint64_t AccountAuthOperationType_ID(AccountAuthOperationType v);
 ACME_API Error AccountAuthOperationType_fromString(AccountAuthOperationType *v, String *name);
 ACME_API Error AccountAuthOperationType_asString(AccountAuthOperationType v, String *out);
 #endif
-ACME_API AccountAuthOperationType_t AccountAuthOperationType_init(AccountAuthOperationType_t *v, buffer_t *buffer);
+ACME_API AccountAuthOperationType_t AccountAuthOperationType_init(AccountAuthOperationType_t *v,
+                                                                  buffer_t *buffer);
 ACME_API int unmarshalerReadAccountAuthOperationType(Unmarshaler *m, AccountAuthOperationType *v);
 ACME_API int marshalerWriteAccountAuthOperationType(Marshaler *m, AccountAuthOperationType v);
-ACME_API bool AccountAuthOperationType_equal(const AccountAuthOperationType *a, const AccountAuthOperationType *b);
-
-
+ACME_API bool AccountAuthOperationType_equal(const AccountAuthOperationType *a,
+                                             const AccountAuthOperationType *b);
 
 typedef struct {
     Bytes data;
@@ -382,8 +385,6 @@ ACME_API int unmarshalerReadAccountType(Unmarshaler *m, AccountType *v);
 ACME_API int marshalerWriteAccountType(Marshaler *m, AccountType v);
 ACME_API bool AccountType_equal(const AccountType *a, const AccountType *b);
 
-
-
 typedef struct {
     Bytes data;
 } AllowedTransactionBit_t;
@@ -393,12 +394,12 @@ ACME_API uint64_t AllowedTransactionBit_ID(AllowedTransactionBit v);
 ACME_API Error AllowedTransactionBit_fromString(AllowedTransactionBit *v, String *name);
 ACME_API Error AllowedTransactionBit_asString(AllowedTransactionBit v, String *out);
 #endif
-ACME_API AllowedTransactionBit_t AllowedTransactionBit_init(AllowedTransactionBit_t *v, buffer_t *buffer);
+ACME_API AllowedTransactionBit_t AllowedTransactionBit_init(AllowedTransactionBit_t *v,
+                                                            buffer_t *buffer);
 ACME_API int unmarshalerReadAllowedTransactionBit(Unmarshaler *m, AllowedTransactionBit *v);
 ACME_API int marshalerWriteAllowedTransactionBit(Marshaler *m, AllowedTransactionBit v);
-ACME_API bool AllowedTransactionBit_equal(const AllowedTransactionBit *a, const AllowedTransactionBit *b);
-
-
+ACME_API bool AllowedTransactionBit_equal(const AllowedTransactionBit *a,
+                                          const AllowedTransactionBit *b);
 
 typedef struct {
     Bytes data;
@@ -414,8 +415,6 @@ ACME_API int unmarshalerReadBookType(Unmarshaler *m, BookType *v);
 ACME_API int marshalerWriteBookType(Marshaler *m, BookType v);
 ACME_API bool BookType_equal(const BookType *a, const BookType *b);
 
-
-
 typedef struct {
     Bytes data;
 } DataEntryType_t;
@@ -430,8 +429,6 @@ ACME_API int unmarshalerReadDataEntryType(Unmarshaler *m, DataEntryType *v);
 ACME_API int marshalerWriteDataEntryType(Marshaler *m, DataEntryType v);
 ACME_API bool DataEntryType_equal(const DataEntryType *a, const DataEntryType *b);
 
-
-
 typedef struct {
     Bytes data;
 } KeyPageOperationType_t;
@@ -441,12 +438,12 @@ ACME_API uint64_t KeyPageOperationType_ID(KeyPageOperationType v);
 ACME_API Error KeyPageOperationType_fromString(KeyPageOperationType *v, String *name);
 ACME_API Error KeyPageOperationType_asString(KeyPageOperationType v, String *out);
 #endif
-ACME_API KeyPageOperationType_t KeyPageOperationType_init(KeyPageOperationType_t *v, buffer_t *buffer);
+ACME_API KeyPageOperationType_t KeyPageOperationType_init(KeyPageOperationType_t *v,
+                                                          buffer_t *buffer);
 ACME_API int unmarshalerReadKeyPageOperationType(Unmarshaler *m, KeyPageOperationType *v);
 ACME_API int marshalerWriteKeyPageOperationType(Marshaler *m, KeyPageOperationType v);
-ACME_API bool KeyPageOperationType_equal(const KeyPageOperationType *a, const KeyPageOperationType *b);
-
-
+ACME_API bool KeyPageOperationType_equal(const KeyPageOperationType *a,
+                                         const KeyPageOperationType *b);
 
 typedef struct {
     Bytes data;
@@ -462,8 +459,6 @@ ACME_API int unmarshalerReadObjectType(Unmarshaler *m, ObjectType *v);
 ACME_API int marshalerWriteObjectType(Marshaler *m, ObjectType v);
 ACME_API bool ObjectType_equal(const ObjectType *a, const ObjectType *b);
 
-
-
 typedef struct {
     Bytes data;
 } PartitionType_t;
@@ -477,8 +472,6 @@ ACME_API PartitionType_t PartitionType_init(PartitionType_t *v, buffer_t *buffer
 ACME_API int unmarshalerReadPartitionType(Unmarshaler *m, PartitionType *v);
 ACME_API int marshalerWritePartitionType(Marshaler *m, PartitionType v);
 ACME_API bool PartitionType_equal(const PartitionType *a, const PartitionType *b);
-
-
 
 typedef struct {
     Bytes data;
@@ -494,8 +487,6 @@ ACME_API int unmarshalerReadSignatureType(Unmarshaler *m, SignatureType *v);
 ACME_API int marshalerWriteSignatureType(Marshaler *m, SignatureType v);
 ACME_API bool SignatureType_equal(const SignatureType *a, const SignatureType *b);
 
-
-
 typedef struct {
     Bytes data;
 } TransactionMax_t;
@@ -509,8 +500,6 @@ ACME_API TransactionMax_t TransactionMax_init(TransactionMax_t *v, buffer_t *buf
 ACME_API int unmarshalerReadTransactionMax(Unmarshaler *m, TransactionMax *v);
 ACME_API int marshalerWriteTransactionMax(Marshaler *m, TransactionMax v);
 ACME_API bool TransactionMax_equal(const TransactionMax *a, const TransactionMax *b);
-
-
 
 typedef struct {
     Bytes data;
@@ -526,8 +515,6 @@ ACME_API int unmarshalerReadTransactionType(Unmarshaler *m, TransactionType *v);
 ACME_API int marshalerWriteTransactionType(Marshaler *m, TransactionType v);
 ACME_API bool TransactionType_equal(const TransactionType *a, const TransactionType *b);
 
-
-
 typedef struct {
     Bytes data;
 } VoteType_t;
@@ -541,7 +528,6 @@ ACME_API VoteType_t VoteType_init(VoteType_t *v, buffer_t *buffer);
 ACME_API int unmarshalerReadVoteType(Unmarshaler *m, VoteType *v);
 ACME_API int marshalerWriteVoteType(Marshaler *m, VoteType v);
 ACME_API bool VoteType_equal(const VoteType *a, const VoteType *b);
-
 
 #ifdef __cplusplus
 }

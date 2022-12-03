@@ -21,7 +21,7 @@ int readSendTokens(Unmarshaler *m, SendTokens *v) {
         n += b;
         v->extraData[field - 1].buffer.size += b;
 
-        //ensure we are the correct union type
+        // ensure we are the correct union type
         uint64_t type = 0;
         b = unmarshalerReadUInt(m, &type);
         CHECK_ERROR_CODE(b);
@@ -76,7 +76,7 @@ int readSendTokens(Unmarshaler *m, SendTokens *v) {
     if (field == 4) {
         v->extraData[field - 1].buffer.ptr = m->buffer.ptr + m->buffer.offset;
 
-        Unmarshaler m2 = NewUnmarshaler(&m->buffer,m->mempool);
+        Unmarshaler m2 = NewUnmarshaler(&m->buffer, m->mempool);
         v->To_length = 0;
         while (field == 4) {
             b = unmarshalerReadField(&m2, &field);
@@ -84,7 +84,7 @@ int readSendTokens(Unmarshaler *m, SendTokens *v) {
             uint64_t size = 0;
             b = unmarshalerReadUInt(&m2, &size);
             CHECK_ERROR_CODE(b);
-            //skip the object
+            // skip the object
             buffer_seek_cur(&m2.buffer, size);
 
             v->To_length++;
@@ -92,7 +92,7 @@ int readSendTokens(Unmarshaler *m, SendTokens *v) {
             unmarshalerPeekField(&m2, &field);
         }
 
-        //now unmarshal for real...
+        // now unmarshal for real...
         v->To = (TokenRecipient *) unmarshalerAlloc(m, v->To_length * sizeof(TokenRecipient));
         CHECK_ERROR_INT(v->To);
         for (size_t i = 0; i < v->To_length; ++i) {
@@ -117,7 +117,7 @@ int readSendTokens(Unmarshaler *m, SendTokens *v) {
                 CHECK_ERROR_CODE(b);
             }
             buffer_seek_cur(&m->buffer, size);
-            b = size; //skip over any remainder
+            b = size;  // skip over any remainder
 
             n += (int) b;
             v->extraData[field - 1].buffer.size += b;
