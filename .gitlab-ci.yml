@@ -79,7 +79,7 @@ unit-tests:
     - make
     - ctest . || die "one or more unit tests failed"
 
-speculos-nanos:
+speculos:
   stage: e2e-tests
   image: 
     name: ghcr.io/ledgerhq/speculos:latest
