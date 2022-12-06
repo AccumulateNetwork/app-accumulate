@@ -8,7 +8,7 @@
 
 #include "common/buffer.h"
 #include <common/encoding.h>
-#include "_enums2.h"
+//#include "_enums2.h"
 //#include "_enums.h"
 //#include "_test.h"
 
@@ -44,7 +44,7 @@ static void test_encoding_bytes(void **state) {
     assert_true( d.Equal(&c, &d) );
 
     for ( uint8_t i = 0; i < d.buffer.size; ++i ) {
-        memcpy((uint8_t*)(d.buffer.ptr+d.buffer.offset),&i, sizeof(i));
+        memmove((uint8_t*)(d.buffer.ptr+d.buffer.offset),&i, sizeof(i));
     }
 
     assert_false( d.Equal(&c, &d) );
