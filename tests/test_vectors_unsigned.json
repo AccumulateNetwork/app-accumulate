@@ -552,7 +552,7 @@
       "name": "AddCredits",
       "cases": [
         {
-          "binary": "AWwBAgIg5V2XO/aROByUYCNU0eH2VfexxL1Wdg3/7/or70VB7BEEHWFjYzovL2xpdGUtdG9rZW4tYWNjb3VudC5hY21lBQEG0oXYzAQIk5O6jZnbPbHEE7Gi5NtJu3yNqEi3FA+AHNdakfoUDXMDXgFAAR1hY2M6Ly9saXRlLXRva2VuLWFjY291bnQuYWNtZQJvlL7eHp8epW1/aIh8LrTc4mzUeuBdsMG4CjCmdPS7fQIaAQ4CE2FjYzovL2FkaS5hY21lL3BhZ2UDAWQ=",
+          "binary": "AWwBAgIg5V2XO/aROByUYCNU0eH2VfexxL1Wdg3/7/or70VB7BEEHWFjYzovL2xpdGUtdG9rZW4tYWNjb3VudC5hY21lBQEG0oXYzAQI+3GnRMrYm4M8PL9aznQPqgen8N7LHYQJbGJKyzTmPK4DZQFAAR1hY2M6Ly9saXRlLXRva2VuLWFjY291bnQuYWNtZQJvlL7eHp8epW1/aIh8LrTc4mzUeuBdsMG4CjCmdPS7fQIhAQ4CE2FjYzovL2FkaS5hY21lL3BhZ2UDAwMNQASA4esX",
           "json": {
             "signatures": [
               {
@@ -561,7 +561,7 @@
                 "signer": "acc://lite-token-account.acme",
                 "signerVersion": 1,
                 "timestamp": 1234567890,
-                "transactionHash": "9393ba8d99db3db1c413b1a2e4db49bb7c8da848b7140f801cd75a91fa140d73"
+                "transactionHash": "fb71a744cad89b833c3cbf5ace740faa07a7f0decb1d84096c624acb34e63cae"
               }
             ],
             "transaction": [
@@ -573,7 +573,8 @@
                 "body": {
                   "type": "addCredits",
                   "recipient": "acc://adi.acme/page",
-                  "amount": "100"
+                  "amount": "200000",
+                  "oracle": 50000000
                 }
               }
             ]

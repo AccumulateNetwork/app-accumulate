@@ -568,17 +568,17 @@
       "name": "AddCredits",
       "cases": [
         {
-          "binary": "Aa4BAQICIOVdlzv2kTgclGAjVNHh9lX3scS9VnYN/+/6K+9FQewRA0DnHniCD4AwvK/aU53LZ5ao54L5ZiTsIgn21f9zJvEiJ3EAGJGRU6ZzECN96voqxl5qjlSqAuNnpyZwsd6DbOkNBB1hY2M6Ly9saXRlLXRva2VuLWFjY291bnQuYWNtZQUBBtKF2MwECJOTuo2Z2z2xxBOxouTbSbt8jahItxQPgBzXWpH6FA1zA14BQAEdYWNjOi8vbGl0ZS10b2tlbi1hY2NvdW50LmFjbWUCb5S+3h6fHqVtf2iIfC603OJs1HrgXbDBuAowpnT0u30CGgEOAhNhY2M6Ly9hZGkuYWNtZS9wYWdlAwFk",
+          "binary": "Aa4BAQICIOVdlzv2kTgclGAjVNHh9lX3scS9VnYN/+/6K+9FQewRA0D2PbRT7rZJH3aNithRMY5ohx567cVC9qxkiPZ8BWMFkfpTaH8ZZleoHeWi5xrn2S7MuSJ6JlQ8nMIgK7l5YK4CBB1hY2M6Ly9saXRlLXRva2VuLWFjY291bnQuYWNtZQUBBtKF2MwECPtxp0TK2JuDPDy/Ws50D6oHp/Deyx2ECWxiSss05jyuA2UBQAEdYWNjOi8vbGl0ZS10b2tlbi1hY2NvdW50LmFjbWUCb5S+3h6fHqVtf2iIfC603OJs1HrgXbDBuAowpnT0u30CIQEOAhNhY2M6Ly9hZGkuYWNtZS9wYWdlAwMDDUAEgOHrFw==",
           "json": {
             "signatures": [
               {
                 "type": "ed25519",
                 "publicKey": "e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11",
-                "signature": "e71e78820f8030bcafda539dcb6796a8e782f96624ec2209f6d5ff7326f12227710018919153a67310237deafa2ac65e6a8e54aa02e367a72670b1de836ce90d",
+                "signature": "f63db453eeb6491f768d8ad851318e68871e7aedc542f6ac6488f67c05630591fa53687f196657a81de5a2e71ae7d92eccb9227a26543c9cc2202bb97960ae02",
                 "signer": "acc://lite-token-account.acme",
                 "signerVersion": 1,
                 "timestamp": 1234567890,
-                "transactionHash": "9393ba8d99db3db1c413b1a2e4db49bb7c8da848b7140f801cd75a91fa140d73"
+                "transactionHash": "fb71a744cad89b833c3cbf5ace740faa07a7f0decb1d84096c624acb34e63cae"
               }
             ],
             "transaction": [
@@ -590,7 +590,8 @@
                 "body": {
                   "type": "addCredits",
                   "recipient": "acc://adi.acme/page",
-                  "amount": "100"
+                  "amount": "200000",
+                  "oracle": 50000000
                 }
               }
             ]

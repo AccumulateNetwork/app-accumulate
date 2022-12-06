@@ -131,6 +131,7 @@ int ui_display_transaction(void) {
             for (int i = 0; i < global.max; ++i) {
                 int e = ui_dynamic_display_add_credits(i);
                 if (e < 0) {
+                    PRINTF("An error occured in the AddCredits display at step %d, err %d\n", i, e);
                     return e;
                 }
             }
