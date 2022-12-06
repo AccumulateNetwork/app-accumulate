@@ -33,7 +33,11 @@ int helper_send_response_pubkey() {
     resp[offset++] = G_context.pk_info.public_key_length;
     memmove(resp + offset, G_context.pk_info.raw_public_key, G_context.pk_info.public_key_length);
     offset += G_context.pk_info.public_key_length;
-    size_t len = strlen(G_context.pk_info.address_name);
+    uint8_t len = sizeof(G_context.pk_info.chain_code);
+    resp[offset++] = len;
+    memmove(resp + offset, G_context.pk_info.chain_code, len);
+    offset += len;
+    len = strlen(G_context.pk_info.address_name);
     resp[offset++] = len;
     memmove(resp + offset, G_context.pk_info.address_name, len);
     offset += len;
