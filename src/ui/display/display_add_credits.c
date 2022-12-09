@@ -30,7 +30,7 @@ int ui_dynamic_display_add_credits(int index) {
             // compute the oracle conversion
             uint256_t oracle;
             explicit_bzero(&oracle, sizeof(oracle));
-            UVarInt_get(&ac->Oracle,&oracle.elements[1].elements[1]);
+            UVarInt_get(&ac->Oracle, &oracle.elements[1].elements[1]);
             oracle.elements[1].elements[1] *= CREDITS_PER_FIAT_UNIT;
 
             // compute amount of credits from ACME spend sans precision
@@ -47,7 +47,7 @@ int ui_dynamic_display_add_credits(int index) {
                                 strlen(amountString),
                                 global.text,
                                 sizeof(global.text),
-                                CREDITS_PRECISION+ACME_PRECISION+ORACLE_PRECISION)) {
+                                CREDITS_PRECISION + ACME_PRECISION + ORACLE_PRECISION)) {
                 return ErrorInvalidString;
             }
         } break;

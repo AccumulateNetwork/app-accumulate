@@ -7,7 +7,7 @@ ENCODE_COPY(BigInt)
 
 Error BigInt_valid(const Bytes *v) {
     CHECK_ERROR(v)
-    if (v->buffer.size-v->buffer.offset > 32 && v->buffer.ptr != 0) {
+    if (v->buffer.size - v->buffer.offset > 32 && v->buffer.ptr != 0) {
         return ErrorCode(ErrorInvalidBigInt);
     }
 
@@ -22,8 +22,8 @@ Error BigInt_get(const struct BigInt *s, uint256_t *v) {
         return e;
     }
     e.code = frombytes256((uint8_t *) s->data.buffer.ptr + s->data.buffer.offset,
-                 s->data.buffer.size - s->data.buffer.offset,
-                 v);
+                          s->data.buffer.size - s->data.buffer.offset,
+                          v);
     if (e.code < 0) {
         return ErrorCode(ErrorInvalidBigInt);
     }
