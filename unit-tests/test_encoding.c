@@ -16,7 +16,7 @@
 #include <common/protocol/signatures.h>
 #include <transaction/utils.h>
 
-#define WANT_DEBUG_TX_CODE 0
+#define WANT_DEBUG_TX_CODE
 
 typedef struct {
    Bytes32 a;

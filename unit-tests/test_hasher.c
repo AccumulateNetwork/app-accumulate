@@ -31,10 +31,6 @@ static void test_hasher(void **state) {
         "extid 8",
         "extid 9",
     };
-//    de.Data = append(de.Data, []byte("test data entry"))
-//    for i := 0; i < 10; i++ {
-//        de.Data = append(de.Data, []byte(fmt.Sprintf("extid %d", i)))
-//    }
 
     const char *expectedHashHex = "29f613df53d1e38dcfea87b2582985cae5265699ef8fc5c500b0bee8f32974ed";
     uint8_t expectedHash[32];

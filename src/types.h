@@ -28,7 +28,6 @@ typedef enum {
     GET_PUBLIC_KEY = 0x05,  /// public key of corresponding BIP32 path
     SIGN_TX = 0x06,         /// sign transaction with BIP32 path
     GET_ADDRESS = 0x07,     /// get associated address
-    DEBUG_TX = 0x08,         /// sign transaction with BIP32 path
 } command_e;
 
 /**
@@ -76,6 +75,7 @@ typedef struct {
     char  address_name[MAX_ACME_LITE_ACCOUNT_LEN];
     char  lite_account[MAX_ACME_LITE_ACCOUNT_LEN];
     uint8_t hash[32];
+    uint8_t hashLength;
 } pubkey_ctx_t;
 
 /**

@@ -34,20 +34,10 @@
 
 
 Error lite_address_from_pubkey(CoinType t, pubkey_ctx_t *publicKey) {
-    Error ret = ErrorCode(ErrorUnknown);
+    Error ret;
     switch (t) {
         case CoinTypeAcme:
-            if ( publicKey->public_key_length != 32 ) {
-                return ErrorCode(ErrorBadKey);
-            }
-            sha256(publicKey->raw_public_key,publicKey->public_key_length,
-                       publicKey->hash, sizeof(publicKey->hash));
-            ret = getLiteIdentityUrl(publicKey->hash,sizeof(publicKey->hash),
-                                    publicKey->lite_account, sizeof(publicKey->lite_account));
-            if ( IsError(ret) ) {
-                return ret;
-            }
-            snprintf(publicKey->address_name, sizeof(publicKey->address_name), "%s", publicKey->lite_account);
+            ret = getLiteAcmeAddress(publicKey);
             break;
         case CoinTypeFct:
             ret = getFctLiteAddress(publicKey);
@@ -70,10 +60,13 @@ Error getEthLiteIdentity(pubkey_ctx_t *publicKey) {
     }
 
     //1) generate eth hash
-    Error e = keccak(publicKey->raw_public_key+1,64, publicKey->hash, sizeof(publicKey->hash));
-    if ( IsError(e) ) {
+    uint8_t hash[32] = {0};
+    Error e = keccak(publicKey->raw_public_key + 1, 64, hash, sizeof(hash));
+    if (IsError(e)) {
         return e;
     }
+    memmove(publicKey->hash, &hash[sizeof (hash) - ADDRESS_LEN], ADDRESS_LEN);
+    publicKey->hashLength = ADDRESS_LEN;
 
     explicit_bzero(publicKey->address_name, sizeof(publicKey->address_name));
     //2) encode the name address
@@ -82,19 +75,18 @@ Error getEthLiteIdentity(pubkey_ctx_t *publicKey) {
     publicKey->address_name[1] = 'x';
     for ( int i = 0; i < ADDRESS_LEN; ++i ) {
         snprintf((char*)&publicKey->address_name[offset], sizeof(publicKey->address_name) - offset,
-                 "%02x", publicKey->hash[i+sizeof(publicKey->hash)-ADDRESS_LEN]);
+                 "%02x", publicKey->hash[i]);
         offset += 2;
     }
 
     //3) compute lite identity url.
-    e = getLiteIdentityUrl(&publicKey->hash[sizeof(publicKey->hash)-ADDRESS_LEN],
-                       ADDRESS_LEN,
+    e = getLiteIdentityUrl(publicKey->hash, publicKey->hashLength,
                        publicKey->lite_account,sizeof(publicKey->lite_account));
     return e;
 }
 
 Error getBtcLiteIdentity(pubkey_ctx_t *publicKey) {
-    if ( publicKey->public_key_length != 33 ) {
+    if (publicKey->public_key_length != 33) {
         return ErrorCode(ErrorBadKey);
     }
     explicit_bzero(publicKey->address_name, sizeof(publicKey->address_name));
@@ -110,6 +102,10 @@ Error getBtcLiteIdentity(pubkey_ctx_t *publicKey) {
     for (int i = 0; i < 4; ++i) {
         pubRip[21+i] = hash[i];
     }
+
+    memmove(publicKey->hash, pubRip + 1, CX_RIPEMD160_SIZE);
+    publicKey->hashLength = CX_RIPEMD160_SIZE;
+
     base58_encode(pubRip, sizeof(pubRip), publicKey->address_name, sizeof (publicKey->address_name));
 
     return getLiteIdentityUrl(pubRip+1, 20, publicKey->lite_account, sizeof publicKey->lite_account);
@@ -174,6 +170,79 @@ Error getFctAddressStringFromRCDHash(uint8_t *rcdhash,char *out, int8_t outLen)
     return ErrorCode(ErrorNone);
 }
 
+Error encodeMultihash(const uint8_t *hash, uint8_t hashLength, char *out, uint8_t outLength) {
+    const uint64_t multihash_identity = 0;
+    uint8_t multiHash[MAX_HASH_LENGTH+16] = {0};
+    int n = uvarint_write(multiHash, 0, multihash_identity);
+    n += uvarint_write(multiHash,n,(uint64_t)hashLength);
+    memmove(&multiHash[n], hash, hashLength);
+    explicit_bzero(out,outLength);
+    return getNamedAddress("MHz",3,multiHash,n+hashLength, out, outLength);
+}
+
+Error getNamedAddress(const char *prefix, uint8_t prefixLength, const uint8_t *hash, uint8_t hashLength, char *out, uint8_t outLength) {
+    if (prefixLength > MAX_PREFIX_LENGTH ) {
+        return ErrorCode(ErrorInvalidString);
+    }
+
+    if (hashLength > MAX_HASH_LENGTH ) {
+        return ErrorCode(ErrorInvalidHashParameters);
+    }
+
+    //Prepare Checksum
+    uint8_t ac1[MAX_PREFIX_LENGTH + MAX_HASH_LENGTH + CHECKSUM_LEN] = {0};
+
+    memmove(ac1, prefix, prefixLength);
+    memmove(&ac1[prefixLength], hash, hashLength);
+
+    //compute checksum
+    {
+        uint8_t checksum[32];
+        sha256d(ac1, prefixLength+hashLength, checksum,sizeof(checksum));
+        memmove(ac1+prefixLength+hashLength, checksum, CHECKSUM_LEN);
+    }
+
+    //encode address
+    explicit_bzero(out, outLength);
+    memmove(out, prefix, prefixLength);
+
+    int ret = base58_encode(&ac1[prefixLength],hashLength+CHECKSUM_LEN, (char*) &out[prefixLength], outLength);
+    if (ret < 0 ) {
+        return ErrorCode(ErrorInvalidObject);
+    }
+
+    return ErrorCode(ErrorNone);
+}
+
+Error getLiteAcmeAddress(pubkey_ctx_t *publicKey) {
+    if ( publicKey->public_key_length != 32 ) {
+        return ErrorCode(ErrorBadKey);
+    }
+
+    //Compute Key Hash
+    publicKey->hashLength = sizeof(publicKey->hash);
+    Error e = sha256(publicKey->raw_public_key,publicKey->public_key_length,publicKey->hash, sizeof(publicKey->hash));
+    if ( IsError(e) ) {
+        return e;
+    }
+
+    e = getNamedAddress("AC1",3, publicKey->hash, sizeof(publicKey->hash),
+                        publicKey->address_name, sizeof(publicKey->address_name));
+    if (IsError(e)) {
+        return e;
+    }
+
+    e = getLiteIdentityUrl(publicKey->hash, sizeof (publicKey->hash),
+                           publicKey->lite_account, sizeof (publicKey->lite_account));
+    if (IsError(e)) {
+        return e;
+    }
+
+    return ErrorCode(ErrorNone);
+}
+
+
+
 Error getFctLiteAddress(pubkey_ctx_t *publicKey) {
     if ( publicKey->public_key_length != 32 ) {
         return ErrorCode(ErrorBadKey);
@@ -185,7 +254,8 @@ Error getFctLiteAddress(pubkey_ctx_t *publicKey) {
     memmove(&rcd[1], publicKey->raw_public_key, publicKey->public_key_length);
 
     //3) Hash rcd
-    Error e = sha256(rcd,sizeof(rcd),publicKey->hash, sizeof(publicKey->hash));
+    publicKey->hashLength = sizeof(publicKey->hash);
+    Error e = sha256(rcd,sizeof(rcd),publicKey->hash, publicKey->hashLength);
     if ( IsError(e) ) {
         return e;
     }
@@ -201,7 +271,7 @@ Error getFctLiteAddress(pubkey_ctx_t *publicKey) {
     if (IsError(e) ) {
         return e;
     }
-    publicKey->address_name[0] = 'F';
+
     return ErrorCode(ErrorNone);
 }
 

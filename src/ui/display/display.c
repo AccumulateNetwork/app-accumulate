@@ -88,7 +88,7 @@ int ui_display_address() {
         return io_send_sw(SW_BAD_STATE);
     }
 
-    global.max = 3;
+    global.max = 4;
     //do a dry run to check for errors
     for ( int i = 0; i < global.max; ++i) {
         int e = dynamic_display_address(i);
