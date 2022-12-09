@@ -10,6 +10,18 @@ obj/
 unit-tests/build/
 unit-tests/coverage/
 unit-tests/coverage.info
+unit-tests/cmake*
+CMakeCache.txt
+CMakeFiles
+build
+dist
+unit-tests/coverage.base
+unit-tests/coverage.capture
+cmake-*/
+.cmake/
+output-scan-build
+unit-tests/Testing
+Dart*
 
 # Fuzzing
 fuzzing/build/
@@ -25,6 +37,9 @@ __pycache__/
 *.egg-info/
 .eggs/
 .python-version
+*.swp
+
+
 
 # Doxygen
 doc/html

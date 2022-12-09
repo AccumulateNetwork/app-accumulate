@@ -33,7 +33,11 @@ int helper_send_response_pubkey() {
     resp[offset++] = G_context.pk_info.public_key_length;
     memmove(resp + offset, G_context.pk_info.raw_public_key, G_context.pk_info.public_key_length);
     offset += G_context.pk_info.public_key_length;
-    size_t len = strlen(G_context.pk_info.address_name);
+    uint8_t len = sizeof(G_context.pk_info.chain_code);
+    resp[offset++] = len;
+    memmove(resp + offset, G_context.pk_info.chain_code, len);
+    offset += len;
+    len = strlen(G_context.pk_info.address_name);
     resp[offset++] = len;
     memmove(resp + offset, G_context.pk_info.address_name, len);
     offset += len;
@@ -49,8 +53,6 @@ int helper_send_response_sig(void) {
     memmove(resp + offset, G_context.tx_info.signature, G_context.tx_info.signature_len);
     offset += G_context.tx_info.signature_len;
     resp[offset++] = (uint8_t) G_context.tx_info.v;
-    memmove( resp + offset, G_context.tx_info.metadataHash, 32);
-    offset += 32;
 
     return io_send_response(&(const buffer_t){.ptr = resp, .size = offset, .offset = 0}, SW_OK);
 }

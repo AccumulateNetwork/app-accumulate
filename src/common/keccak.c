@@ -7,17 +7,17 @@
 #include <string.h>
 #endif
 
-Error keccak(const uint8_t *in, unsigned int len,  uint8_t *out, unsigned int out_len) {
-    if ( !in || !out ) {
+Error keccak(const uint8_t *in, unsigned int len, uint8_t *out, unsigned int out_len) {
+    if (!in || !out) {
         return ErrorCode(ErrorParameterNil);
     }
-    if ( out_len != 32 ) {
+    if (out_len != 32) {
         return ErrorCode(ErrorParameterInsufficientData);
     }
 #ifndef UNIT_TEST
-   cx_sha3_t keccak256;
-   cx_keccak_init(&keccak256, 256);
-   cx_hash((cx_hash_t *) &keccak256, CX_LAST, in, len, out, out_len);
+    cx_sha3_t keccak256;
+    cx_keccak_init(&keccak256, 256);
+    cx_hash((cx_hash_t *) &keccak256, CX_LAST, in, len, out, out_len);
 #else
     sha3_context hash256;
     sha3_Init256(&hash256);
@@ -28,4 +28,3 @@ Error keccak(const uint8_t *in, unsigned int len,  uint8_t *out, unsigned int ou
 #endif
     return ErrorCode(ErrorNone);
 }
-

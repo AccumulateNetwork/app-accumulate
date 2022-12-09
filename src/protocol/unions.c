@@ -6,17 +6,17 @@
 
 #define _ACCUMULATE_UNION_SOURCE_
 
-//typedef union {
-//    SignatureTypeUnion _u;
-//    struct BTCSignature _BTCSignature;
-//    struct ED25519Signature _ED25519Signature;
-//    struct ETHSignature _ETHSignature;
-//    struct RCD1Signature _RCD1Signature;
-//} Signature_t;
-//Signature_t gSignature;
+// typedef union {
+//     SignatureTypeUnion _u;
+//     struct BTCSignature _BTCSignature;
+//     struct ED25519Signature _ED25519Signature;
+//     struct ETHSignature _ETHSignature;
+//     struct RCD1Signature _RCD1Signature;
+// } Signature_t;
+// Signature_t gSignature;
 #ifdef _ACCUMULATE_UNION_SOURCE_
 
-//EqualTransactionBody is used to compare the values of the union
+// EqualTransactionBody is used to compare the values of the union
 bool TransactionBody_equal(const TransactionBody *a, const TransactionBody *b) {
     if (!a || !b) {
         return false;
@@ -24,11 +24,11 @@ bool TransactionBody_equal(const TransactionBody *a, const TransactionBody *b) {
     if (!a->_u || !b->_u) {
         return false;
     }
-    if ( a == b ) {
+    if (a == b) {
         return true;
     }
 
-    switch ( a->_u->Type ) {
+    switch (a->_u->Type) {
 #if _WANT_AddCredits_
         case TransactionTypeAddCredits:
             return AddCredits_equal(a->_AddCredits, b->_AddCredits);
@@ -44,7 +44,7 @@ bool TransactionBody_equal(const TransactionBody *a, const TransactionBody *b) {
 
 #if _WANT_AddCredits_
 int newAddCredits(Unmarshaler *m, TransactionBody *v) {
-    v->_AddCredits = (AddCredits*)unmarshalerAlloc(m, sizeof(AddCredits));
+    v->_AddCredits = (AddCredits *) unmarshalerAlloc(m, sizeof(AddCredits));
     CHECK_ERROR_INT(v->_AddCredits)
     return ErrorNone;
 }
@@ -52,7 +52,7 @@ int newAddCredits(Unmarshaler *m, TransactionBody *v) {
 
 #if _WANT_SendTokens_
 int newSendTokens(Unmarshaler *m, TransactionBody *v) {
-    v->_SendTokens = (SendTokens*)unmarshalerAlloc(m, sizeof(SendTokens));
+    v->_SendTokens = (SendTokens *) unmarshalerAlloc(m, sizeof(SendTokens));
     PRINTF("allocate SEND TOKENS %p size %d\n", v->_SendTokens, sizeof(SendTokens));
     CHECK_ERROR_INT(v->_SendTokens)
     return ErrorNone;
@@ -67,32 +67,32 @@ int unmarshalerReadTransactionBody(Unmarshaler *m, TransactionBody *v) {
     uint64_t type = 0;
     PRINTF("ENTERING READ TRANSACTION BODY\n");
     int b = unmarshalerReadField(m, &field);
-    if ( IsError(ErrorCode(b))) {
+    if (IsError(ErrorCode(b))) {
         return b;
     }
 
-    if ( field != 1 ) {
+    if (field != 1) {
         return ErrorInvalidField;
     }
     n += b;
 
-        PRINTF("DONE READ FIELD\n");
+    PRINTF("DONE READ FIELD\n");
     b = unmarshalerReadUInt(m, &type);
-    if ( IsError(ErrorCode(b))) {
+    if (IsError(ErrorCode(b))) {
         return b;
     }
     n += b;
 
     PRINTF("READ  TRANSACTION BODY type %d\n", type);
-    switch ( type ) {
+    switch (type) {
 #if _WANT_AddCredits_
         case TransactionTypeAddCredits:
             b = newAddCredits(m, v);
-            if ( IsError(ErrorCode(b))) {
+            if (IsError(ErrorCode(b))) {
                 return b;
             }
             b = unmarshalerReadAddCredits(m, v->_AddCredits);
-            if ( IsError(ErrorCode(b))) {
+            if (IsError(ErrorCode(b))) {
                 return b;
             }
             n += b;
@@ -103,13 +103,13 @@ int unmarshalerReadTransactionBody(Unmarshaler *m, TransactionBody *v) {
 
             PRINTF("Allocate Send Tokens\n");
             b = newSendTokens(m, v);
-            if ( IsError(ErrorCode(b))) {
+            if (IsError(ErrorCode(b))) {
                 return b;
             }
 
             PRINTF("Unmarshal Read Send TOkens\n");
             b = unmarshalerReadSendTokens(m, v->_SendTokens);
-            if ( IsError(ErrorCode(b))) {
+            if (IsError(ErrorCode(b))) {
                 return b;
             }
             n += b;
@@ -125,7 +125,7 @@ int marshalerWriteTransactionBody(Marshaler *m, const TransactionBody *v) {
     CHECK_ERROR_INT(m)
     CHECK_ERROR_INT(v)
 
-    switch ( v->_u->Type ) {
+    switch (v->_u->Type) {
 #if _WANT_AddCredits_
         case TransactionTypeAddCredits:
             return marshalerWriteAddCredits(m, v->_AddCredits);
@@ -139,10 +139,7 @@ int marshalerWriteTransactionBody(Marshaler *m, const TransactionBody *v) {
     };
 }
 
-
-
-
-//EqualSignature is used to compare the values of the union
+// EqualSignature is used to compare the values of the union
 bool Signature_equal(const Signature *a, const Signature *b) {
     if (!a || !b) {
         return false;
@@ -150,11 +147,11 @@ bool Signature_equal(const Signature *a, const Signature *b) {
     if (!a->_u || !b->_u) {
         return false;
     }
-    if ( a == b ) {
+    if (a == b) {
         return true;
     }
 
-    switch ( a->_u->Type ) {
+    switch (a->_u->Type) {
 #if _WANT_BTCLegacy_
         case SignatureTypeBTCLegacy:
             return BTCLegacySignature_equal(a->_BTCLegacySignature, b->_BTCLegacySignature);
@@ -181,7 +178,8 @@ bool Signature_equal(const Signature *a, const Signature *b) {
 #endif
 #if _WANT_LegacyED25519_
         case SignatureTypeLegacyED25519:
-            return LegacyED25519Signature_equal(a->_LegacyED25519Signature, b->_LegacyED25519Signature);
+            return LegacyED25519Signature_equal(a->_LegacyED25519Signature,
+                                                b->_LegacyED25519Signature);
 #endif
 #if _WANT_Partition_
         case SignatureTypePartition:
@@ -210,7 +208,7 @@ bool Signature_equal(const Signature *a, const Signature *b) {
 
 #if _WANT_BTCLegacySignature_
 int newBTCLegacySignature(Unmarshaler *m, Signature *v) {
-    v->_BTCLegacySignature = (BTCLegacySignature*)unmarshalerAlloc(m, sizeof(BTCLegacySignature));
+    v->_BTCLegacySignature = (BTCLegacySignature *) unmarshalerAlloc(m, sizeof(BTCLegacySignature));
     CHECK_ERROR_INT(v->_BTCLegacySignature)
     return ErrorNone;
 }
@@ -218,7 +216,7 @@ int newBTCLegacySignature(Unmarshaler *m, Signature *v) {
 
 #if _WANT_BTCSignature_
 int newBTCSignature(Unmarshaler *m, Signature *v) {
-    v->_BTCSignature = (BTCSignature*)unmarshalerAlloc(m, sizeof(BTCSignature));
+    v->_BTCSignature = (BTCSignature *) unmarshalerAlloc(m, sizeof(BTCSignature));
     CHECK_ERROR_INT(v->_BTCSignature)
     return ErrorNone;
 }
@@ -226,7 +224,7 @@ int newBTCSignature(Unmarshaler *m, Signature *v) {
 
 #if _WANT_DelegatedSignature_
 int newDelegatedSignature(Unmarshaler *m, Signature *v) {
-    v->_DelegatedSignature = (DelegatedSignature*)unmarshalerAlloc(m, sizeof(DelegatedSignature));
+    v->_DelegatedSignature = (DelegatedSignature *) unmarshalerAlloc(m, sizeof(DelegatedSignature));
     CHECK_ERROR_INT(v->_DelegatedSignature)
     return ErrorNone;
 }
@@ -234,7 +232,7 @@ int newDelegatedSignature(Unmarshaler *m, Signature *v) {
 
 #if _WANT_ED25519Signature_
 int newED25519Signature(Unmarshaler *m, Signature *v) {
-    v->_ED25519Signature = (ED25519Signature*)unmarshalerAlloc(m, sizeof(ED25519Signature));
+    v->_ED25519Signature = (ED25519Signature *) unmarshalerAlloc(m, sizeof(ED25519Signature));
     CHECK_ERROR_INT(v->_ED25519Signature)
     return ErrorNone;
 }
@@ -242,7 +240,7 @@ int newED25519Signature(Unmarshaler *m, Signature *v) {
 
 #if _WANT_ETHSignature_
 int newETHSignature(Unmarshaler *m, Signature *v) {
-    v->_ETHSignature = (ETHSignature*)unmarshalerAlloc(m, sizeof(ETHSignature));
+    v->_ETHSignature = (ETHSignature *) unmarshalerAlloc(m, sizeof(ETHSignature));
     CHECK_ERROR_INT(v->_ETHSignature)
     return ErrorNone;
 }
@@ -250,7 +248,7 @@ int newETHSignature(Unmarshaler *m, Signature *v) {
 
 #if _WANT_InternalSignature_
 int newInternalSignature(Unmarshaler *m, Signature *v) {
-    v->_InternalSignature = (InternalSignature*)unmarshalerAlloc(m, sizeof(InternalSignature));
+    v->_InternalSignature = (InternalSignature *) unmarshalerAlloc(m, sizeof(InternalSignature));
     CHECK_ERROR_INT(v->_InternalSignature)
     return ErrorNone;
 }
@@ -258,7 +256,8 @@ int newInternalSignature(Unmarshaler *m, Signature *v) {
 
 #if _WANT_LegacyED25519Signature_
 int newLegacyED25519Signature(Unmarshaler *m, Signature *v) {
-    v->_LegacyED25519Signature = (LegacyED25519Signature*)unmarshalerAlloc(m, sizeof(LegacyED25519Signature));
+    v->_LegacyED25519Signature =
+        (LegacyED25519Signature *) unmarshalerAlloc(m, sizeof(LegacyED25519Signature));
     CHECK_ERROR_INT(v->_LegacyED25519Signature)
     return ErrorNone;
 }
@@ -266,7 +265,7 @@ int newLegacyED25519Signature(Unmarshaler *m, Signature *v) {
 
 #if _WANT_PartitionSignature_
 int newPartitionSignature(Unmarshaler *m, Signature *v) {
-    v->_PartitionSignature = (PartitionSignature*)unmarshalerAlloc(m, sizeof(PartitionSignature));
+    v->_PartitionSignature = (PartitionSignature *) unmarshalerAlloc(m, sizeof(PartitionSignature));
     CHECK_ERROR_INT(v->_PartitionSignature)
     return ErrorNone;
 }
@@ -274,7 +273,7 @@ int newPartitionSignature(Unmarshaler *m, Signature *v) {
 
 #if _WANT_RCD1Signature_
 int newRCD1Signature(Unmarshaler *m, Signature *v) {
-    v->_RCD1Signature = (RCD1Signature*)unmarshalerAlloc(m, sizeof(RCD1Signature));
+    v->_RCD1Signature = (RCD1Signature *) unmarshalerAlloc(m, sizeof(RCD1Signature));
     CHECK_ERROR_INT(v->_RCD1Signature)
     return ErrorNone;
 }
@@ -282,7 +281,7 @@ int newRCD1Signature(Unmarshaler *m, Signature *v) {
 
 #if _WANT_ReceiptSignature_
 int newReceiptSignature(Unmarshaler *m, Signature *v) {
-    v->_ReceiptSignature = (ReceiptSignature*)unmarshalerAlloc(m, sizeof(ReceiptSignature));
+    v->_ReceiptSignature = (ReceiptSignature *) unmarshalerAlloc(m, sizeof(ReceiptSignature));
     CHECK_ERROR_INT(v->_ReceiptSignature)
     return ErrorNone;
 }
@@ -290,7 +289,7 @@ int newReceiptSignature(Unmarshaler *m, Signature *v) {
 
 #if _WANT_RemoteSignature_
 int newRemoteSignature(Unmarshaler *m, Signature *v) {
-    v->_RemoteSignature = (RemoteSignature*)unmarshalerAlloc(m, sizeof(RemoteSignature));
+    v->_RemoteSignature = (RemoteSignature *) unmarshalerAlloc(m, sizeof(RemoteSignature));
     CHECK_ERROR_INT(v->_RemoteSignature)
     return ErrorNone;
 }
@@ -298,7 +297,7 @@ int newRemoteSignature(Unmarshaler *m, Signature *v) {
 
 #if _WANT_SignatureSet_
 int newSignatureSet(Unmarshaler *m, Signature *v) {
-    v->_SignatureSet = (SignatureSet*)unmarshalerAlloc(m, sizeof(SignatureSet));
+    v->_SignatureSet = (SignatureSet *) unmarshalerAlloc(m, sizeof(SignatureSet));
     CHECK_ERROR_INT(v->_SignatureSet)
     return ErrorNone;
 }
@@ -312,29 +311,29 @@ int unmarshalerReadSignature(Unmarshaler *m, Signature *v) {
     uint64_t type = 0;
 
     int b = unmarshalerReadField(m, &field);
-    if ( IsError(ErrorCode(b))) {
+    if (IsError(ErrorCode(b))) {
         return b;
     }
 
-    if ( field != 1 ) {
+    if (field != 1) {
         return ErrorInvalidField;
     }
     n += b;
 
     b = unmarshalerReadUInt(m, &type);
-    if ( IsError(ErrorCode(b))) {
+    if (IsError(ErrorCode(b))) {
         return b;
     }
     n += b;
-    switch ( type ) {
+    switch (type) {
 #if _WANT_BTCLegacySignature_
         case SignatureTypeBTCLegacy:
             b = newBTCLegacySignature(m, v);
-            if ( IsError(ErrorCode(b))) {
+            if (IsError(ErrorCode(b))) {
                 return b;
             }
             b = unmarshalerReadBTCLegacySignature(m, v->_BTCLegacySignature);
-            if ( IsError(ErrorCode(b))) {
+            if (IsError(ErrorCode(b))) {
                 return b;
             }
             n += b;
@@ -342,13 +341,13 @@ int unmarshalerReadSignature(Unmarshaler *m, Signature *v) {
 #endif
 #if _WANT_BTCSignature_
         case SignatureTypeBTC:
-//            b = newBTCSignature(m, v);
-//            if ( IsError(ErrorCode(b))) {
-//                return b;
-//            }
+            //            b = newBTCSignature(m, v);
+            //            if ( IsError(ErrorCode(b))) {
+            //                return b;
+            //            }
             v->_BTCSignature = &gSignature._BTCSignature;
             b = unmarshalerReadBTCSignature(m, v->_BTCSignature);
-            if ( IsError(ErrorCode(b))) {
+            if (IsError(ErrorCode(b))) {
                 return b;
             }
             n += b;
@@ -357,11 +356,11 @@ int unmarshalerReadSignature(Unmarshaler *m, Signature *v) {
 #if _WANT_DelegatedSignature_
         case SignatureTypeDelegated:
             b = newDelegatedSignature(m, v);
-            if ( IsError(ErrorCode(b))) {
+            if (IsError(ErrorCode(b))) {
                 return b;
             }
             b = unmarshalerReadDelegatedSignature(m, v->_DelegatedSignature);
-            if ( IsError(ErrorCode(b))) {
+            if (IsError(ErrorCode(b))) {
                 return b;
             }
             n += b;
@@ -370,13 +369,13 @@ int unmarshalerReadSignature(Unmarshaler *m, Signature *v) {
 #if _WANT_ED25519Signature_
         case SignatureTypeED25519:
             b = newED25519Signature(m, v);
-            if ( IsError(ErrorCode(b))) {
+            if (IsError(ErrorCode(b))) {
                 return b;
             }
 
-            //v->_ED25519Signature = &gSignature._ED25519Signature;
+            // v->_ED25519Signature = &gSignature._ED25519Signature;
             b = unmarshalerReadED25519Signature(m, v->_ED25519Signature);
-            if ( IsError(ErrorCode(b))) {
+            if (IsError(ErrorCode(b))) {
                 return b;
             }
             n += b;
@@ -384,14 +383,14 @@ int unmarshalerReadSignature(Unmarshaler *m, Signature *v) {
 #endif
 #if _WANT_ETHSignature_
         case SignatureTypeETH:
-//            b = newETHSignature(m, v);
-//            if ( IsError(ErrorCode(b))) {
-//                return b;
-//            }
-//
+            //            b = newETHSignature(m, v);
+            //            if ( IsError(ErrorCode(b))) {
+            //                return b;
+            //            }
+            //
             v->_ETHSignature = &gSignature._ETHSignature;
             b = unmarshalerReadETHSignature(m, v->_ETHSignature);
-            if ( IsError(ErrorCode(b))) {
+            if (IsError(ErrorCode(b))) {
                 return b;
             }
             n += b;
@@ -400,11 +399,11 @@ int unmarshalerReadSignature(Unmarshaler *m, Signature *v) {
 #if _WANT_InternalSignature_
         case SignatureTypeInternal:
             b = newInternalSignature(m, v);
-            if ( IsError(ErrorCode(b))) {
+            if (IsError(ErrorCode(b))) {
                 return b;
             }
             b = unmarshalerReadInternalSignature(m, v->_InternalSignature);
-            if ( IsError(ErrorCode(b))) {
+            if (IsError(ErrorCode(b))) {
                 return b;
             }
             n += b;
@@ -413,11 +412,11 @@ int unmarshalerReadSignature(Unmarshaler *m, Signature *v) {
 #if _WANT_LegacyED25519Signature_
         case SignatureTypeLegacyED25519:
             b = newLegacyED25519Signature(m, v);
-            if ( IsError(ErrorCode(b))) {
+            if (IsError(ErrorCode(b))) {
                 return b;
             }
             b = unmarshalerReadLegacyED25519Signature(m, v->_LegacyED25519Signature);
-            if ( IsError(ErrorCode(b))) {
+            if (IsError(ErrorCode(b))) {
                 return b;
             }
             n += b;
@@ -426,11 +425,11 @@ int unmarshalerReadSignature(Unmarshaler *m, Signature *v) {
 #if _WANT_PartitionSignature_
         case SignatureTypePartition:
             b = newPartitionSignature(m, v);
-            if ( IsError(ErrorCode(b))) {
+            if (IsError(ErrorCode(b))) {
                 return b;
             }
             b = unmarshalerReadPartitionSignature(m, v->_PartitionSignature);
-            if ( IsError(ErrorCode(b))) {
+            if (IsError(ErrorCode(b))) {
                 return b;
             }
             n += b;
@@ -438,14 +437,14 @@ int unmarshalerReadSignature(Unmarshaler *m, Signature *v) {
 #endif
 #if _WANT_RCD1Signature_
         case SignatureTypeRCD1:
-//            b = newRCD1Signature(m, v);
-//            if ( IsError(ErrorCode(b))) {
-//                return b;
-//            }
+            //            b = newRCD1Signature(m, v);
+            //            if ( IsError(ErrorCode(b))) {
+            //                return b;
+            //            }
             v->_RCD1Signature = &gSignature._RCD1Signature;
 
             b = unmarshalerReadRCD1Signature(m, v->_RCD1Signature);
-            if ( IsError(ErrorCode(b))) {
+            if (IsError(ErrorCode(b))) {
                 return b;
             }
             n += b;
@@ -454,11 +453,11 @@ int unmarshalerReadSignature(Unmarshaler *m, Signature *v) {
 #if _WANT_ReceiptSignature_
         case SignatureTypeReceipt:
             b = newReceiptSignature(m, v);
-            if ( IsError(ErrorCode(b))) {
+            if (IsError(ErrorCode(b))) {
                 return b;
             }
             b = unmarshalerReadReceiptSignature(m, v->_ReceiptSignature);
-            if ( IsError(ErrorCode(b))) {
+            if (IsError(ErrorCode(b))) {
                 return b;
             }
             n += b;
@@ -467,11 +466,11 @@ int unmarshalerReadSignature(Unmarshaler *m, Signature *v) {
 #if _WANT_RemoteSignature_
         case SignatureTypeRemote:
             b = newRemoteSignature(m, v);
-            if ( IsError(ErrorCode(b))) {
+            if (IsError(ErrorCode(b))) {
                 return b;
             }
             b = unmarshalerReadRemoteSignature(m, v->_RemoteSignature);
-            if ( IsError(ErrorCode(b))) {
+            if (IsError(ErrorCode(b))) {
                 return b;
             }
             n += b;
@@ -480,11 +479,11 @@ int unmarshalerReadSignature(Unmarshaler *m, Signature *v) {
 #if _WANT_SignatureSet_
         case SignatureTypeSet:
             b = newSignatureSet(m, v);
-            if ( IsError(ErrorCode(b))) {
+            if (IsError(ErrorCode(b))) {
                 return b;
             }
             b = unmarshalerReadSignatureSet(m, v->_SignatureSet);
-            if ( IsError(ErrorCode(b))) {
+            if (IsError(ErrorCode(b))) {
                 return b;
             }
             n += b;
@@ -500,7 +499,7 @@ int marshalerWriteSignature(Marshaler *m, const Signature *v) {
     CHECK_ERROR_INT(m)
     CHECK_ERROR_INT(v)
 
-    switch ( v->_u->Type ) {
+    switch (v->_u->Type) {
 #if _WANT_BTCLegacy_
         case SignatureTypeBTCLegacy:
             return marshalerWriteBTCLegacySignature(m, v->_BTCLegacySignature);
@@ -553,7 +552,5 @@ int marshalerWriteSignature(Marshaler *m, const Signature *v) {
             return ErrorNotImplemented;
     };
 }
-
-
 
 #endif /* _ACCUMULATE_UNION_SOURCE_ */

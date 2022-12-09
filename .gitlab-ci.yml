@@ -1,46 +1,128 @@
-image: docker:20
+image: docker:20-git
 
-stages:          # List of stages for jobs, and their order of execution
-  - build-docker
+stages: # List of stages for jobs, and their order of execution
+  - test        
   - build-firmware
+  - e2e-tests        
 
 services:
   - docker:dind
 
 variables:
-  LEDGER_BUILDER_IMAGE: registry.gitlab.com/accumulatenetwork/ledger/app-accumulate
   APP_VERSION: "1.0.2"
+  BOLD_RED: '\e[1;31m'
+  NO_COLOR: '\e[0m'
+  SECTION: '\e[0K'
+  NANOS_OUTPUT_PKG_NAME: app-accumulate-nano-s
+  NANOSP_OUTPUT_PKG_NAME: app-accumulate-nano-splus
+  NANOX_OUTPUT_PKG_NAME: app-accumulate-nano-x
 
-build docker image:
-  stage: build-docker
+.builder:
+  image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder:latest 
+  before_script:
+   - apk update 
+   - apk add zip wget curl git clang cmake cmocka cmocka-dev  
+   - function die { echo -e "${BOLD_RED}${1}${NO_COLOR}"; false; }
+   - |
+     function make_nanos {
+        BOLOS_SDK=/opt/nanos-secure-sdk
+        cd /builds/accumulatenetwork/ledger/app-accumulate
+        make clean; make
+     }
+   - |
+     function fwbuild {
+        if [[ -z "${OUTPUT_PKG_NAME}" ]]; then OUTPUT_PKG_NAME="app-accumulate"; fi
+        cd /builds/accumulatenetwork/ledger/app-accumulate
+        rm -rf bin obj debug dep output-scan-build dist
+        mkdir -p dist
+        make clean; make scan-build SCAN_BUILD="scan-build -disable-checker deadcode.DeadStores"
+        if [ "$(ls -A output-scan-build)" ]; then 
+          zip -r dist/output-scan-build.zip output-scan-build/* 
+          curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file "dist/output-scan-build.zip" "${PACKAGE_REGISTRY_URL}/${APP_VERSION}/output-scan-build.zip"
+          die "static analysis scan detected errors"
+        fi
+        cp bin/app.elf "dist/${OUTPUT_PKG_NAME}.elf"
+        cp bin/app.sha256 "dist/${OUTPUT_PKG_NAME}.sha256"
+        cp bin/app.hex "dist/${OUTPUT_PKG_NAME}.hex"
+        cp bin/app.apdu "dist/${OUTPUT_PKG_NAME}.apdu"
+        cp debug/app.map "dist/${OUTPUT_PKG_NAME}.map"
+        cp debug/app.asm "dist/${OUTPUT_PKG_NAME}.asm"
+        echo uploading assets to package to "${PACKAGE_REGISTRY_URL}/${APP_VERSION}/"
+        curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file "dist/$OUTPUT_PKG_NAME.elf" "${PACKAGE_REGISTRY_URL}/${APP_VERSION}/${OUTPUT_PKG_NAME}.elf"
+        curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file "dist/$OUTPUT_PKG_NAME.sha256" "${PACKAGE_REGISTRY_URL}/${APP_VERSION}/${OUTPUT_PKG_NAME}.sha256"
+        curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file "dist/$OUTPUT_PKG_NAME.hex" "${PACKAGE_REGISTRY_URL}/${APP_VERSION}/${OUTPUT_PKG_NAME}.hex"
+        curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file "dist/$OUTPUT_PKG_NAME.apdu" "${PACKAGE_REGISTRY_URL}/${APP_VERSION}/${OUTPUT_PKG_NAME}.apdu"
+        curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file "dist/$OUTPUT_PKG_NAME.map" "${PACKAGE_REGISTRY_URL}/${APP_VERSION}/${OUTPUT_PKG_NAME}.map"
+        curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file "dist/$OUTPUT_PKG_NAME.asm" "${PACKAGE_REGISTRY_URL}/${APP_VERSION}/${OUTPUT_PKG_NAME}.asm"
+     }
+
+.rules all:
+  rules:
+  - if: $CI_PIPELINE_SOURCE != ''
+
+lint:
+  stage: test
+  extends: .builder
   script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - docker build -t ${LEDGER_BUILDER_IMAGE} .
-    - docker push ${LEDGER_BUILDER_IMAGE}
+    - echo -e "${SECTION}section_start:`date +%s`:generate\r${SECTION}Verify code is correctly formatted"
+    - find src/ -type f \( -name "*.h" -o -name "*.c" \) -exec clang-format -i {} \;
+    - git diff --quiet || die "Please run 'clang-format -i' on the following files\n$(git ls-files -m)"
+    - echo -e "${SECTION}section_end:`date +%s`:generate\r${SECTION}"
 
-build-nano-s:
-  stage: build-firmware
+unit-tests:
+  stage: test
+  extends: .builder
+  script:
+    - cd unit-tests
+    - cmake -Bbuild -H. && make -C build
+    - cd build
+    - make
+    - ctest . || die "one or more unit tests failed"
+
+speculos:
+  stage: e2e-tests
+  image: 
+    name: ghcr.io/ledgerhq/speculos:latest
+    entrypoint: [""]
   variables:
-    BOLOS_SDK: /opt/nanos-secure-sdk
-    OUTPUT_PKG_NAME: app-accumulate-nano-s
     PACKAGE_REGISTRY_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/nano-s"
   script:
-    - docker run --rm -e BOLOS_SDK="${BOLOS_SDK}" -e OUTPUT_PKG_NAME="${OUTPUT_PKG_NAME}" -e CI_JOB_TOKEN="${CI_JOB_TOKEN}" -e APP_VERSION="${APP_VERSION}" -e PACKAGE_REGISTRY_URL=${PACKAGE_REGISTRY_URL} ${LEDGER_BUILDER_IMAGE}
+    - function die { echo -e "${BOLD_RED}${1}${NO_COLOR}"; false; }
+    - apt update && apt install -y wget build-essential
+    - wget "${PACKAGE_REGISTRY_URL}/${APP_VERSION}/${NANOS_OUTPUT_PKG_NAME}.elf"
+    - /speculos/speculos.py ${NANOS_OUTPUT_PKG_NAME}.elf --seed "yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow" --display headless &
+    - declare -g SPECULOS_PID=$!
+    - cd /builds/accumulatenetwork/ledger/app-accumulate/tests
+    - pip install -r requirements.txt
+    - pytest --headless || die
+    - kill -9 $SPECULOS_PID || true
+      
+build-nano-s:
+  stage: build-firmware
+  extends: .builder
+  variables:
+    BOLOS_SDK: /opt/nanos-secure-sdk
+    OUTPUT_PKG_NAME: "${NANOS_OUTPUT_PKG_NAME}"
+    PACKAGE_REGISTRY_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/nano-s"
+  script:
+    - fwbuild
 
 build-nano-splus:
   stage: build-firmware
+  extends: .builder
   variables:
     BOLOS_SDK: /opt/nanosplus-secure-sdk
-    OUTPUT_PKG_NAME: app-accumulate-nano-splus
+    OUTPUT_PKG_NAME: "${NANOSP_OUTPUT_PKG_NAME}"
     PACKAGE_REGISTRY_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/nano-splus"
   script:
-    - docker run --rm -e BOLOS_SDK="${BOLOS_SDK}" -e OUTPUT_PKG_NAME="${OUTPUT_PKG_NAME}" -e CI_JOB_TOKEN="${CI_JOB_TOKEN}" -e APP_VERSION="${APP_VERSION}" -e PACKAGE_REGISTRY_URL=${PACKAGE_REGISTRY_URL} ${LEDGER_BUILDER_IMAGE}
+    - fwbuild
 
 build-nano-x:
   stage: build-firmware
+  extends: .builder
   variables:
     BOLOS_SDK: /opt/nanox-secure-sdk
-    OUTPUT_PKG_NAME: app-accumulate-nano-x
+    OUTPUT_PKG_NAME: "${NANOX_OUTPUT_PKG_NAME}"
     PACKAGE_REGISTRY_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/nano-x"
   script:
-    - docker run --rm -e BOLOS_SDK="${BOLOS_SDK}" -e OUTPUT_PKG_NAME="${OUTPUT_PKG_NAME}" -e CI_JOB_TOKEN="${CI_JOB_TOKEN}" -e APP_VERSION="${APP_VERSION}" -e PACKAGE_REGISTRY_URL=${PACKAGE_REGISTRY_URL} ${LEDGER_BUILDER_IMAGE}
+    - fwbuild

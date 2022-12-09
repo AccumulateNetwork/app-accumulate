@@ -38,7 +38,7 @@ typedef struct {
     command_e ins;  /// Instruction code
     uint8_t p1;     /// Instruction parameter 1
     uint8_t p2;     /// Instruction parameter 2
-    uint16_t lc;     /// Length of command data
+    uint16_t lc;    /// Length of command data
     uint8_t *data;  /// Command data
 } command_t;
 
@@ -72,8 +72,8 @@ typedef struct {
     uint8_t raw_public_key[65];  /// v, x-coordinate (32), y-coodinate (32)
     uint8_t public_key_length;   /// length of key, compressed / uncompressed
     uint8_t chain_code[32];      /// for public key derivation
-    char  address_name[MAX_ACME_LITE_ACCOUNT_LEN];
-    char  lite_account[MAX_ACME_LITE_ACCOUNT_LEN];
+    char address_name[MAX_ACME_LITE_ACCOUNT_LEN];
+    char lite_account[MAX_ACME_LITE_ACCOUNT_LEN];
     uint8_t hash[32];
     uint8_t hashLength;
 } pubkey_ctx_t;
@@ -85,15 +85,15 @@ typedef struct {
     uint8_t memory[ARENA_SIZE];
     uint8_t raw_tx[MAX_TRANSACTION_LEN];  /// raw transaction serialized
     buffer_t arena;
-    Signature signer;
-    Transaction transaction;
-    size_t raw_tx_len;                    /// length of raw transaction
+    Signature *signer;
+    Transaction *transaction;
+    size_t raw_tx_len;  /// length of raw transaction
     uint8_t metadataHash[32];
-    uint8_t initiatorHash[33];            /// initiator hash -> field (1 byte) + hash (32 bytes)
-    uint8_t m_hash[32];                   /// transaction / message hash digest
-    uint8_t signature[MAX_DER_SIG_LEN];   /// transaction signature encoded in DER
-    uint8_t signature_len;                /// length of transaction signature
-    uint8_t v;                            /// parity of y-coordinate of R in ECDSA signature
+    uint8_t initiatorHash[33];           /// initiator hash -> field (1 byte) + hash (32 bytes)
+    uint8_t m_hash[32];                  /// transaction / message hash digest
+    uint8_t signature[MAX_DER_SIG_LEN];  /// transaction signature encoded in DER
+    uint8_t signature_len;               /// length of transaction signature
+    uint8_t v;                           /// parity of y-coordinate of R in ECDSA signature
 } transaction_ctx_t;
 
 /**

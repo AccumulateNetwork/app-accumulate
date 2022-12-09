@@ -7,10 +7,9 @@ typedef struct Marshaler {
     buffer_t buffer;
 } Marshaler;
 
-
 typedef struct Unmarshaler {
     buffer_t buffer;
-    buffer_t *mempool; //mempool to store pointers and stuff
+    buffer_t *mempool;  // mempool to store pointers and stuff
 } Unmarshaler;
 
 Marshaler NewMarshaler(buffer_t *buffer);
@@ -30,10 +29,11 @@ int marshalerWriteString(Marshaler *m, const struct String *v);
 int marshalerWriteUrl(Marshaler *m, const struct Url *v);
 int marshalerWriteRawJson(Marshaler *m, const struct RawJson *v);
 
-//mempool will provide space for the objects will be "dynamically" allocated using the mempool buffer, use sparingly.
+// mempool will provide space for the objects will be "dynamically" allocated using the mempool
+// buffer, use sparingly.
 Unmarshaler NewUnmarshaler(buffer_t *inBuffer, buffer_t *mempool);
 
-//will return null if not enough space in the pool is available, use sparingly.
+// will return null if not enough space in the pool is available, use sparingly.
 void *unmarshalerAlloc(Unmarshaler *m, size_t n);
 Bytes *unmarshalerNewByteBuffer(Unmarshaler *m, size_t n);
 
@@ -52,4 +52,3 @@ int unmarshalerReadString(Unmarshaler *m, struct String *v);
 int unmarshalerReadRawJson(Unmarshaler *m, struct RawJson *v);
 int unmarshalerReadUrl(Unmarshaler *m, struct Url *v);
 int unmarshalerReadByte(Unmarshaler *m, uint8_t *v);
-

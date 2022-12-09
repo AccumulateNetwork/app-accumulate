@@ -6,7 +6,7 @@
 #include <string.h>
 
 #include <cmocka.h>
-
+#include "common/error.h"
 #include "common/base58.h"
 
 static void test_base58(void **state) {
@@ -27,7 +27,9 @@ static void test_base58(void **state) {
     assert_string_equal((char *) out2, expected_out2);
 }
 
-int main() {
+int main(int argc, char *argv[]) {
+    UNUSED(argc);
+    UNUSED(argv);
     const struct CMUnitTest tests[] = {cmocka_unit_test(test_base58)};
 
     return cmocka_run_group_tests(tests, NULL, NULL);

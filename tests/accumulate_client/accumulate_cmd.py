@@ -3,18 +3,18 @@ from typing import Tuple
 
 from ledgercomm import Transport
 
-from boilerplate_client.boilerplate_cmd_builder import BoilerplateCommandBuilder, InsType
-from boilerplate_client.button import Button
-from boilerplate_client.exception import DeviceException
-from boilerplate_client.transaction import Transaction
+from accumulate_client.accumulate_cmd_builder import AccumulateCommandBuilder, InsType
+from accumulate_client.button import Button
+from accumulate_client.exception import DeviceException
+from accumulate_client.transaction import Transaction
 
 
-class BoilerplateCommand:
+class AccumulateCommand:
     def __init__(self,
                  transport: Transport,
                  debug: bool = False) -> None:
         self.transport = transport
-        self.builder = BoilerplateCommandBuilder(debug=debug)
+        self.builder = AccumulateCommandBuilder(debug=debug)
         self.debug = debug
 
     def get_app_and_version(self) -> Tuple[str, str]:
@@ -84,41 +84,52 @@ class BoilerplateCommand:
 
         # response = pub_key_len (1) ||
         #            pub_key (var) ||
-        #            chain_code_len (1) ||
-        #            chain_code (var)
+        #            key_name_len (1) ||
+        #            key_name (var)
         offset: int = 0
 
         pub_key_len: int = response[offset]
         offset += 1
         pub_key: bytes = response[offset:offset + pub_key_len]
         offset += pub_key_len
+
         chain_code_len: int = response[offset]
         offset += 1
         chain_code: bytes = response[offset:offset + chain_code_len]
         offset += chain_code_len
+        
+        key_name_len: int = response[offset]
+        offset += 1
+        key_name: bytes = response[offset:offset + key_name_len]
+        offset += key_name_len
 
-        assert len(response) == 1 + pub_key_len + 1 + chain_code_len
+        assert len(response) == 1 + pub_key_len + 1 + chain_code_len + 1 + key_name_len
 
-        return pub_key, chain_code
+        return pub_key, key_name
 
-    def sign_tx(self, bip32_path: str, transaction: Transaction, button: Button) -> Tuple[int, bytes]:
+    def sign_tx(self, bip32_path: str, envelope: bytes, button: Button) -> Tuple[int, bytes, bytes]:
         sw: int
         response: bytes = b""
 
-        for is_last, chunk in self.builder.sign_tx(bip32_path=bip32_path, transaction=transaction):
+        for is_last, chunk in self.builder.sign_tx(bip32_path=bip32_path, envelope=envelope):
             self.transport.send_raw(chunk)
 
             if is_last:
                 # Review Transaction
-                button.right_click()
+                print("left button click...")
+                button.left_click() #take the backdoor to get to the accept
+                print("left button click...")
+                button.left_click()
+                #button.right_click()
                 # Address 1/3, 2/3, 3/3
-                button.right_click()
-                button.right_click()
-                button.right_click()
+                #button.right_click()
+                #button.right_click()
+                #button.right_click()
                 # Amount
-                button.right_click()
+                #button.right_click()
                 # Approve
                 button.both_click()
+                print("both button clicks...")
 
             sw, response = self.transport.recv()  # type: int, bytes
 
@@ -129,13 +140,14 @@ class BoilerplateCommand:
         #            der_sig (var) ||
         #            v (1)
         offset: int = 0
-        der_sig_len: int = response[offset]
+        sig_len: int = response[offset]
         offset += 1
-        der_sig: bytes = response[offset:offset + der_sig_len]
-        offset += der_sig_len
+        sig: bytes = response[offset:offset + sig_len]
+        offset += sig_len
         v: int = response[offset]
         offset += 1
 
-        assert len(response) == 1 + der_sig_len + 1
 
-        return v, der_sig
+        assert len(response) == 1 + sig_len + 1
+
+        return v, sig

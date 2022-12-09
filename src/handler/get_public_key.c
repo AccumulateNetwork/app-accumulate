@@ -48,11 +48,11 @@ int handler_get_public_key(buffer_t *cdata, bool display) {
 
     uint8_t addressNameLen = 0;
     char addressName[64] = {0};
-    if (buffer_read_u8( cdata, &addressNameLen)) {
+    if (buffer_read_u8(cdata, &addressNameLen)) {
         if (addressNameLen > sizeof(addressName)) {
             return io_send_sw(SW_WRONG_DATA_LENGTH);
         }
-        if ( !buffer_move(cdata, (uint8_t*)addressName, addressNameLen)) {
+        if (!buffer_move(cdata, (uint8_t *) addressName, addressNameLen)) {
             return io_send_sw(SW_ENCODE_ERROR(ErrorCode(ErrorInvalidString)));
         }
     }
@@ -61,14 +61,14 @@ int handler_get_public_key(buffer_t *cdata, bool display) {
     cx_ecfp_public_key_t public_key = {0};
 
     // derive private key according to BIP32 path
-    crypto_derive_private_key(&private_key,
-                              G_context.bip32_path,
-                              G_context.bip32_path_len);
+    crypto_derive_private_key(&private_key, G_context.bip32_path, G_context.bip32_path_len);
 
     // generate corresponding public key
-    Error e = crypto_init_public_key(&private_key, &public_key, G_context.pk_info.raw_public_key,
-                           &G_context.pk_info.public_key_length,
-                           G_context.bip32_path[1] != CoinTypeEth);
+    Error e = crypto_init_public_key(&private_key,
+                                     &public_key,
+                                     G_context.pk_info.raw_public_key,
+                                     &G_context.pk_info.public_key_length,
+                                     G_context.bip32_path[1] != CoinTypeEth);
     // reset private key
     explicit_bzero(&private_key, sizeof(private_key));
 
@@ -81,9 +81,11 @@ int handler_get_public_key(buffer_t *cdata, bool display) {
         return io_send_sw(SW_ENCODE_ERROR(e));
     }
 
-    //if we have an address name supplied to us override the name we derived.
-    if (addressNameLen > 0 ) {
-        strncpy(G_context.pk_info.address_name, addressName,sizeof(G_context.pk_info.address_name)-1);
+    // if we have an address name supplied to us override the name we derived.
+    if (addressNameLen > 0) {
+        strncpy(G_context.pk_info.address_name,
+                addressName,
+                sizeof(G_context.pk_info.address_name) - 1);
     }
 
     if (display) {

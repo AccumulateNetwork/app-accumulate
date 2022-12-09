@@ -2,6 +2,38 @@
 
 This is the Accumulate application which can be forked to start a new project for the Ledger Nano S/X.
 
+## Quick Start on side-loading the application
+
+Plug in ledger Nano S or Nano S+ into USB port and make sure the screen is unlocked and no apps are open.
+
+
+```
+git clone https://gitlab.com/accumulatenetwork/ledger/app-accumulate.git
+
+cd app-accumulate
+
+#git checkout desired-branch
+
+./docker-loader.sh
+```
+
+From within the docker shell, if side-loading on Nano S:
+
+```
+make clean
+make load
+```
+
+if side-loading on a Nano S+:
+
+```
+export BOLOS_SDK=/opt/nanosplus-secure-sdk
+make clean
+make load
+```
+
+
+
 ## Docker builder container
 
 https://developers.ledger.com/docs/nano-app/build/
@@ -52,7 +84,7 @@ The flow processed in [GitHub Actions](https://github.com/features/actions) is t
 
 It outputs 4 artifacts:
 
-- `boilerplate-app-debug` within output files of the compilation process in debug mode
+- `accumulate-app-debug` within output files of the compilation process in debug mode
 - `speculos-log` within APDU command/response when executing end-to-end tests
 - `code-coverage` within HTML details of code coverage
 - `documentation` within HTML auto-generated documentation

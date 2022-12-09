@@ -3,8 +3,10 @@ import logging
 import struct
 from typing import List, Tuple, Union, Iterator, cast
 
-from boilerplate_client.transaction import Transaction
-from boilerplate_client.utils import bip32_path_from_string
+from accumulate_client.transaction import Transaction
+from accumulate_client.utils import bip32_path_from_string
+
+import binascii
 
 MAX_APDU_LEN: int = 255
 
@@ -34,9 +36,14 @@ class InsType(enum.IntEnum):
     INS_GET_PUBLIC_KEY = 0x05
     INS_SIGN_TX = 0x06
 
+class ParamCodeType(enum.IntEnum):
+    LedgerP1InitTransactionData = 0x00 # First transaction data block for signing
+    LedgerP1ContTransactionData = 0x01 # Subsequent transaction data block for signing
+    LedgerP2MoreTransactionData = 0x80 # More data to follow for transaction data
+    LedgerP2LastTransactionData = 0x00 # The last  data to follow for transaction data
 
-class BoilerplateCommandBuilder:
-    """APDU command builder for the Boilerplate application.
+class AccumulateCommandBuilder:
+    """APDU command builder for the accumulate application.
 
     Parameters
     ----------
@@ -171,7 +178,7 @@ class BoilerplateCommandBuilder:
                               p2=0x00,
                               cdata=cdata)
 
-    def sign_tx(self, bip32_path: str, transaction: Transaction) -> Iterator[Tuple[bool, bytes]]:
+    def sign_tx(self, bip32_path: str, envelope: bytes) -> Iterator[Tuple[bool, bytes]]:
         """Command builder for INS_SIGN_TX.
 
         Parameters
@@ -196,23 +203,23 @@ class BoilerplateCommandBuilder:
 
         yield False, self.serialize(cla=self.CLA,
                                     ins=InsType.INS_SIGN_TX,
-                                    p1=0x00,
-                                    p2=0x80,
+                                    p1=ParamCodeType.LedgerP1InitTransactionData,
+                                    p2=ParamCodeType.LedgerP2MoreTransactionData,
                                     cdata=cdata)
 
-        tx: bytes = transaction.serialize()
-
-        for i, (is_last, chunk) in enumerate(chunkify(tx, MAX_APDU_LEN)):
+        #tx: bytes = transaction #.serialize()
+        for i, (is_last, chunk) in enumerate(chunkify(envelope, MAX_APDU_LEN)):
             if is_last:
                 yield True, self.serialize(cla=self.CLA,
                                            ins=InsType.INS_SIGN_TX,
-                                           p1=i + 1,
-                                           p2=0x00,
+                                           p1=ParamCodeType.LedgerP1ContTransactionData,
+                                           p2=ParamCodeType.LedgerP2LastTransactionData,
                                            cdata=chunk)
                 return
             else:
                 yield False, self.serialize(cla=self.CLA,
                                             ins=InsType.INS_SIGN_TX,
-                                            p1=i + 1,
-                                            p2=0x80,
+                                            p1=ParamCodeType.LedgerP1ContTransactionData,
+                                            p2=ParamCodeType.LedgerP2MoreTransactionData,
                                             cdata=chunk)
+

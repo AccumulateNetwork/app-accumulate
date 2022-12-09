@@ -23,11 +23,13 @@ Error VarInt_set(VarInt *v, int64_t n) {
     CHECK_ERROR(v)
 
     int size = varint_size(n);
-    if ( size > (int)v->data.buffer.size - (int)v->data.buffer.offset ) {
+    if (size > (int) v->data.buffer.size - (int) v->data.buffer.offset) {
         return ErrorCode(ErrorBufferTooSmall);
     }
 
-    if ( !varint_write((uint8_t*)v->data.buffer.ptr + v->data.buffer.offset, v->data.buffer.size - v->data.buffer.offset, n) ) {
+    if (!varint_write((uint8_t *) v->data.buffer.ptr + v->data.buffer.offset,
+                      v->data.buffer.size - v->data.buffer.offset,
+                      n)) {
         return ErrorCode(ErrorVarIntWrite);
     }
 
@@ -45,7 +47,7 @@ Error VarInt_get(const VarInt *v, int64_t *n) {
         return ErrorCode(ErrorParameterNil);
     }
 
-    if ( !varint_read((uint8_t*)v->data.buffer.ptr, v->data.buffer.offset, n) ) {
+    if (!varint_read((uint8_t *) v->data.buffer.ptr, v->data.buffer.offset, n)) {
         return ErrorCode(ErrorVarIntRead);
     }
     return ErrorCode(ErrorNone);
@@ -55,24 +57,25 @@ int VarInt_binarySize(const VarInt *v) {
     CHECK_ERROR_INT(v)
 
     int64_t val = 0;
-    if ( !varint_read((uint8_t*)v->data.buffer.ptr+v->data.buffer.offset, v->data.buffer.size - v->data.buffer.offset, &val) ) {
+    if (!varint_read((uint8_t *) v->data.buffer.ptr + v->data.buffer.offset,
+                     v->data.buffer.size - v->data.buffer.offset,
+                     &val)) {
         return ErrorUVarIntRead;
     }
 
-    int size = (int)varint_size(val);
-    if ( size < 0 || size > MaxVarintLen64 ) {
+    int size = (int) varint_size(val);
+    if (size < 0 || size > MaxVarintLen64) {
         return ErrorInvalidObject;
     }
     return size;
 }
 
-
 VarInt VarInt_new(buffer_t *buffer) {
-    VarInt init = {{0,0,0}};
+    VarInt init = {{0, 0, 0}};
     if (buffer) {
-        //allocate the maximum size needed
+        // allocate the maximum size needed
         int sizeNeeded = varint_size(-INT64_MAX);
-        if ( (int)buffer->size - (int)buffer->offset < sizeNeeded ) {
+        if ((int) buffer->size - (int) buffer->offset < sizeNeeded) {
             return init;
         }
         init.data.buffer.ptr = buffer->ptr + buffer->offset;

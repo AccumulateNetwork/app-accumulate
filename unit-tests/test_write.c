@@ -6,8 +6,8 @@
 #include <string.h>
 
 #include <cmocka.h>
-
-#include "common/write.h"
+#include <common/error.h>
+#include <common/write.h>
 
 static void test_write(void **state) {
     (void) state;
@@ -57,7 +57,9 @@ static void test_write(void **state) {
     assert_memory_equal(tmp8, expected8, sizeof(expected8));
 }
 
-int main() {
+int main(int argc, char *argv[]) {
+    UNUSED(argc);
+    UNUSED(argv);
     const struct CMUnitTest tests[] = {cmocka_unit_test(test_write)};
 
     return cmocka_run_group_tests(tests, NULL, NULL);
