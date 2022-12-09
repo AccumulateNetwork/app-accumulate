@@ -49,16 +49,17 @@
 
 | Response length (bytes) | SW | RData                                                                                                                         |
 |-------------------------| --- |-------------------------------------------------------------------------------------------------------------------------------|
-| variable                | 0x9000 | `len(public_key)` (1) <br> `public_key` (variable) <br> `len(chain code)` (1) <br> chain code (32 bytes) <br> `len(derived key name)` (1) <br> `derived key name` (variable string) |
+| variable                | 0x9000 | `len(public_key)` (1) <br> `public_key` (variable) <br> `len(chain code)` (1) <br> `chain code` (32 bytes) <br> `len(derived key name)` (1) <br> `derived key name` (variable string) |
 
 ## SIGN_TX
 
 ### Command
 
-| CLA  | INS | P1                                        | P2 | Lc | CData                                                                                                                                                                                                                                                                                         |
-|------| --- |-------------------------------------------| --- | --- |-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 0xE0 | 0x06 | 0x00 (first tx) <br> (0x01) (continue tx) | 0x00 (more) <br> 0x80 (last) | 1 + 4n | `len(bip32_path)` (1) <br> `bip32_path{1}` (4) <br>`...` <br>`bip32_path{n}` (4) <br> `len(serialized signer Signature struct)` (2) <br> `serialized signer Signature struct` (variable) <br> `len(serialized Transaction struct)` (2) <br> `serialized Transaction struct` (variable) |
+| CLA  | INS | P1                                        | P2 | Lc | CData                                                                                                                                                                                                                                                                                            |
+|------| --- |-------------------------------------------| --- | --- |--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 0xE0 | 0x06 | 0x00 (first tx) <br> (0x01) (continue tx) | 0x00 (more) <br> 0x80 (last) | 1 + 4n | `len(bip32_path)` (1) <br> `bip32_path{1}` (4) <br>`...` <br>`bip32_path{n}` (4) <br> `serialized accumulate transaction envelope` (variable) |
 
+The transaction envelope must contain one unsigned Signature structure and one corresponding Transaction structure. The firmware will compute the initiator hash and the transaction hash. If the intitator hash and transaction hash are provided, the computed hashes will be verified with what is provided. Additionally, if public key is provided, it will be compared with the key derived from the bip32 path as added verification. 
 ### Response
 
 | Response length (bytes) | SW | RData                                                                            |
