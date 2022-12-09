@@ -41,7 +41,7 @@ APP_LOAD_PARAMS += $(COMMON_LOAD_PARAMS)
 APPNAME      = "Accumulate"
 APPVERSION_M = 1
 APPVERSION_N = 0
-APPVERSION_P = 2 
+APPVERSION_P = 3
 APPVERSION   = "$(APPVERSION_M).$(APPVERSION_N).$(APPVERSION_P)"
 
 ifeq ($(TARGET_NAME),TARGET_NANOS)
@@ -83,7 +83,7 @@ else
     DEFINES += HAVE_BAGL_FONT_OPEN_SANS_LIGHT_16PX
 endif
 
-DEBUG = 0
+DEBUG=0
 ifneq ($(DEBUG),0)
     DEFINES += HAVE_PRINTF
     ifeq ($(TARGET_NAME),TARGET_NANOX)
@@ -110,7 +110,11 @@ $(info GCCPATH is not set: arm-none-eabi-* will be used from PATH)
 endif
 
 CC      := $(CLANGPATH)clang
-CFLAGS  += -O3 -Os -Wall -Werror -Wno-self-assign -Wno-unused-function
+
+CFLAGS  += -O3 -Os -Wall
+ifeq ($(DEBUG),0)
+CFLAGS  += -Werror -Wno-self-assign -Wno-unused-function
+endif
 AS      := $(GCCPATH)arm-none-eabi-gcc
 LD      := $(GCCPATH)arm-none-eabi-gcc
 LDFLAGS += -O3 -Os 

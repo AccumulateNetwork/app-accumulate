@@ -14,7 +14,7 @@ Error Url_valid(const Bytes *v) {
     return String_valid(v);
 }
 
-Error Url_get(const Url*v, char *s, size_t slen) {
+Error Url_get(const Url *v, char *s, size_t slen) {
     CHECK_ERROR(v)
 
     String str;
@@ -31,13 +31,13 @@ Error Url_set(Url *v, const char *s) {
 }
 
 Url Url_new(buffer_t *b, size_t n) {
-
-    Url init = { { {0,0,0}},
+    Url init = {
+        {{0, 0, 0}},
     };
 
     if (b) {
         int sizeNeeded = n;
-        if ( (int)b->size - (int)b->offset < sizeNeeded ) {
+        if ((int) b->size - (int) b->offset < sizeNeeded) {
             return init;
         }
         init.data.buffer.ptr = b->ptr;

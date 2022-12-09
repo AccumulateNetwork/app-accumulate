@@ -17,30 +17,31 @@ int String_binarySize(const String *v) {
     return Bytes_binarySizeDynamic(&s);
 }
 
-
 Error String_valid(const Bytes *v) {
-    if (!v ) {
+    if (!v) {
         return ErrorCode(ErrorInvalidString);
     }
-    if ( !v->buffer.ptr ) {
+    if (!v->buffer.ptr) {
         return ErrorCode(ErrorInvalidString);
     }
 
     return ErrorCode(ErrorNone);
 }
 
-Error String_get(const String*v, char *s, size_t slen) {
+Error String_get(const String *v, char *s, size_t slen) {
     CHECK_ERROR(v)
     CHECK_ERROR(s)
     Error e = String_valid(&v->data);
-    if ( e.code != ErrorNone ) {
+    if (e.code != ErrorNone) {
         return e;
     }
 
-    int min = (slen-1 < v->data.buffer.size - v->data.buffer.offset) ? slen-1 :  v->data.buffer.size - v->data.buffer.offset;
+    int min = (slen - 1 < v->data.buffer.size - v->data.buffer.offset)
+                  ? slen - 1
+                  : v->data.buffer.size - v->data.buffer.offset;
 
-    explicit_bzero(s,slen);
-    strncpy((char*)s,(const char*)v->data.buffer.ptr+v->data.buffer.offset,min);
+    explicit_bzero(s, slen);
+    strncpy((char *) s, (const char *) v->data.buffer.ptr + v->data.buffer.offset, min);
     return ErrorCode(ErrorNone);
 }
 
@@ -48,27 +49,26 @@ Error String_set(String *v, const char *s) {
     CHECK_ERROR(v)
     CHECK_ERROR(s)
     Error e = String_valid(&v->data);
-    if ( e.code != ErrorNone ) {
+    if (e.code != ErrorNone) {
         return e;
     }
 
-    size_t size = v->data.buffer.size-v->data.buffer.offset;
-    if (!buffer_can_read(&v->data.buffer,strlen(s))) {
+    size_t size = v->data.buffer.size - v->data.buffer.offset;
+    if (!buffer_can_read(&v->data.buffer, strlen(s))) {
         return ErrorCode(ErrorBufferTooSmall);
     }
 
-    explicit_bzero(v->data.buffer.ptr+v->data.buffer.offset, size);
-    snprintf((char*)(v->data.buffer.ptr+v->data.buffer.offset),  size, "%s", s);
+    explicit_bzero(v->data.buffer.ptr + v->data.buffer.offset, size);
+    snprintf((char *) (v->data.buffer.ptr + v->data.buffer.offset), size, "%s", s);
     return ErrorCode(ErrorNone);
 }
 
 String String_new(buffer_t *b, size_t n) {
-
-    String init = {  {0,0,0}};
+    String init = {{0, 0, 0}};
 
     if (b) {
         int sizeNeeded = n;
-        if ( (int)b->size - (int)b->offset < sizeNeeded ) {
+        if ((int) b->size - (int) b->offset < sizeNeeded) {
             return init;
         }
         init.data.buffer.ptr = b->ptr;

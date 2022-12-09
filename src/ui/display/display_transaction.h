@@ -15,6 +15,3 @@ int ui_dynamic_display_add_credits(int index);
 int ui_dynamic_display_send_tokens(int index);
 
 extern int g_HaveMemoField;
-
-
-

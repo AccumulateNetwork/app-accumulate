@@ -4,8 +4,8 @@ import pytest
 
 from ledgercomm import Transport
 
-from boilerplate_client.boilerplate_cmd import BoilerplateCommand
-from boilerplate_client.button import ButtonTCP, ButtonFake
+from accumulate_client.accumulate_cmd import AccumulateCommand
+from accumulate_client.button import ButtonCurl, ButtonTCP, ButtonFake
 
 
 def pytest_addoption(parser):
@@ -41,7 +41,7 @@ def headless(pytestconfig):
 @pytest.fixture(scope="module")
 def button(headless):
     if headless:
-        button_client = ButtonTCP(server="127.0.0.1", port=42000)
+        button_client = ButtonCurl(server="127.0.0.1", port=5000)
     else:
         button_client = ButtonFake()
 
@@ -57,7 +57,7 @@ def cmd(hid):
                                        server="127.0.0.1",
                                        port=9999,
                                        debug=True))
-    command = BoilerplateCommand(
+    command = AccumulateCommand(
         transport=transport,
         debug=True
     )

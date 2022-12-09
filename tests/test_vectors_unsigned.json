@@ -1,0 +1,1007 @@
+{
+  "transactions": [
+    {
+      "name": "CreateIdentity",
+      "cases": [
+        {
+          "binary": "AXEBAgIg5V2XO/aROByUYCNU0eH2VfexxL1Wdg3/7/or70VB7BEEImFjYzovL2xpdGUtdG9rZW4tYWNjb3VudC5hY21lL0FDTUUFAQbShdjMBAgnXhZJJbjeEvb9zpSpog7nO8i0/HmdVezgzXUS31eM0QN9AUUBImFjYzovL2xpdGUtdG9rZW4tYWNjb3VudC5hY21lL0FDTUUCv6czCLweXwIVUBT9ktxmFyCkVgvPZIwrZnf0Ewwn1pkCNAEBAg5hY2M6Ly9hZGkuYWNtZQMg5V2XO/aROByUYCNU0eH2VfexxL1Wdg3/7/or70VB7BE=",
+          "json": {
+            "signatures": [
+              {
+                "type": "ed25519",
+                "publicKey": "e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11",
+                "signer": "acc://lite-token-account.acme/ACME",
+                "signerVersion": 1,
+                "timestamp": 1234567890,
+                "transactionHash": "275e164925b8de12f6fdce94a9a20ee73bc8b4fc799d55ece0cd7512df578cd1"
+              }
+            ],
+            "transaction": [
+              {
+                "header": {
+                  "principal": "acc://lite-token-account.acme/ACME",
+                  "initiator": "bfa73308bc1e5f02155014fd92dc661720a4560bcf648c2b6677f4130c27d699"
+                },
+                "body": {
+                  "type": "createIdentity",
+                  "url": "acc://adi.acme",
+                  "keyHash": "e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "binary": "AXEBAgIg5V2XO/aROByUYCNU0eH2VfexxL1Wdg3/7/or70VB7BEEImFjYzovL2xpdGUtdG9rZW4tYWNjb3VudC5hY21lL0FDTUUFAQbShdjMBAieEPRyqnCb+ipsYk4vED02Lh5zu2r3/ljEs+JM1j/JTQOSAQFFASJhY2M6Ly9saXRlLXRva2VuLWFjY291bnQuYWNtZS9BQ01FAr+nMwi8Hl8CFVAU/ZLcZhcgpFYLz2SMK2Z39BMMJ9aZAkkBAQIOYWNjOi8vYWRpLmFjbWUDIOVdlzv2kTgclGAjVNHh9lX3scS9VnYN/+/6K+9FQewRBBNhY2M6Ly9hZGkuYWNtZS9ib29r",
+          "json": {
+            "signatures": [
+              {
+                "type": "ed25519",
+                "publicKey": "e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11",
+                "signer": "acc://lite-token-account.acme/ACME",
+                "signerVersion": 1,
+                "timestamp": 1234567890,
+                "transactionHash": "9e10f472aa709bfa2a6c624e2f103d362e1e73bb6af7fe58c4b3e24cd63fc94d"
+              }
+            ],
+            "transaction": [
+              {
+                "header": {
+                  "principal": "acc://lite-token-account.acme/ACME",
+                  "initiator": "bfa73308bc1e5f02155014fd92dc661720a4560bcf648c2b6677f4130c27d699"
+                },
+                "body": {
+                  "type": "createIdentity",
+                  "url": "acc://adi.acme",
+                  "keyHash": "e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11",
+                  "keyBookUrl": "acc://adi.acme/book"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "CreateTokenAccount",
+      "cases": [
+        {
+          "binary": "AV0BAgIg5V2XO/aROByUYCNU0eH2VfexxL1Wdg3/7/or70VB7BEEDmFjYzovL2FkaS5hY21lBQEG0oXYzAQIKpNdQ7acW6/Mf4RF+A8h0y9uYRa3mWIPZhEuFCVxXDcDXQExAQ5hY2M6Ly9hZGkuYWNtZQI4k57BzwfM452DGMS0huz1WcfoV5eNQMlMa/x+BMRvJQIoAQICE2FjYzovL2FkaS5hY21lL0FDTUUDD2FjYzovL0FDTUUuYWNtZQ==",
+          "json": {
+            "signatures": [
+              {
+                "type": "ed25519",
+                "publicKey": "e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11",
+                "signer": "acc://adi.acme",
+                "signerVersion": 1,
+                "timestamp": 1234567890,
+                "transactionHash": "2a935d43b69c5bafcc7f8445f80f21d32f6e6116b799620f66112e1425715c37"
+              }
+            ],
+            "transaction": [
+              {
+                "header": {
+                  "principal": "acc://adi.acme",
+                  "initiator": "38939ec1cf07cce39d8318c4b486ecf559c7e857978d40c94c6bfc7e04c46f25"
+                },
+                "body": {
+                  "type": "createTokenAccount",
+                  "url": "acc://adi.acme/ACME",
+                  "tokenUrl": "acc://ACME.acme"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "binary": "AV0BAgIg5V2XO/aROByUYCNU0eH2VfexxL1Wdg3/7/or70VB7BEEDmFjYzovL2FkaS5hY21lBQEG0oXYzAQIE385EnKjrhGnrNK+1DrTf0d69s25UdXIp7rHQPSGlLwDcgExAQ5hY2M6Ly9hZGkuYWNtZQI4k57BzwfM452DGMS0huz1WcfoV5eNQMlMa/x+BMRvJQI9AQICE2FjYzovL2FkaS5hY21lL0FDTUUDD2FjYzovL0FDTUUuYWNtZQcTYWNjOi8vYWRpLmFjbWUvYm9vaw==",
+          "json": {
+            "signatures": [
+              {
+                "type": "ed25519",
+                "publicKey": "e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11",
+                "signer": "acc://adi.acme",
+                "signerVersion": 1,
+                "timestamp": 1234567890,
+                "transactionHash": "137f391272a3ae11a7acd2bed43ad37f477af6cdb951d5c8a7bac740f48694bc"
+              }
+            ],
+            "transaction": [
+              {
+                "header": {
+                  "principal": "acc://adi.acme",
+                  "initiator": "38939ec1cf07cce39d8318c4b486ecf559c7e857978d40c94c6bfc7e04c46f25"
+                },
+                "body": {
+                  "type": "createTokenAccount",
+                  "url": "acc://adi.acme/ACME",
+                  "tokenUrl": "acc://ACME.acme",
+                  "authorities": [
+                    "acc://adi.acme/book"
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "SendTokens",
+      "cases": [
+        {
+          "binary": "AWIBAgIg5V2XO/aROByUYCNU0eH2VfexxL1Wdg3/7/or70VB7BEEE2FjYzovL2FkaS5hY21lL0FDTUUFAQbShdjMBAjSrYa1DtgCBujPXB8bOLnr7xmND/IviTjL5kaNmORevQNYATYBE2FjYzovL2FkaS5hY21lL0FDTUUCOd4zdbtdCwQpzXNkjQqRSCbP+9V1uqlIN2j7Y12wd2QCHgEDBBoBFWFjYzovL290aGVyLmFjbWUvQUNNRQIBZA==",
+          "json": {
+            "signatures": [
+              {
+                "type": "ed25519",
+                "publicKey": "e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11",
+                "signer": "acc://adi.acme/ACME",
+                "signerVersion": 1,
+                "timestamp": 1234567890,
+                "transactionHash": "d2ad86b50ed80206e8cf5c1f1b38b9ebef198d0ff22f8938cbe6468d98e45ebd"
+              }
+            ],
+            "transaction": [
+              {
+                "header": {
+                  "principal": "acc://adi.acme/ACME",
+                  "initiator": "39de3375bb5d0b0429cd73648d0a914826cffbd575baa9483768fb635db07764"
+                },
+                "body": {
+                  "type": "sendTokens",
+                  "hash": "0000000000000000000000000000000000000000000000000000000000000000",
+                  "to": [
+                    {
+                      "url": "acc://other.acme/ACME",
+                      "amount": "100"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "binary": "AWIBAgIg5V2XO/aROByUYCNU0eH2VfexxL1Wdg3/7/or70VB7BEEE2FjYzovL2FkaS5hY21lL0FDTUUFAQbShdjMBAg1/gdITin8dgBnbcGiaZ45KHqfMmbVfuO9CxeyR1T2+gNnATYBE2FjYzovL2FkaS5hY21lL0FDTUUCOd4zdbtdCwQpzXNkjQqRSCbP+9V1uqlIN2j7Y12wd2QCLQEDAw17ImZvbyI6ImJhciJ9BBoBFWFjYzovL290aGVyLmFjbWUvQUNNRQIBZA==",
+          "json": {
+            "signatures": [
+              {
+                "type": "ed25519",
+                "publicKey": "e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11",
+                "signer": "acc://adi.acme/ACME",
+                "signerVersion": 1,
+                "timestamp": 1234567890,
+                "transactionHash": "35fe07484e29fc7600676dc1a2699e39287a9f3266d57ee3bd0b17b24754f6fa"
+              }
+            ],
+            "transaction": [
+              {
+                "header": {
+                  "principal": "acc://adi.acme/ACME",
+                  "initiator": "39de3375bb5d0b0429cd73648d0a914826cffbd575baa9483768fb635db07764"
+                },
+                "body": {
+                  "type": "sendTokens",
+                  "hash": "0000000000000000000000000000000000000000000000000000000000000000",
+                  "meta": {
+                    "foo": "bar"
+                  },
+                  "to": [
+                    {
+                      "url": "acc://other.acme/ACME",
+                      "amount": "100"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "binary": "AWIBAgIg5V2XO/aROByUYCNU0eH2VfexxL1Wdg3/7/or70VB7BEEE2FjYzovL2FkaS5hY21lL0FDTUUFAQbShdjMBAi3Yp0jjViTgpK17lGtWZ5FtvFWMh6X0KXFD/liMWIDeANyATYBE2FjYzovL2FkaS5hY21lL0FDTUUCOd4zdbtdCwQpzXNkjQqRSCbP+9V1uqlIN2j7Y12wd2QCOAEDBBoBFWFjYzovL2FsaWNlLmFjbWUvQUNNRQIBZAQYARNhY2M6Ly9ib2IuYWNtZS9BQ01FAgFk",
+          "json": {
+            "signatures": [
+              {
+                "type": "ed25519",
+                "publicKey": "e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11",
+                "signer": "acc://adi.acme/ACME",
+                "signerVersion": 1,
+                "timestamp": 1234567890,
+                "transactionHash": "b7629d238d58938292b5ee51ad599e45b6f156321e97d0a5c50ff96231620378"
+              }
+            ],
+            "transaction": [
+              {
+                "header": {
+                  "principal": "acc://adi.acme/ACME",
+                  "initiator": "39de3375bb5d0b0429cd73648d0a914826cffbd575baa9483768fb635db07764"
+                },
+                "body": {
+                  "type": "sendTokens",
+                  "hash": "0000000000000000000000000000000000000000000000000000000000000000",
+                  "to": [
+                    {
+                      "url": "acc://alice.acme/ACME",
+                      "amount": "100"
+                    },
+                    {
+                      "url": "acc://bob.acme/ACME",
+                      "amount": "100"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "CreateDataAccount",
+      "cases": [
+        {
+          "binary": "AV0BAgIg5V2XO/aROByUYCNU0eH2VfexxL1Wdg3/7/or70VB7BEEDmFjYzovL2FkaS5hY21lBQEG0oXYzAQIwlCvUqO6c3yQF16m+3Nk57x3xs5gnU1IE57dybh1UjIDTAExAQ5hY2M6Ly9hZGkuYWNtZQI4k57BzwfM452DGMS0huz1WcfoV5eNQMlMa/x+BMRvJQIXAQQCE2FjYzovL2FkaS5hY21lL2RhdGE=",
+          "json": {
+            "signatures": [
+              {
+                "type": "ed25519",
+                "publicKey": "e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11",
+                "signer": "acc://adi.acme",
+                "signerVersion": 1,
+                "timestamp": 1234567890,
+                "transactionHash": "c250af52a3ba737c90175ea6fb7364e7bc77c6ce609d4d48139eddc9b8755232"
+              }
+            ],
+            "transaction": [
+              {
+                "header": {
+                  "principal": "acc://adi.acme",
+                  "initiator": "38939ec1cf07cce39d8318c4b486ecf559c7e857978d40c94c6bfc7e04c46f25"
+                },
+                "body": {
+                  "type": "createDataAccount",
+                  "url": "acc://adi.acme/data"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "WriteData",
+      "cases": [
+        {
+          "binary": "AV0BAgIg5V2XO/aROByUYCNU0eH2VfexxL1Wdg3/7/or70VB7BEEDmFjYzovL2FkaS5hY21lBQEG0oXYzAQIowOX/AJ09+V9I3QY1aDVUEsoD+3wdkceOXb8xeCuM0EDSgExAQ5hY2M6Ly9hZGkuYWNtZQI4k57BzwfM452DGMS0huz1WcfoV5eNQMlMa/x+BMRvJQIVAQUCEQECAgNmb28CA2JhcgIDYmF6",
+          "json": {
+            "signatures": [
+              {
+                "type": "ed25519",
+                "publicKey": "e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11",
+                "signer": "acc://adi.acme",
+                "signerVersion": 1,
+                "timestamp": 1234567890,
+                "transactionHash": "a30397fc0274f7e57d237418d5a0d5504b280fedf076471e3976fcc5e0ae3341"
+              }
+            ],
+            "transaction": [
+              {
+                "header": {
+                  "principal": "acc://adi.acme",
+                  "initiator": "38939ec1cf07cce39d8318c4b486ecf559c7e857978d40c94c6bfc7e04c46f25"
+                },
+                "body": {
+                  "type": "writeData",
+                  "entry": {
+                    "type": "accumulate",
+                    "data": [
+                      "666f6f",
+                      "626172",
+                      "62617a"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "WriteDataTo",
+      "cases": [
+        {
+          "binary": "AV0BAgIg5V2XO/aROByUYCNU0eH2VfexxL1Wdg3/7/or70VB7BEEDmFjYzovL2FkaS5hY21lBQEG0oXYzAQIY/ktmO/R22eclaD4uK3ZQnAhCU9N0p4reItxMH1qC08DaAExAQ5hY2M6Ly9hZGkuYWNtZQI4k57BzwfM452DGMS0huz1WcfoV5eNQMlMa/x+BMRvJQIzAQYCHGFjYzovL2xpdGUtZGF0YS1hY2NvdW50LmFjbWUDEQECAgNmb28CA2JhcgIDYmF6",
+          "json": {
+            "signatures": [
+              {
+                "type": "ed25519",
+                "publicKey": "e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11",
+                "signer": "acc://adi.acme",
+                "signerVersion": 1,
+                "timestamp": 1234567890,
+                "transactionHash": "63f92d98efd1db679c95a0f8b8add9427021094f4dd29e2b788b71307d6a0b4f"
+              }
+            ],
+            "transaction": [
+              {
+                "header": {
+                  "principal": "acc://adi.acme",
+                  "initiator": "38939ec1cf07cce39d8318c4b486ecf559c7e857978d40c94c6bfc7e04c46f25"
+                },
+                "body": {
+                  "type": "writeDataTo",
+                  "recipient": "acc://lite-data-account.acme",
+                  "entry": {
+                    "type": "accumulate",
+                    "data": [
+                      "666f6f",
+                      "626172",
+                      "62617a"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "AcmeFaucet",
+      "cases": [
+        {
+          "binary": "AWABAgIg5V2XO/aROByUYCNU0eH2VfexxL1Wdg3/7/or70VB7BEEEWFjYzovL2ZhdWNldC5hY21lBQEG0oXYzAQI258XYufeuuugEsgFadaXmiezVfHksABiigtPwA4TVKwDWQE0ARFhY2M6Ly9mYXVjZXQuYWNtZQIFSs7Rwl/x3bEZvcR10xXkZhd1NtNiBpYFnMgC/qIlEAIhAQcCHWFjYzovL2xpdGUtdG9rZW4tYWNjb3VudC5hY21l",
+          "json": {
+            "signatures": [
+              {
+                "type": "ed25519",
+                "publicKey": "e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11",
+                "signer": "acc://faucet.acme",
+                "signerVersion": 1,
+                "timestamp": 1234567890,
+                "transactionHash": "db9f1762e7debaeba012c80569d6979a27b355f1e4b000628a0b4fc00e1354ac"
+              }
+            ],
+            "transaction": [
+              {
+                "header": {
+                  "principal": "acc://faucet.acme",
+                  "initiator": "054aced1c25ff1ddb119bdc475d315e466177536d3620696059cc802fea22510"
+                },
+                "body": {
+                  "type": "acmeFaucet",
+                  "url": "acc://lite-token-account.acme"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "CreateToken",
+      "cases": [
+        {
+          "binary": "AV0BAgIg5V2XO/aROByUYCNU0eH2VfexxL1Wdg3/7/or70VB7BEEDmFjYzovL2FkaS5hY21lBQEG0oXYzAQIZii584GGud1rV9xhVhTHUYtyeaRvkcWW891UG0iuMgYDVgExAQ5hY2M6Ly9hZGkuYWNtZQI4k57BzwfM452DGMS0huz1WcfoV5eNQMlMa/x+BMRvJQIhAQgCFmFjYzovL2FkaS5hY21lL2Zvb2NvaW4EA0ZPTwUK",
+          "json": {
+            "signatures": [
+              {
+                "type": "ed25519",
+                "publicKey": "e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11",
+                "signer": "acc://adi.acme",
+                "signerVersion": 1,
+                "timestamp": 1234567890,
+                "transactionHash": "6628b9f38186b9dd6b57dc615614c7518b7279a46f91c596f3dd541b48ae3206"
+              }
+            ],
+            "transaction": [
+              {
+                "header": {
+                  "principal": "acc://adi.acme",
+                  "initiator": "38939ec1cf07cce39d8318c4b486ecf559c7e857978d40c94c6bfc7e04c46f25"
+                },
+                "body": {
+                  "type": "createToken",
+                  "url": "acc://adi.acme/foocoin",
+                  "symbol": "FOO",
+                  "precision": 10
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "IssueTokens",
+      "cases": [
+        {
+          "binary": "AWUBAgIg5V2XO/aROByUYCNU0eH2VfexxL1Wdg3/7/or70VB7BEEFmFjYzovL2FkaS5hY21lL2Zvb2NvaW4FAQbShdjMBAgBBjn8I7dYIpIEo/DC81I7zjuJruNh9EPoMyJly/PWJQNWATkBFmFjYzovL2FkaS5hY21lL2Zvb2NvaW4CEMhGfp6QpOTwfggu7vKsgUOyobTw1FJ5YX+aPHBt0tACGQEJAhJhY2M6Ly9hZGkuYWNtZS9mb28DAWQ=",
+          "json": {
+            "signatures": [
+              {
+                "type": "ed25519",
+                "publicKey": "e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11",
+                "signer": "acc://adi.acme/foocoin",
+                "signerVersion": 1,
+                "timestamp": 1234567890,
+                "transactionHash": "010639fc23b758229204a3f0c2f3523bce3b89aee361f443e8332265cbf3d625"
+              }
+            ],
+            "transaction": [
+              {
+                "header": {
+                  "principal": "acc://adi.acme/foocoin",
+                  "initiator": "10c8467e9e90a4e4f07e082eeef2ac8143b2a1b4f0d45279617f9a3c706dd2d0"
+                },
+                "body": {
+                  "type": "issueTokens",
+                  "recipient": "acc://adi.acme/foo",
+                  "amount": "100"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "BurnTokens",
+      "cases": [
+        {
+          "binary": "AWEBAgIg5V2XO/aROByUYCNU0eH2VfexxL1Wdg3/7/or70VB7BEEEmFjYzovL2FkaS5hY21lL2ZvbwUBBtKF2MwECAxiemIza+KZ3ey+/OL584YQ9KTeSdyCFF/tuGjvaRX8Az4BNQESYWNjOi8vYWRpLmFjbWUvZm9vAnpHrhu5o6DidsXWlavwyLDr14RTIDRXhkWUME7s2UIfAgUBCgIBZA==",
+          "json": {
+            "signatures": [
+              {
+                "type": "ed25519",
+                "publicKey": "e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11",
+                "signer": "acc://adi.acme/foo",
+                "signerVersion": 1,
+                "timestamp": 1234567890,
+                "transactionHash": "0c627a62336be299ddecbefce2f9f38610f4a4de49dc82145fedb868ef6915fc"
+              }
+            ],
+            "transaction": [
+              {
+                "header": {
+                  "principal": "acc://adi.acme/foo",
+                  "initiator": "7a47ae1bb9a3a0e276c5d695abf0c8b0ebd78453203457864594304eecd9421f"
+                },
+                "body": {
+                  "type": "burnTokens",
+                  "amount": "100"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "CreateKeyPage",
+      "cases": [
+        {
+          "binary": "AV0BAgIg5V2XO/aROByUYCNU0eH2VfexxL1Wdg3/7/or70VB7BEEDmFjYzovL2FkaS5hY21lBQEG0oXYzAQI4Rfd7CxfXmDK6AqDvs9TxLgG52U3xwsjk66e4FiPak0DWwExAQ5hY2M6Ly9hZGkuYWNtZQI4k57BzwfM452DGMS0huz1WcfoV5eNQMlMa/x+BMRvJQImAQwCIgEg5V2XO/aROByUYCNU0eH2VfexxL1Wdg3/7/or70VB7BE=",
+          "json": {
+            "signatures": [
+              {
+                "type": "ed25519",
+                "publicKey": "e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11",
+                "signer": "acc://adi.acme",
+                "signerVersion": 1,
+                "timestamp": 1234567890,
+                "transactionHash": "e117ddec2c5f5e60cae80a83becf53c4b806e76537c70b2393ae9ee0588f6a4d"
+              }
+            ],
+            "transaction": [
+              {
+                "header": {
+                  "principal": "acc://adi.acme",
+                  "initiator": "38939ec1cf07cce39d8318c4b486ecf559c7e857978d40c94c6bfc7e04c46f25"
+                },
+                "body": {
+                  "type": "createKeyPage",
+                  "keys": [
+                    {
+                      "keyHash": "e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "CreateKeyBook",
+      "cases": [
+        {
+          "binary": "AV0BAgIg5V2XO/aROByUYCNU0eH2VfexxL1Wdg3/7/or70VB7BEEDmFjYzovL2FkaS5hY21lBQEG0oXYzAQIHg0aegLNtpbuMil6NspE1faX6aIFcSdoiYfL6O3bEBoDbgExAQ5hY2M6Ly9hZGkuYWNtZQI4k57BzwfM452DGMS0huz1WcfoV5eNQMlMa/x+BMRvJQI5AQ0CE2FjYzovL2FkaS5hY21lL2Jvb2sDIOVdlzv2kTgclGAjVNHh9lX3scS9VnYN/+/6K+9FQewR",
+          "json": {
+            "signatures": [
+              {
+                "type": "ed25519",
+                "publicKey": "e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11",
+                "signer": "acc://adi.acme",
+                "signerVersion": 1,
+                "timestamp": 1234567890,
+                "transactionHash": "1e0d1a7a02cdb696ee32297a36ca44d5f697e9a2057127688987cbe8eddb101a"
+              }
+            ],
+            "transaction": [
+              {
+                "header": {
+                  "principal": "acc://adi.acme",
+                  "initiator": "38939ec1cf07cce39d8318c4b486ecf559c7e857978d40c94c6bfc7e04c46f25"
+                },
+                "body": {
+                  "type": "createKeyBook",
+                  "url": "acc://adi.acme/book",
+                  "publicKeyHash": "e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "AddCredits",
+      "cases": [
+        {
+          "binary": "AWwBAgIg5V2XO/aROByUYCNU0eH2VfexxL1Wdg3/7/or70VB7BEEHWFjYzovL2xpdGUtdG9rZW4tYWNjb3VudC5hY21lBQEG0oXYzAQI+3GnRMrYm4M8PL9aznQPqgen8N7LHYQJbGJKyzTmPK4DZQFAAR1hY2M6Ly9saXRlLXRva2VuLWFjY291bnQuYWNtZQJvlL7eHp8epW1/aIh8LrTc4mzUeuBdsMG4CjCmdPS7fQIhAQ4CE2FjYzovL2FkaS5hY21lL3BhZ2UDAwMNQASA4esX",
+          "json": {
+            "signatures": [
+              {
+                "type": "ed25519",
+                "publicKey": "e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11",
+                "signer": "acc://lite-token-account.acme",
+                "signerVersion": 1,
+                "timestamp": 1234567890,
+                "transactionHash": "fb71a744cad89b833c3cbf5ace740faa07a7f0decb1d84096c624acb34e63cae"
+              }
+            ],
+            "transaction": [
+              {
+                "header": {
+                  "principal": "acc://lite-token-account.acme",
+                  "initiator": "6f94bede1e9f1ea56d7f68887c2eb4dce26cd47ae05db0c1b80a30a674f4bb7d"
+                },
+                "body": {
+                  "type": "addCredits",
+                  "recipient": "acc://adi.acme/page",
+                  "amount": "200000",
+                  "oracle": 50000000
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "UpdateKeyPage",
+      "cases": [
+        {
+          "binary": "AV0BAgIg5V2XO/aROByUYCNU0eH2VfexxL1Wdg3/7/or70VB7BEEDmFjYzovL2FkaS5hY21lBQEG0oXYzAQIuATXr7tOiFafFZh+9zl/Ocfk+6QeydSU02Ns/wSSivIDXwExAQ5hY2M6Ly9hZGkuYWNtZQI4k57BzwfM452DGMS0huz1WcfoV5eNQMlMa/x+BMRvJQIqAQ8CJgEDAiIBIOVdlzv2kTgclGAjVNHh9lX3scS9VnYN/+/6K+9FQewR",
+          "json": {
+            "signatures": [
+              {
+                "type": "ed25519",
+                "publicKey": "e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11",
+                "signer": "acc://adi.acme",
+                "signerVersion": 1,
+                "timestamp": 1234567890,
+                "transactionHash": "b804d7afbb4e88569f15987ef7397f39c7e4fba41ec9d494d3636cff04928af2"
+              }
+            ],
+            "transaction": [
+              {
+                "header": {
+                  "principal": "acc://adi.acme",
+                  "initiator": "38939ec1cf07cce39d8318c4b486ecf559c7e857978d40c94c6bfc7e04c46f25"
+                },
+                "body": {
+                  "type": "updateKeyPage",
+                  "operation": [
+                    {
+                      "type": "add",
+                      "entry": {
+                        "keyHash": "e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "SignPending",
+      "cases": [
+        {
+          "binary": "ATwBAgIg5V2XO/aROByUYCNU0eH2VfexxL1Wdg3/7/or70VB7BEEDmFjYzovL2FkaS5hY21lBQEG0oXYzAQDNwExAQ5hY2M6Ly9hZGkuYWNtZQI4k57BzwfM452DGMS0huz1WcfoV5eNQMlMa/x+BMRvJQICATA=",
+          "json": {
+            "signatures": [
+              {
+                "type": "ed25519",
+                "publicKey": "e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11",
+                "signer": "acc://adi.acme",
+                "signerVersion": 1,
+                "timestamp": 1234567890,
+                "transactionHash": "0000000000000000000000000000000000000000000000000000000000000000"
+              }
+            ],
+            "transaction": [
+              {
+                "header": {
+                  "principal": "acc://adi.acme",
+                  "initiator": "38939ec1cf07cce39d8318c4b486ecf559c7e857978d40c94c6bfc7e04c46f25"
+                },
+                "body": {
+                  "type": "remote",
+                  "hash": "0000000000000000000000000000000000000000000000000000000000000000"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "SyntheticCreateIdentity",
+      "cases": [
+        {
+          "binary": "AV0BAgIg5V2XO/aROByUYCNU0eH2VfexxL1Wdg3/7/or70VB7BEEDmFjYzovL2FkaS5hY21lBQEG0oXYzAQIIMt/rgqiGzEVoRnk3Yq9V+TOpU3x4v7XwB5eMix6UtQDoAEBMQEOYWNjOi8vYWRpLmFjbWUCOJOewc8HzOOdgxjEtIbs9VnH6FeXjUDJTGv8fgTEbyUCawExAlMBUWFjYzovLzAxMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDBAYnZuLVguYWNtZQMSAQACDmFjYzovL2Zvby5hY21l",
+          "json": {
+            "signatures": [
+              {
+                "type": "ed25519",
+                "publicKey": "e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11",
+                "signer": "acc://adi.acme",
+                "signerVersion": 1,
+                "timestamp": 1234567890,
+                "transactionHash": "20cb7fae0aa21b3115a119e4dd8abd57e4cea54df1e2fed7c01e5e322c7a52d4"
+              }
+            ],
+            "transaction": [
+              {
+                "header": {
+                  "principal": "acc://adi.acme",
+                  "initiator": "38939ec1cf07cce39d8318c4b486ecf559c7e857978d40c94c6bfc7e04c46f25"
+                },
+                "body": {
+                  "type": "syntheticCreateIdentity",
+                  "cause": "acc://0100000000000000000000000000000000000000000000000000000000000000@bvn-X.acme",
+                  "source": "acc://bvn-X.acme",
+                  "accounts": [
+                    {
+                      "type": "unknown",
+                      "url": "acc://foo.acme"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "SyntheticWriteData",
+      "cases": [
+        {
+          "binary": "AV0BAgIg5V2XO/aROByUYCNU0eH2VfexxL1Wdg3/7/or70VB7BEEDmFjYzovL2FkaS5hY21lBQEG0oXYzAQIOhvwWRhLDVtjTb+0kt/JoJJv4ujK167skSj0Bthsk6ADnwEBMQEOYWNjOi8vYWRpLmFjbWUCOJOewc8HzOOdgxjEtIbs9VnH6FeXjUDJTGv8fgTEbyUCagEyAlMBUWFjYzovLzAxMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDBAYnZuLVguYWNtZQMRAQICA2ZvbwIDYmFyAgNiYXo=",
+          "json": {
+            "signatures": [
+              {
+                "type": "ed25519",
+                "publicKey": "e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11",
+                "signer": "acc://adi.acme",
+                "signerVersion": 1,
+                "timestamp": 1234567890,
+                "transactionHash": "3a1bf059184b0d5b634dbfb492dfc9a0926fe2e8cad7aeec9128f406d86c93a0"
+              }
+            ],
+            "transaction": [
+              {
+                "header": {
+                  "principal": "acc://adi.acme",
+                  "initiator": "38939ec1cf07cce39d8318c4b486ecf559c7e857978d40c94c6bfc7e04c46f25"
+                },
+                "body": {
+                  "type": "syntheticWriteData",
+                  "cause": "acc://0100000000000000000000000000000000000000000000000000000000000000@bvn-X.acme",
+                  "source": "acc://bvn-X.acme",
+                  "entry": {
+                    "type": "accumulate",
+                    "data": [
+                      "666f6f",
+                      "626172",
+                      "62617a"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "SyntheticDepositTokens",
+      "cases": [
+        {
+          "binary": "AV0BAgIg5V2XO/aROByUYCNU0eH2VfexxL1Wdg3/7/or70VB7BEEDmFjYzovL2FkaS5hY21lBQEG0oXYzAQIDsDyLmz1fVQ77V10IOTg0H+4fWUnIA0mZatKDQ84g2IDoQEBMQEOYWNjOi8vYWRpLmFjbWUCOJOewc8HzOOdgxjEtIbs9VnH6FeXjUDJTGv8fgTEbyUCbAEzAlMBUWFjYzovLzAxMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDBAYnZuLVguYWNtZQMPYWNjOi8vQUNNRS5hY21lBAInEA==",
+          "json": {
+            "signatures": [
+              {
+                "type": "ed25519",
+                "publicKey": "e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11",
+                "signer": "acc://adi.acme",
+                "signerVersion": 1,
+                "timestamp": 1234567890,
+                "transactionHash": "0ec0f22e6cf57d543bed5d7420e4e0d07fb87d6527200d2665ab4a0d0f388362"
+              }
+            ],
+            "transaction": [
+              {
+                "header": {
+                  "principal": "acc://adi.acme",
+                  "initiator": "38939ec1cf07cce39d8318c4b486ecf559c7e857978d40c94c6bfc7e04c46f25"
+                },
+                "body": {
+                  "type": "syntheticDepositTokens",
+                  "cause": "acc://0100000000000000000000000000000000000000000000000000000000000000@bvn-X.acme",
+                  "source": "acc://bvn-X.acme",
+                  "token": "acc://ACME.acme",
+                  "amount": "10000"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "SyntheticDepositCredits",
+      "cases": [
+        {
+          "binary": "AV0BAgIg5V2XO/aROByUYCNU0eH2VfexxL1Wdg3/7/or70VB7BEEDmFjYzovL2FkaS5hY21lBQEG0oXYzAQI53WMbzL0i00VAbMnQNqcSe2Rg8VH1kX15wvAYpiPfi0DjwEBMQEOYWNjOi8vYWRpLmFjbWUCOJOewc8HzOOdgxjEtIbs9VnH6FeXjUDJTGv8fgTEbyUCWgE0AlMBUWFjYzovLzAxMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDBAYnZuLVguYWNtZQPSCQ==",
+          "json": {
+            "signatures": [
+              {
+                "type": "ed25519",
+                "publicKey": "e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11",
+                "signer": "acc://adi.acme",
+                "signerVersion": 1,
+                "timestamp": 1234567890,
+                "transactionHash": "e7758c6f32f48b4d1501b32740da9c49ed9183c547d645f5e70bc062988f7e2d"
+              }
+            ],
+            "transaction": [
+              {
+                "header": {
+                  "principal": "acc://adi.acme",
+                  "initiator": "38939ec1cf07cce39d8318c4b486ecf559c7e857978d40c94c6bfc7e04c46f25"
+                },
+                "body": {
+                  "type": "syntheticDepositCredits",
+                  "cause": "acc://0100000000000000000000000000000000000000000000000000000000000000@bvn-X.acme",
+                  "source": "acc://bvn-X.acme",
+                  "amount": 1234
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "SyntheticBurnTokens",
+      "cases": [
+        {
+          "binary": "AV0BAgIg5V2XO/aROByUYCNU0eH2VfexxL1Wdg3/7/or70VB7BEEDmFjYzovL2FkaS5hY21lBQEG0oXYzAQIDWBSyV6AK3314WcnC+cCU8iB8wZKp/aUnCgnKJAzilADkgEBMQEOYWNjOi8vYWRpLmFjbWUCOJOewc8HzOOdgxjEtIbs9VnH6FeXjUDJTGv8fgTEbyUCXQE1AlMBUWFjYzovLzAxMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDBAYnZuLVguYWNtZQMEB1vNFQ==",
+          "json": {
+            "signatures": [
+              {
+                "type": "ed25519",
+                "publicKey": "e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11",
+                "signer": "acc://adi.acme",
+                "signerVersion": 1,
+                "timestamp": 1234567890,
+                "transactionHash": "0d6052c95e802b7df5e167270be70253c881f3064aa7f6949c28272890338a50"
+              }
+            ],
+            "transaction": [
+              {
+                "header": {
+                  "principal": "acc://adi.acme",
+                  "initiator": "38939ec1cf07cce39d8318c4b486ecf559c7e857978d40c94c6bfc7e04c46f25"
+                },
+                "body": {
+                  "type": "syntheticBurnTokens",
+                  "cause": "acc://0100000000000000000000000000000000000000000000000000000000000000@bvn-X.acme",
+                  "source": "acc://bvn-X.acme",
+                  "amount": "123456789"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "Identity",
+      "cases": [
+        {
+          "binary": "AQICDmFjYzovL2FkaS5hY21lAxcBFQETYWNjOi8vYWRpLmFjbWUvYm9vaw==",
+          "json": {
+            "type": "identity",
+            "url": "acc://adi.acme",
+            "authorities": [
+              {
+                "url": "acc://adi.acme/book"
+              }
+            ]
+          }
+        },
+        {
+          "binary": "AQICDmFjYzovL2FkaS5hY21lAy8BFwETYWNjOi8vYWRpLmFjbWUvYm9vawIBARQBEmFjYzovL2FkaS5hY21lL21ncg==",
+          "json": {
+            "type": "identity",
+            "url": "acc://adi.acme",
+            "authorities": [
+              {
+                "url": "acc://adi.acme/book",
+                "disabled": true
+              },
+              {
+                "url": "acc://adi.acme/mgr"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "TokenIssuer",
+      "cases": [
+        {
+          "binary": "AQMCFmFjYzovL2FkaS5hY21lL2Zvb2NvaW4DFwEVARNhY2M6Ly9hZGkuYWNtZS9ib29rBANGT08FCg==",
+          "json": {
+            "type": "tokenIssuer",
+            "url": "acc://adi.acme/foocoin",
+            "authorities": [
+              {
+                "url": "acc://adi.acme/book"
+              }
+            ],
+            "symbol": "FOO",
+            "precision": 10,
+            "issued": "0"
+          }
+        }
+      ]
+    },
+    {
+      "name": "TokenAccount",
+      "cases": [
+        {
+          "binary": "AQQCEmFjYzovL2FkaS5hY21lL2ZvbwMXARUBE2FjYzovL2FkaS5hY21lL2Jvb2sEFmFjYzovL2FkaS5hY21lL2Zvb2NvaW4FBAdbzRU=",
+          "json": {
+            "type": "tokenAccount",
+            "url": "acc://adi.acme/foo",
+            "authorities": [
+              {
+                "url": "acc://adi.acme/book"
+              }
+            ],
+            "tokenUrl": "acc://adi.acme/foocoin",
+            "balance": "123456789"
+          }
+        }
+      ]
+    },
+    {
+      "name": "LiteTokenAccount",
+      "cases": [
+        {
+          "binary": "AQUCHWFjYzovL2xpdGUtdG9rZW4tYWNjb3VudC5hY21lAw9hY2M6Ly9BQ01FLmFjbWUEAjA5",
+          "json": {
+            "type": "liteTokenAccount",
+            "url": "acc://lite-token-account.acme",
+            "tokenUrl": "acc://ACME.acme",
+            "balance": "12345"
+          }
+        }
+      ]
+    },
+    {
+      "name": "LiteIdentity",
+      "cases": [
+        {
+          "binary": "AQ8CGGFjYzovL2xpdGUtaWRlbnRpdHkuYWNtZQPrTASKosm5BA==",
+          "json": {
+            "type": "liteIdentity",
+            "url": "acc://lite-identity.acme",
+            "creditBalance": 9835,
+            "lastUsedOn": 1194479882
+          }
+        }
+      ]
+    },
+    {
+      "name": "KeyPage",
+      "cases": [
+        {
+          "binary": "AQkCE2FjYzovL2FkaS5hY21lL3BhZ2UD5IEGBAMJPAEg5V2XO/aROByUYCNU0eH2VfexxL1Wdg3/7/or70VB7BEC7Izl6Q0DEmFjYzovL2Zvby5hY21lL2Jhcg==",
+          "json": {
+            "type": "keyPage",
+            "url": "acc://adi.acme/page",
+            "creditBalance": 98532,
+            "acceptThreshold": 3,
+            "threshold": 3,
+            "keys": [
+              {
+                "publicKeyHash": "e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11",
+                "publicKey": "e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11",
+                "lastUsedOn": 3711518316,
+                "delegate": "acc://foo.acme/bar"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "KeyBook",
+      "cases": [
+        {
+          "binary": "AQoCE2FjYzovL2FkaS5hY21lL2Jvb2sEAYA=",
+          "json": {
+            "type": "keyBook",
+            "url": "acc://adi.acme/book"
+          }
+        }
+      ]
+    },
+    {
+      "name": "DataAccount",
+      "cases": [
+        {
+          "binary": "AQsCE2FjYzovL2FkaS5hY21lL2RhdGEDFwEVARNhY2M6Ly9hZGkuYWNtZS9ib29r",
+          "json": {
+            "type": "dataAccount",
+            "url": "acc://adi.acme/data",
+            "authorities": [
+              {
+                "url": "acc://adi.acme/book"
+              }
+            ],
+            "entry": null
+          }
+        }
+      ]
+    },
+    {
+      "name": "LiteDataAccount",
+      "cases": [
+        {
+          "binary": "AQwCHGFjYzovL2xpdGUtZGF0YS1hY2NvdW50LmFjbWU=",
+          "json": {
+            "type": "liteDataAccount",
+            "url": "acc://lite-data-account.acme"
+          }
+        }
+      ]
+    }
+  ]
+}

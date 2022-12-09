@@ -7,7 +7,7 @@ ENCODE_EQUAL(Bool)
 ENCODE_COPY(Bool)
 ENCODE_BINARY_SIZE_STATIC(Bool)
 
-Error Bool_valid(const Bytes* v) {
+Error Bool_valid(const Bytes *v) {
     if (!v) {
         return ErrorCode(ErrorParameterNil);
     }
@@ -21,7 +21,7 @@ Error Bool_get(const struct Bool *v, Bytes *out) {
     CHECK_ERROR(v)
     CHECK_ERROR(out)
     Error e = Bool_valid(&v->data);
-    if ( e.code != ErrorNone ) {
+    if (e.code != ErrorNone) {
         return e;
     }
 
@@ -29,7 +29,7 @@ Error Bool_get(const struct Bool *v, Bytes *out) {
         return ErrorCode(ErrorBufferTooSmall);
     }
     int n = Bytes_copy(out, &v->data);
-    if ( n != 1 ) {
+    if (n != 1) {
         return ErrorCode(ErrorBadCopy);
     }
     return e;
@@ -39,7 +39,7 @@ Error Bool_set(struct Bool *v, const Bytes *in) {
     CHECK_ERROR(v)
     CHECK_ERROR(in)
     Error e = Bool_valid(&v->data);
-    if ( e.code != ErrorNone ) {
+    if (e.code != ErrorNone) {
         return e;
     }
     if (!in) {
@@ -49,20 +49,20 @@ Error Bool_set(struct Bool *v, const Bytes *in) {
         return ErrorCode(ErrorBufferTooSmall);
     }
     int n = Bytes_copy(&v->data, in);
-    if ( n < 0 ) {
+    if (n < 0) {
         return ErrorCode(n);
     }
-    if ( n != 1 ) {
+    if (n != 1) {
         return ErrorCode(ErrorBadCopy);
     }
     return e;
 }
 
 Bool Bool_new(buffer_t *b, size_t n) {
-    Bool init = { { {0,0,0}}};
+    Bool init = {{{0, 0, 0}}};
 
     if (b) {
-        if ( b->size - b->offset < n ) {
+        if (b->size - b->offset < n) {
             return init;
         }
         init.data.buffer.ptr = b->ptr + b->offset;
@@ -72,4 +72,3 @@ Bool Bool_new(buffer_t *b, size_t n) {
     }
     return init;
 }
-

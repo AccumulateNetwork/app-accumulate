@@ -1,6 +1,7 @@
 from abc import ABCMeta, abstractmethod
 import socket
 
+import requests
 
 class Button(metaclass=ABCMeta):
     @abstractmethod
@@ -50,3 +51,21 @@ class ButtonTCP(Button):
 
     def close(self):
         self.socket.close()
+
+class ButtonCurl(Button):
+    def __init__(self, server: str, port: int) -> None:
+        self.url = "http://" + server + ":" + str(port)
+        self.data = '{"action":"press-and-release"}'
+
+    def right_click(self):
+        requests.post(self.url + "/button/right", data=self.data, headers="")
+
+    def left_click(self):
+        requests.post(self.url + "/button/left", data=self.data, headers="")
+
+    def both_click(self):
+        requests.post(self.url + "/button/both", data=self.data, headers="")
+
+    def close(self):
+        pass
+

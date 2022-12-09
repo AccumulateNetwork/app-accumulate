@@ -3,7 +3,7 @@
 
 Error Error_init(Error *e) {
     Error err = ErrorCode(ErrorNone);
-    if ( e ) {
+    if (e) {
         *e = err;
     }
     return err;
@@ -17,13 +17,14 @@ bool IsErrorCode(int e) {
 }
 
 Error ErrorCode(int e) {
-    //if we have an error code greater than zero that makes it in here, then it is not intended as an error
-    if ( (int)(e) >= 0 ) {
+    // if we have an error code greater than zero that makes it in here, then it is not intended as
+    // an error
+    if ((int) (e) >= 0) {
         return (const Error){ErrorNone, {0}};
     }
 
 #if WANT_TEXT
-    switch (abs((int)e)) {
+    switch (abs((int) e)) {
         case ErrorNone:
             return (const Error){ErrorNone, {0}};
         case ErrorUnknown:
@@ -79,4 +80,3 @@ Error ErrorCode(int e) {
     return (const Error){e, {0}};
 #endif
 }
-

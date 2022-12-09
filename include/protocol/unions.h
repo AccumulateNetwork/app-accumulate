@@ -8,27 +8,30 @@
 #define PRINTF
 #endif
 typedef struct {
-        TransactionType Type;
+    TransactionType Type;
 } TransactionTypeUnion;
 
 typedef union {
-        TransactionTypeUnion *_u;
-        struct AddCredits *_AddCredits;
-        struct SendTokens *_SendTokens;
+    TransactionTypeUnion *_u;
+    struct AddCredits *_AddCredits;
+    struct SendTokens *_SendTokens;
 } TransactionBody;
 
-
-//common signature struct
+// common signature struct
 typedef struct {
-        SignatureType Type;
-        Bytes PublicKey;  //`json:"publicKey,omitempty" form:"publicKey" query:"publicKey" validate:"required"`
-        Bytes Signature;  //`json:"signature,omitempty" form:"signature" query:"signature" validate:"required"`
-        Url Signer;  //`json:"signer,omitempty" form:"signer" query:"signer" validate:"required"`
-        UVarInt SignerVersion;  //`json:"signerVersion,omitempty" form:"signerVersion" query:"signerVersion" validate:"required"`
-        UVarInt Timestamp;  //`json:"timestamp,omitempty" form:"timestamp" query:"timestamp"`
-        VoteType Vote;  //`json:"vote,omitempty" form:"vote" query:"vote"`
-        Bytes32 TransactionHash;  //`json:"transactionHash,omitempty" form:"transactionHash" query:"transactionHash"`
-        Bytes extraData[8];
+    SignatureType Type;
+    Bytes PublicKey;  //`json:"publicKey,omitempty" form:"publicKey" query:"publicKey"
+                      //validate:"required"`
+    Bytes Signature;  //`json:"signature,omitempty" form:"signature" query:"signature"
+                      //validate:"required"`
+    Url Signer;       //`json:"signer,omitempty" form:"signer" query:"signer" validate:"required"`
+    UVarInt SignerVersion;    //`json:"signerVersion,omitempty" form:"signerVersion"
+                              //query:"signerVersion" validate:"required"`
+    UVarInt Timestamp;        //`json:"timestamp,omitempty" form:"timestamp" query:"timestamp"`
+    VoteType Vote;            //`json:"vote,omitempty" form:"vote" query:"vote"`
+    Bytes32 TransactionHash;  //`json:"transactionHash,omitempty" form:"transactionHash"
+                              //query:"transactionHash"`
+    Bytes extraData[8];
 } SignatureTypeUnion;
 
 typedef enum {
@@ -44,24 +47,21 @@ typedef enum {
 } SigTypeMarshalFields;
 
 typedef union {
-        SignatureTypeUnion *_u;
-        struct BTCSignature *_BTCSignature;
-        struct ED25519Signature *_ED25519Signature;
-        struct ETHSignature *_ETHSignature;
-        struct RCD1Signature *_RCD1Signature;
- } Signature;
+    SignatureTypeUnion *_u;
+    struct BTCSignature *_BTCSignature;
+    struct ED25519Signature *_ED25519Signature;
+    struct ETHSignature *_ETHSignature;
+    struct RCD1Signature *_RCD1Signature;
+} Signature;
 
-bool TransactionBody_equal(const TransactionBody *a,const TransactionBody *b);
-//bool TransactionType_equal(const TransactionType *a, const TransactionType *b);
+bool TransactionBody_equal(const TransactionBody *a, const TransactionBody *b);
+// bool TransactionType_equal(const TransactionType *a, const TransactionType *b);
 
 int unmarshalerReadTransactionBody(Unmarshaler *m, TransactionBody *v);
 int marshalerWriteTransactionBody(Marshaler *m, const TransactionBody *v);
 
-
-bool Signature_equal(const Signature *a,const Signature *b);
-//bool SignatureType_equal(const SignatureType *a, const SignatureType *b);
+bool Signature_equal(const Signature *a, const Signature *b);
+// bool SignatureType_equal(const SignatureType *a, const SignatureType *b);
 
 int unmarshalerReadSignature(Unmarshaler *m, Signature *v);
 int marshalerWriteSignature(Marshaler *m, const Signature *v);
-
-

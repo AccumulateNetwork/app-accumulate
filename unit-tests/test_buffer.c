@@ -3,10 +3,13 @@
 #include <setjmp.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h>
+
 
 #include <cmocka.h>
-
-#include "common/buffer.h"
+#include <common/error.h>
+#include <common/buffer.h>
+#include <common/uvarint.h>
 
 static void test_buffer_can_read(void **state) {
     (void) state;
@@ -91,12 +94,12 @@ static void test_buffer_read(void **state) {
 
     // clang-format off
     uint8_t temp_varint[] = {
-        0xFC, // 1 byte varint
-        0xFD, 0x00, 0x01, // 2 bytes varint
-        0xFE, 0x00, 0x01, 0x02, 0x03,  // 4 bytes varint
-        0xFF, 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07 // 8 bytes varint
-
+        0xFC, 0x01, // 1 byte varint
+        0x80, 0x02, // 2 bytes varint
+        0x80, 0x82, 0x88, 0x18, // 4 bytes varint
+        0x80, 0x82, 0x88, 0x98, 0xc0, 0xa0, 0x81, 0x83, 0x07,
     };
+
     buffer_t buf_varint = {.ptr = temp_varint, .size = sizeof(temp_varint), .offset = 0};
     uint64_t varint = 0;
     assert_true(buffer_read_uvarint(&buf_varint, &varint));
@@ -144,7 +147,9 @@ static void test_buffer_move(void **state) {
     assert_false(buffer_move(&buf, output2, sizeof(output2)));  // can't read 5 bytes
 }
 
-int main() {
+int main(int argc, char *argv[]) {
+    UNUSED(argc);
+    UNUSED(argv);
     const struct CMUnitTest tests[] = {cmocka_unit_test(test_buffer_can_read),
                                        cmocka_unit_test(test_buffer_seek),
                                        cmocka_unit_test(test_buffer_read),

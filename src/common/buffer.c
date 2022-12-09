@@ -185,12 +185,15 @@ int hextobin(const char *hexStr, int hexLen, uint8_t *output, int outputLen) {
     }
     const char offset = 'a' - 'A';
     size_t finalLen = len / 2;
-    if ( outputLen < (int) finalLen ) {
+    if (outputLen < (int) finalLen) {
         return -1;
     }
     for (size_t inIdx = 0, outIdx = 0; outIdx < finalLen; inIdx += 2, outIdx++) {
-        char h0 = (hexStr[inIdx] >= 'a' && hexStr[inIdx] <= 'z') ? hexStr[inIdx] - offset : hexStr[inIdx];
-        char h1 = (hexStr[inIdx+1] >= 'a' && hexStr[inIdx+1] <= 'z') ? hexStr[inIdx+1] - offset : hexStr[inIdx+1];
+        char h0 =
+            (hexStr[inIdx] >= 'a' && hexStr[inIdx] <= 'z') ? hexStr[inIdx] - offset : hexStr[inIdx];
+        char h1 = (hexStr[inIdx + 1] >= 'a' && hexStr[inIdx + 1] <= 'z')
+                      ? hexStr[inIdx + 1] - offset
+                      : hexStr[inIdx + 1];
         if ((h0 - 48) <= 9 && (h1 - 48) <= 9) {
             goto convert;
         } else {
@@ -200,9 +203,8 @@ int hextobin(const char *hexStr, int hexLen, uint8_t *output, int outputLen) {
                 return -1;
             }
         }
-        convert:
-        output[outIdx] =
-                (h0 % 32 + 9) % 25 * 16 + (h1 % 32 + 9) % 25;
+    convert:
+        output[outIdx] = (h0 % 32 + 9) % 25 * 16 + (h1 % 32 + 9) % 25;
     }
-    return (int)finalLen;
+    return (int) finalLen;
 }

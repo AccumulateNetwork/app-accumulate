@@ -58,7 +58,7 @@ uint8_t io_event(uint8_t channel __attribute__((unused))) {
     if (!io_seproxyhal_spi_is_status_sent()) {
         io_seproxyhal_general_status();
     }
-    //check_canary();
+    // check_canary();
 
     return 1;
 }

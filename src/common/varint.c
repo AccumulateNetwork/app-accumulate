@@ -14,33 +14,32 @@
  *  limitations under the License.
  *****************************************************************************/
 
-#include <stdint.h>   // uint*_t
-#include <stddef.h>   // size_t
+#include <stdint.h>  // uint*_t
+#include <stddef.h>  // size_t
 
 #include <common/varint.h>
 
 uint8_t varint_size(int64_t value) {
-    uint64_t ux = ((uint64_t)value) << 1;
-    if ( value < 0 ) {
+    uint64_t ux = ((uint64_t) value) << 1;
+    if (value < 0) {
         ux = ~ux;
     }
     return uvarint_size(ux);
 }
 
-
 int varint_read(const uint8_t *in, size_t in_len, int64_t *value) {
     uint64_t ux = 0;
-    int n = uvarint_read(in, in_len, &ux); // ok to continue in presence of error
-    *value = (int64_t)(ux >> 1);
-    if ( (ux&1) != 0 ) {
-        *value = (int64_t )(~ux);
+    int n = uvarint_read(in, in_len, &ux);  // ok to continue in presence of error
+    *value = (int64_t) (ux >> 1);
+    if ((ux & 1) != 0) {
+        *value = (int64_t) (~ux);
     }
     return n;
 }
 
 int varint_write(uint8_t *out, size_t offset, int64_t value) {
-    uint64_t ux = ((uint64_t)value) << 1;
-    if ( value < 0 ) {
+    uint64_t ux = ((uint64_t) value) << 1;
+    if (value < 0) {
         ux = ~ux;
     }
     return uvarint_write(out, offset, ux);

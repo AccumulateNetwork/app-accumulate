@@ -3,10 +3,13 @@
 #include <setjmp.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h>
+
 
 #include <cmocka.h>
 
 #include "common/bip32.h"
+#include "common/error.h"
 
 static void test_bip32_format(void **state) {
     (void) state;
@@ -91,7 +94,9 @@ static void test_bad_bip32_read(void **state) {
     assert_false(bip32_path_read(input, sizeof(input), output, 20));
 }
 
-int main() {
+int main(int argc, char *argv[]) {
+    UNUSED(argc);
+    UNUSED(argv);
     const struct CMUnitTest tests[] = {cmocka_unit_test(test_bip32_format),
                                        cmocka_unit_test(test_bad_bip32_format),
                                        cmocka_unit_test(test_bip32_read),

@@ -3,14 +3,14 @@
 #include <common/error.h>
 //#include <types.h>
 
-Error sha256(const uint8_t *in, unsigned int len,  uint8_t *out, unsigned int out_len) {
-    if ( !in || !out ) {
+Error sha256(const uint8_t *in, unsigned int len, uint8_t *out, unsigned int out_len) {
+    if (!in || !out) {
         return ErrorCode(ErrorParameterNil);
     }
-    if ( out_len != 32 ) {
+    if (out_len != 32) {
         return ErrorCode(ErrorParameterInsufficientData);
     }
-#if defined(__x86_64__ ) || defined(__i386__)
+#if defined(__x86_64__) || defined(__i386__)
     SHA256_CTX sha256;
     sha256_init(&sha256);
     sha256_update(&sha256, in, len);
@@ -23,15 +23,15 @@ Error sha256(const uint8_t *in, unsigned int len,  uint8_t *out, unsigned int ou
 
 Error sha256d(const uint8_t *in, unsigned int len, uint8_t *out, unsigned int out_len) {
     uint8_t hash[32];
-    Error e = sha256(in,len,hash,sizeof(hash));
-    if ( e.code != ErrorNone ) {
+    Error e = sha256(in, len, hash, sizeof(hash));
+    if (e.code != ErrorNone) {
         return e;
     }
-    return sha256(hash,sizeof(hash),out,out_len);
+    return sha256(hash, sizeof(hash), out, out_len);
 }
 
 int crypto_hash_init(HashContext *hash_context) {
-#if defined(__x86_64__ ) || defined(__i386__)
+#if defined(__x86_64__) || defined(__i386__)
     sha256_init(hash_context);
     return 0;
 #else
@@ -40,7 +40,7 @@ int crypto_hash_init(HashContext *hash_context) {
 }
 
 int crypto_hash_update(HashContext *hash_context, const void *in, size_t in_len) {
-#if defined(__x86_64__ ) || defined(__i386__)
+#if defined(__x86_64__) || defined(__i386__)
     sha256_update(hash_context, in, in_len);
     return 0;
 #else
@@ -49,7 +49,7 @@ int crypto_hash_update(HashContext *hash_context, const void *in, size_t in_len)
 }
 
 int crypto_hash_final(HashContext *hash_context, uint8_t *out, size_t out_len) {
-#if defined(__x86_64__ ) || defined(__i386__)
+#if defined(__x86_64__) || defined(__i386__)
     sha256_final(hash_context, out);
     return 0;
 #else

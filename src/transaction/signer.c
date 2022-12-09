@@ -5,16 +5,16 @@
 int initiatorHash(Signature *s, uint8_t initiator[static 32]) {
     CHECK_ERROR_INT(s)
     CHECK_ERROR_INT(s->_u)
-    if (s->_u->PublicKey.buffer.size == 0 || s->_u->PublicKey.buffer.ptr == 0 ) {
+    if (s->_u->PublicKey.buffer.size == 0 || s->_u->PublicKey.buffer.ptr == 0) {
         return ErrorInvalidObject;
     }
     uint64_t var = 0;
     Error e = UVarInt_get(&s->_u->SignerVersion, &var);
-    if ( IsError(e) || var == 0 ) {
+    if (IsError(e) || var == 0) {
         return ErrorInvalidObject;
     }
     e = UVarInt_get(&s->_u->Timestamp, &var);
-    if ( IsError(e) || var == 0 ) {
+    if (IsError(e) || var == 0) {
         return ErrorInvalidObject;
     }
 
@@ -31,47 +31,53 @@ int initiatorHash(Signature *s, uint8_t initiator[static 32]) {
 
 bool isMetadataField(int field, SignatureType type) {
     switch (field) {
-        case SigTypeMarshalFieldType:
-        case SigTypeMarshalFieldPublicKey:
-        case SigTypeMarshalFieldSigner:
-        case SigTypeMarshalFieldTimestamp:
-        case SigTypeMarshalFieldSignerVersion:
-        case SigTypeMarshalFieldVote:
-            return true;
         case SigTypeMarshalFieldTransactionHash:
-            if ( type == SignatureTypeBTC || type == SignatureTypeBTCLegacy || type == SignatureTypeETH ) {
+            if (type == SignatureTypeDelegated) {
                 return true;
             }
-            return false;
+            break;
+        case SigTypeMarshalFieldSignature:
+            switch (type) {
+                case SignatureTypeReceipt:
+                case SignatureTypeInternal:
+                case SignatureTypePartition:
+                    return true;
+                default:
+                    return false;
+            }
+            break;
         default:
-            return false;
+            return true;
     }
     return false;
 }
 
-int metadataHash(Signature *s, uint8_t txHash[static 32], uint8_t hash[static 32], uint8_t metadataHash[static 32]) {
+int metadataHash(Signature *s,
+                 uint8_t txHash[static 32],
+                 uint8_t hash[static 32],
+                 uint8_t metadataHash[static 32]) {
     CHECK_ERROR_INT(s)
     CHECK_ERROR_INT(s->_u)
-    if (s->_u->PublicKey.buffer.size == 0 || s->_u->PublicKey.buffer.ptr == 0 ) {
+    if (s->_u->PublicKey.buffer.size == 0 || s->_u->PublicKey.buffer.ptr == 0) {
         return ErrorInvalidObject;
     }
     int byteArrayLen = 0;
     Bytes *byteArray;
     byteArray = s->_u->extraData;
-    byteArrayLen = (int)sizeof(s->_u->extraData)/sizeof(Bytes);
+    byteArrayLen = (int) sizeof(s->_u->extraData) / sizeof(Bytes);
 
-    //hash marshaled fields PublicKey, Signer, SignerVersion, Timestamp
+    // hash marshaled fields PublicKey, Signer, SignerVersion, Timestamp
     HashContext ctx;
     crypto_hash_init(&ctx);
     for (int i = 0; i < byteArrayLen; i++) {
-        if ( byteArray[i].buffer.ptr && isMetadataField(i+1, s->_u->Type) ) {
+        if (byteArray[i].buffer.ptr && isMetadataField(i + 1, s->_u->Type)) {
             buffer_t *buff = &byteArray[i].buffer;
-            crypto_hash_update(&ctx,buff->ptr+buff->offset, buff->size-buff->offset);
+            crypto_hash_update(&ctx, buff->ptr + buff->offset, buff->size - buff->offset);
         }
     }
     crypto_hash_final(&ctx, hash, 32);
 
-    //combine hashes for metadata signing hash
+    // combine hashes for metadata signing hash
     crypto_hash_init(&ctx);
     crypto_hash_update(&ctx, hash, 32);
     memmove(metadataHash, hash, 32);
@@ -85,12 +91,12 @@ int readSignature(Unmarshaler *m, Signature *v) {
     uint64_t field = 0;
     uint64_t type = 0;
 
-    buffer_t sigMark = { m->buffer.ptr+m->buffer.offset, 0,0};
+    buffer_t sigMark = {m->buffer.ptr + m->buffer.offset, 0, 0};
 
     int b = unmarshalerReadField(m, &field);
     CHECK_ERROR_CODE(b);
 
-    if ( field != 1 ) {
+    if (field != 1) {
         return ErrorInvalidField;
     }
     n += b;
@@ -101,12 +107,12 @@ int readSignature(Unmarshaler *m, Signature *v) {
     n += b;
     sigMark.size += b;
 
-    switch ( type ) {
+    switch (type) {
         case SignatureTypeRCD1:
         case SignatureTypeETH:
         case SignatureTypeBTC:
         case SignatureTypeED25519:
-            v->_u = (SignatureTypeUnion*)unmarshalerAlloc(m, sizeof(SignatureTypeUnion));
+            v->_u = (SignatureTypeUnion *) unmarshalerAlloc(m, sizeof(SignatureTypeUnion));
             explicit_bzero(v->_u->extraData, sizeof(v->_u->extraData));
             CHECK_ERROR_INT(v->_u);
             PRINTF("Signature Type %d\n", type);
@@ -132,171 +138,165 @@ int readSignatureTypeUnion(Unmarshaler *m, SignatureTypeUnion *v) {
     uint64_t field = 0;
 
     explicit_bzero(v->extraData, sizeof(v->extraData));
-    if ( m->buffer.offset == m->buffer.size ) {
+    if (m->buffer.offset == m->buffer.size) {
         return n;
     }
-    int b = unmarshalerPeekField(m,&field);
+    int b = unmarshalerPeekField(m, &field);
     CHECK_ERROR_CODE(b);
 
-    if ( field == 1 )
-    {
-        v->extraData[field-1].buffer.ptr = m->buffer.ptr+m->buffer.offset;
+    if (field == 1) {
+        v->extraData[field - 1].buffer.ptr = m->buffer.ptr + m->buffer.offset;
         b = unmarshalerReadField(m, &field);
         CHECK_ERROR_CODE(b);
-        v->extraData[field-1].buffer.size += b;
+        v->extraData[field - 1].buffer.size += b;
         n += b;
 
-        //ensure we are the correct union type
+        // ensure we are the correct union type
         uint64_t type = 0;
-        b = unmarshalerReadUInt(m,&type);
+        b = unmarshalerReadUInt(m, &type);
         CHECK_ERROR_CODE(b);
-        v->extraData[field-1].buffer.size += b;
+        v->extraData[field - 1].buffer.size += b;
         n += b;
 
-        if ( type != v->Type ) {
+        if (type != v->Type) {
             return ErrorInvalidObject;
         }
     }
 
-    if ( m->buffer.offset == m->buffer.size ) {
+    if (m->buffer.offset == m->buffer.size) {
         return n;
     }
-    b = unmarshalerPeekField(m,&field);
+    b = unmarshalerPeekField(m, &field);
     CHECK_ERROR_CODE(b);
-    if ( field == 2 )
-    {
-        v->extraData[field-1].buffer.ptr = m->buffer.ptr+m->buffer.offset;
+    if (field == 2) {
+        v->extraData[field - 1].buffer.ptr = m->buffer.ptr + m->buffer.offset;
         b = unmarshalerReadField(m, &field);
         CHECK_ERROR_CODE(b);
-        v->extraData[field-1].buffer.size += b;
+        v->extraData[field - 1].buffer.size += b;
         n += b;
 
-        b = unmarshalerReadBytes(m,&v->PublicKey);
+        b = unmarshalerReadBytes(m, &v->PublicKey);
         CHECK_ERROR_CODE(b);
-        v->extraData[field-1].buffer.size += b;
+        v->extraData[field - 1].buffer.size += b;
         n += b;
     }
-    if ( m->buffer.offset == m->buffer.size ) {
+    if (m->buffer.offset == m->buffer.size) {
         return n;
     }
-    b = unmarshalerPeekField(m,&field);
+    b = unmarshalerPeekField(m, &field);
     CHECK_ERROR_CODE(b);
 
-    if ( field == 3 )
-    {
-        v->extraData[field-1].buffer.ptr = m->buffer.ptr+m->buffer.offset;
+    if (field == 3) {
+        v->extraData[field - 1].buffer.ptr = m->buffer.ptr + m->buffer.offset;
         b = unmarshalerReadField(m, &field);
         CHECK_ERROR_CODE(b);
-        v->extraData[field-1].buffer.size += b;
+        v->extraData[field - 1].buffer.size += b;
         n += b;
 
-        b = unmarshalerReadBytes(m,&v->Signature);
+        b = unmarshalerReadBytes(m, &v->Signature);
         CHECK_ERROR_CODE(b);
-        v->extraData[field-1].buffer.size += b;
+        v->extraData[field - 1].buffer.size += b;
         n += b;
     }
-    if ( m->buffer.offset == m->buffer.size ) {
+    if (m->buffer.offset == m->buffer.size) {
         return n;
     }
-    b = unmarshalerPeekField(m,&field);
+    b = unmarshalerPeekField(m, &field);
     CHECK_ERROR_CODE(b);
     PRINTF("pre signer parse %d\n", field);
-    if ( field == 4 )
-    {
+    if (field == 4) {
         PRINTF("pre siigner field 4\n");
-        v->extraData[field-1].buffer.ptr = m->buffer.ptr+m->buffer.offset;
+        v->extraData[field - 1].buffer.ptr = m->buffer.ptr + m->buffer.offset;
         PRINTF("read signerurl\n");
         b = unmarshalerReadField(m, &field);
         CHECK_ERROR_CODE(b);
-        v->extraData[field-1].buffer.size += b;
+        v->extraData[field - 1].buffer.size += b;
         n += b;
 
-        b = unmarshalerReadUrl(m,&v->Signer);
+        b = unmarshalerReadUrl(m, &v->Signer);
         CHECK_ERROR_CODE(b);
-        v->extraData[field-1].buffer.size += b;
+        v->extraData[field - 1].buffer.size += b;
         n += b;
     }
-    if ( m->buffer.offset == m->buffer.size ) {
+    if (m->buffer.offset == m->buffer.size) {
         return n;
     }
-    b = unmarshalerPeekField(m,&field);
+    b = unmarshalerPeekField(m, &field);
     CHECK_ERROR_CODE(b);
 
-    if ( field == 5 )
-    {
-        v->extraData[field-1].buffer.ptr = m->buffer.ptr+m->buffer.offset;
+    if (field == 5) {
+        v->extraData[field - 1].buffer.ptr = m->buffer.ptr + m->buffer.offset;
         b = unmarshalerReadField(m, &field);
         CHECK_ERROR_CODE(b);
-        v->extraData[field-1].buffer.size += b;
+        v->extraData[field - 1].buffer.size += b;
         n += b;
 
-        b = unmarshalerReadUVarInt(m,&v->SignerVersion);
+        b = unmarshalerReadUVarInt(m, &v->SignerVersion);
         CHECK_ERROR_CODE(b);
-        v->extraData[field-1].buffer.size += b;
+        v->extraData[field - 1].buffer.size += b;
         n += b;
     }
-    if ( m->buffer.offset == m->buffer.size ) {
+    if (m->buffer.offset == m->buffer.size) {
         return n;
     }
-    b = unmarshalerPeekField(m,&field);
+    b = unmarshalerPeekField(m, &field);
     CHECK_ERROR_CODE(b);
-    if ( field == 6 )
-    {
-        v->extraData[field-1].buffer.ptr = m->buffer.ptr+m->buffer.offset;
+    if (field == 6) {
+        v->extraData[field - 1].buffer.ptr = m->buffer.ptr + m->buffer.offset;
         b = unmarshalerReadField(m, &field);
         CHECK_ERROR_CODE(b);
-        v->extraData[field-1].buffer.size += b;
+        v->extraData[field - 1].buffer.size += b;
         n += b;
 
-        b = unmarshalerReadUVarInt(m,&v->Timestamp);
+        b = unmarshalerReadUVarInt(m, &v->Timestamp);
         CHECK_ERROR_CODE(b);
-        v->extraData[field-1].buffer.size += b;
+        v->extraData[field - 1].buffer.size += b;
         n += b;
     }
-    if ( m->buffer.offset == m->buffer.size ) {
+    if (m->buffer.offset == m->buffer.size) {
         return n;
     }
-    b = unmarshalerPeekField(m,&field);
+    b = unmarshalerPeekField(m, &field);
     CHECK_ERROR_CODE(b);
-    if ( field == 7 )
-    {
-        v->extraData[field-1].buffer.ptr = m->buffer.ptr+m->buffer.offset;
+    if (field == 7) {
+        v->extraData[field - 1].buffer.ptr = m->buffer.ptr + m->buffer.offset;
         b = unmarshalerReadField(m, &field);
         CHECK_ERROR_CODE(b);
-        v->extraData[field-1].buffer.size += b;
+        v->extraData[field - 1].buffer.size += b;
         n += b;
         {
             uint64_t size = 0;
-            b = unmarshalerReadUInt(m,&size);
+            b = unmarshalerReadUInt(m, &size);
             CHECK_ERROR_CODE(b);
-            v->extraData[field-1].buffer.size += b;
+            v->extraData[field - 1].buffer.size += b;
             n += b;
 
-            Unmarshaler m2 = {.buffer.ptr = m->buffer.ptr + m->buffer.offset, .buffer.size = size, .buffer.offset = 0,
+            Unmarshaler m2 = {.buffer.ptr = m->buffer.ptr + m->buffer.offset,
+                              .buffer.size = size,
+                              .buffer.offset = 0,
                               .mempool = m->mempool};
             b = unmarshalerReadVoteType(&m2, &v->Vote);
             CHECK_ERROR_CODE(b);
         }
         buffer_seek_cur(&m->buffer, b);
-        v->extraData[field-1].buffer.size += b;
+        v->extraData[field - 1].buffer.size += b;
         n += b;
     }
-    if ( m->buffer.offset == m->buffer.size ) {
+    if (m->buffer.offset == m->buffer.size) {
         return n;
     }
-    b = unmarshalerPeekField(m,&field);
+    b = unmarshalerPeekField(m, &field);
     CHECK_ERROR_CODE(b);
-    if ( field == 8 )
-    {
-        v->extraData[field-1].buffer.ptr = m->buffer.ptr+m->buffer.offset;
+    if (field == 8) {
+        v->extraData[field - 1].buffer.ptr = m->buffer.ptr + m->buffer.offset;
         b = unmarshalerReadField(m, &field);
         CHECK_ERROR_CODE(b);
-        v->extraData[field-1].buffer.size += b;
+        v->extraData[field - 1].buffer.size += b;
         n += b;
 
-        b = unmarshalerReadBytes32(m,&v->TransactionHash);
+        b = unmarshalerReadBytes32(m, &v->TransactionHash);
         CHECK_ERROR_CODE(b);
-        v->extraData[field-1].buffer.size += b;
+        v->extraData[field - 1].buffer.size += b;
         n += b;
     }
     return n;
