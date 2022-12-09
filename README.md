@@ -2,6 +2,40 @@
 
 This is the Accumulate application which can be forked to start a new project for the Ledger Nano S/X.
 
+## Quick Start on side-loading the application
+
+Plug in ledger Nano S or Nano S+ into USB port and make sure the screen is unlocked and no apps are open.
+
+
+```
+git clone https://gitlab.com/accumulatenetwork/ledger/app-accumulate.git
+
+cd app-accumulate
+
+#git checkout desired-branch
+
+./docker-loader.sh
+```
+
+From within the docker shell, if side-loading on Nano S:
+
+```
+make clean
+make
+make load
+```
+
+if side-loading on a Nano S+:
+
+```
+export BOLOS_SDK=/opt/nanosplus-secure-sdk
+make clean
+make
+make load
+```
+
+
+
 ## Docker builder container
 
 https://developers.ledger.com/docs/nano-app/build/
