@@ -21,7 +21,6 @@ From within the docker shell, if side-loading on Nano S:
 
 ```
 make clean
-make
 make load
 ```
 
@@ -30,7 +29,6 @@ if side-loading on a Nano S+:
 ```
 export BOLOS_SDK=/opt/nanosplus-secure-sdk
 make clean
-make
 make load
 ```
 
@@ -86,7 +84,7 @@ The flow processed in [GitHub Actions](https://github.com/features/actions) is t
 
 It outputs 4 artifacts:
 
-- `boilerplate-app-debug` within output files of the compilation process in debug mode
+- `accumulate-app-debug` within output files of the compilation process in debug mode
 - `speculos-log` within APDU command/response when executing end-to-end tests
 - `code-coverage` within HTML details of code coverage
 - `documentation` within HTML auto-generated documentation
