@@ -1,7 +1,6 @@
 #pragma once
 
-#include <encoding/bytes.h>
-#include <encoding/rawjson.h>
+#include <encoding/encoding.h>
 
 typedef struct Marshaler {
     buffer_t buffer;

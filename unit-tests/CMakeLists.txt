@@ -73,7 +73,7 @@ add_library(encoding STATIC ../src/encoding/bytes32.c ../src/encoding/bytes64.c
         ../src/transaction/add_credits.c ../src/transaction/token_recipient.c ../src/transaction/transaction.c)
 
 add_library(error STATIC ../src/common/error.c)
-add_library(sha256 STATIC ../src/common/sha256.c ../src/common/internal/testing/sha256.c)
+add_library(sha256 STATIC ../src/common/sha256.c internal/sha256.c)
 
 target_link_libraries(test_base58 PUBLIC ${CMOCKA_LIBRARY} gcov base58)
 target_link_libraries(test_bip32 PUBLIC ${CMOCKA_LIBRARY} gcov bip32 read)

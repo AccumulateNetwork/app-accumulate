@@ -26,6 +26,7 @@
 #include "common/base58.h"
 #include "common/keccak.h"
 #include "common/sha256.h"
+#include "common/uvarint.h"
 #include "crypto.h"
 #include "cx.h"
 #include "lcx_ripemd160.h"

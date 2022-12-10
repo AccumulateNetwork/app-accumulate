@@ -1,7 +1,6 @@
 
 #include <common/error.h>
 #include <common/sha256.h>
-//#include <types.h>
 
 Error sha256(const uint8_t *in, unsigned int len, uint8_t *out, unsigned int out_len) {
     if (!in || !out) {

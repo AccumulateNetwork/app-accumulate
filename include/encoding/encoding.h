@@ -1,15 +1,13 @@
-#ifndef ENCODING_H
-#define ENCODING_H
+#pragma once
 
 // The structures in this file use buffered encoding that requires an external buffer be provided
 // This is used in support of the Accumulate types generator.
 
+#include <encoding/bytes.h>
 #include <encoding/bigint.h>
 #include <encoding/bool.h>
-#include <encoding/bytes.h>
 #include <encoding/bytes32.h>
 #include <encoding/bytes64.h>
-#include <encoding/marshaler.h>
 #include <encoding/rawjson.h>
 #include <encoding/string.h>
 #include <encoding/url.h>
@@ -19,9 +17,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define JSMN_HEADER
-#include <common/jsmn.h>
-#include <common/varint.h>
+//#define JSMN_HEADER
+//#include <common/jsmn.h>
 
 typedef int (*BinarySize)(const struct Bytes *);
 typedef bool (*Equal)(const struct Bytes *, const struct Bytes *);
@@ -127,5 +124,3 @@ Bytes Bytes_init(Byte_t *v, size_t n);
         }                                       \
         return Bytes_equal(&v->data, &u->data); \
     }
-
-#endif

@@ -1,6 +1,7 @@
 
 #include <encoding/encoding.h>
 #include <encoding/marshaler.h>
+#include <common/uvarint.h>
 
 int Bytes_binarySizeStatic(const struct Bytes *self) {
     if (!self) {
@@ -13,7 +14,7 @@ int Bytes_binarySizeDynamic(const struct Bytes *self) {
     if (!self) {
         return 0;
     }
-    int n = varint_size(self->buffer.size);
+    int n = uvarint_size(self->buffer.size);
     return n + (int) self->buffer.size - (int) self->buffer.offset;
 }
 

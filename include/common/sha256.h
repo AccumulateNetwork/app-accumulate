@@ -8,7 +8,7 @@ Error sha256(const uint8_t *in, unsigned int len, uint8_t *out, unsigned int out
 Error sha256d(const uint8_t *in, unsigned int len, uint8_t *out, unsigned int out_len);
 
 #if defined(__x86_64__) || defined(__i386__)
-#include <common/internal/testing/sha256.h>
+#include "../unit-tests/internal/sha256.h"
 typedef SHA256_CTX HashContext;
 #else
 #include "cx.h"
