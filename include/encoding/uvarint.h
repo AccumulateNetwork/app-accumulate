@@ -1,7 +1,7 @@
 #pragma once
 
-#include <encoding/bytes.h>
 #include <common/uvarint.h>
+#include <encoding/bytes.h>
 
 // typedef uint64_t UVarInt_t;
 typedef struct UVarInt {

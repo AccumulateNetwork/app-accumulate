@@ -3,9 +3,9 @@
 // The structures in this file use buffered encoding that requires an external buffer be provided
 // This is used in support of the Accumulate types generator.
 
-#include <encoding/bytes.h>
 #include <encoding/bigint.h>
 #include <encoding/bool.h>
+#include <encoding/bytes.h>
 #include <encoding/bytes32.h>
 #include <encoding/bytes64.h>
 #include <encoding/rawjson.h>

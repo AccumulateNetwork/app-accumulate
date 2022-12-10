@@ -1,7 +1,7 @@
 #include <common/hasher.h>
 #include <common/sha256.h>
-#include <common/varint.h>
 #include <common/uvarint.h>
+#include <common/varint.h>
 #include <encoding/encoding.h>
 
 // 16*32 <- 512

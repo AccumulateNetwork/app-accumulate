@@ -1,9 +1,10 @@
 
 #include <encoding/marshaler.h>
 
-
 Marshaler NewMarshaler(buffer_t *buffer) {
-    Marshaler init = {.buffer.ptr = buffer->ptr + buffer->offset, .buffer.size = buffer->size - buffer->offset, .buffer.offset = 0};
+    Marshaler init = {.buffer.ptr = buffer->ptr + buffer->offset,
+                      .buffer.size = buffer->size - buffer->offset,
+                      .buffer.offset = 0};
     return init;
 }
 

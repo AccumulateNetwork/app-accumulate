@@ -1,7 +1,7 @@
 #pragma once
 
-#include <encoding/bytes.h>
 #include <common/varint.h>
+#include <encoding/bytes.h>
 
 typedef struct VarInt {
     Bytes data;
