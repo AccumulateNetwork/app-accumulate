@@ -1,7 +1,7 @@
 #pragma once
 
-#include <stdint.h>  // uint*_t
 #include <stddef.h>  // size_t
+#include <stdint.h>  // uint*_t
 
 /**
  * Read 2 bytes as Big Endian from byte buffer.

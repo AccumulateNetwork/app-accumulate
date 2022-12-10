@@ -1,8 +1,8 @@
 #pragma once
 
+#include <stdbool.h>  // bool
 #include <stddef.h>   // size_t
 #include <stdint.h>   // int*_t, uint*_t
-#include <stdbool.h>  // bool
 
 /**
  * Format 64-bit signed integer as string.

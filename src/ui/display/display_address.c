@@ -1,8 +1,8 @@
 
+#include "../../address.h"
 #include "display.h"
 #include "ui/action/validate.h"
 #include "ui/dynamic_display.h"
-#include "../../address.h"
 
 // Step with icon and text
 UX_STEP_NOCB(ux_display_confirm_addr_step, pn, {&C_icon_eye, "Confirm Key Name"});

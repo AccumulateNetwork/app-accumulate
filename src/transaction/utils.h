@@ -1,11 +1,11 @@
 #pragma once
 
-#include <stdint.h>   // uint*_t
-#include <stdbool.h>  // bool
-
-#include "types.h"
 #include <protocol/signatures.h>
 #include <protocol/transaction.h>
+#include <stdbool.h>  // bool
+#include <stdint.h>   // uint*_t
+
+#include "types.h"
 
 int readEnvelope(Unmarshaler *m, Envelope *v);
 int readSignature(Unmarshaler *m, Signature *v);

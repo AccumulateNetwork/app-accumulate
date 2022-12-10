@@ -15,16 +15,16 @@
  *  limitations under the License.
  *****************************************************************************/
 
+#include "io.h"
+
 #include <stdint.h>
 
-#include "os.h"
-#include "ux.h"
-
-#include "io.h"
-#include "globals.h"
-#include "sw.h"
 #include "common/buffer.h"
 #include "common/write.h"
+#include "globals.h"
+#include "os.h"
+#include "sw.h"
+#include "ux.h"
 
 uint32_t G_output_len = 0;
 

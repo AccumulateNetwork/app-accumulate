@@ -17,9 +17,9 @@
 
 // Adapted from https://github.com/calccrypto/uint256_t
 
-#include <stdint.h>
-#include <stdbool.h>
 #include <common/buffer.h>
+#include <stdbool.h>
+#include <stdint.h>
 
 typedef struct uint128_t {
     uint64_t elements[2];

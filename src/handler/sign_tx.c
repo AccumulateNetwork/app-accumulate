@@ -15,22 +15,22 @@
  *  limitations under the License.
  *****************************************************************************/
 
-#include <stdint.h>   // uint*_t
+#include "sign_tx.h"
+
 #include <stdbool.h>  // bool
 #include <stddef.h>   // size_t
+#include <stdint.h>   // uint*_t
 #include <string.h>   // memset, explicit_bzero
 
-#include "os.h"
-#include "cx.h"
-
-#include "sign_tx.h"
-#include "sw.h"
-#include "globals.h"
-#include "crypto.h"
-#include "ui/display/display.h"
 #include "common/buffer.h"
+#include "crypto.h"
+#include "cx.h"
+#include "globals.h"
+#include "os.h"
+#include "sw.h"
 #include "transaction/types.h"
 #include "transaction/utils.h"
+#include "ui/display/display.h"
 
 int processEnvelope();
 int verifySigner();

@@ -14,12 +14,11 @@
  *  limitations under the License.
  *****************************************************************************/
 
+#include <common/format.h>
+#include <stdbool.h>  // bool
 #include <stddef.h>   // size_t
 #include <stdint.h>   // int*_t, uint*_t
 #include <string.h>   // strncpy, memmove
-#include <stdbool.h>  // bool
-
-#include <common/format.h>
 
 bool format_i64(char *dst, size_t dst_len, const int64_t value) {
     char temp[] = "-9223372036854775808";

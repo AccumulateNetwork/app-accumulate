@@ -15,13 +15,15 @@
  *  limitations under the License.
  *****************************************************************************/
 
-#include <stdint.h>   // uint*_t
-#include <stdbool.h>  // bool
-#include <string.h>   // memmove
 #include "utils.h"
-#include "types.h"
-#include "common/sha256.h"
+
+#include <stdbool.h>  // bool
+#include <stdint.h>   // uint*_t
+#include <string.h>   // memmove
+
 #include "common/format.h"
+#include "common/sha256.h"
+#include "types.h"
 
 #ifndef PRINTF
 #define PRINTF

@@ -1,9 +1,11 @@
-#include "ux.h"
 #include "dynamic_display.h"
-#include "os.h"
-#include "../glyphs.h"
+
 #include <stdbool.h>
 #include <types.h>
+
+#include "../glyphs.h"
+#include "os.h"
+#include "ux.h"
 
 #ifndef UNUSED
 #define UNUSED(X) (void) (X);

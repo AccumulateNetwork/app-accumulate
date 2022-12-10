@@ -1,14 +1,14 @@
 #pragma once
 
+#include <common/bip32.h>
+#include <protocol/signatures.h>
+#include <protocol/transaction.h>
+#include <protocol/unions.h>
 #include <stddef.h>  // size_t
 #include <stdint.h>  // uint*_t
 
 #include "constants.h"
 #include "transaction/types.h"
-#include <common/bip32.h>
-#include <protocol/transaction.h>
-#include <protocol/signatures.h>
-#include <protocol/unions.h>
 
 /**
  * Enumeration for the status of IO.

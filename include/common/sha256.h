@@ -1,8 +1,8 @@
 #pragma once
 
+#include <common/error.h>
 #include <stddef.h>  // size_t
 #include <stdint.h>  // uint*_t
-#include <common/error.h>
 
 Error sha256(const uint8_t *in, unsigned int len, uint8_t *out, unsigned int out_len);
 Error sha256d(const uint8_t *in, unsigned int len, uint8_t *out, unsigned int out_len);
@@ -11,8 +11,8 @@ Error sha256d(const uint8_t *in, unsigned int len, uint8_t *out, unsigned int ou
 #include <common/internal/testing/sha256.h>
 typedef SHA256_CTX HashContext;
 #else
-#include "os.h"
 #include "cx.h"
+#include "os.h"
 typedef cx_sha256_t HashContext;
 #endif
 

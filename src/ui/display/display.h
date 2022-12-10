@@ -1,11 +1,12 @@
 #pragma once
 
 #include <stdbool.h>  // bool
+
 #include "display.h"
+#include "display_transaction.h"
 #include "globals.h"
 #include "sw.h"
 #include "ux.h"
-#include "display_transaction.h"
 
 /**
  * Callback to reuse action with approve/reject in step FLOW.

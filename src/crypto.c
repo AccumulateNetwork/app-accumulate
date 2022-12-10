@@ -15,11 +15,13 @@
  *  limitations under the License.
  *****************************************************************************/
 
+#include "crypto.h"
+
+#include <stdbool.h>  // bool
 #include <stdint.h>   // uint*_t
 #include <string.h>   // memset, explicit_bzero
-#include <stdbool.h>  // bool
+
 #include "common/error.h"
-#include "crypto.h"
 #include "globals.h"
 
 derivation_t inferCurve(const uint32_t *bip32_path, uint8_t bip32_path_len) {

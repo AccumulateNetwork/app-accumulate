@@ -1,7 +1,7 @@
 #include <common/keccak.h>
 #ifndef UNIT_TEST
-#include "os.h"
 #include "cx.h"
+#include "os.h"
 #else
 #include <common/internal/testing/sha3.h>
 #include <string.h>

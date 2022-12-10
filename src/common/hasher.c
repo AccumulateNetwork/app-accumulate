@@ -1,5 +1,5 @@
-#include <common/sha256.h>
 #include <common/hasher.h>
+#include <common/sha256.h>
 #include <encoding/encoding.h>
 
 // 16*32 <- 512

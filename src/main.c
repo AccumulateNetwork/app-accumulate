@@ -18,16 +18,15 @@
 #include <stdint.h>  // uint*_t
 #include <string.h>  // memset, explicit_bzero
 
-#include "os.h"
-#include "ux.h"
-
-#include "types.h"
+#include "apdu/dispatcher.h"
+#include "apdu/parser.h"
 #include "globals.h"
 #include "io.h"
+#include "os.h"
 #include "sw.h"
+#include "types.h"
 #include "ui/menu/menu.h"
-#include "apdu/parser.h"
-#include "apdu/dispatcher.h"
+#include "ux.h"
 
 uint8_t G_io_seproxyhal_spi_buffer[IO_SEPROXYHAL_BUFFER_SIZE_B];
 io_state_e G_io_state;

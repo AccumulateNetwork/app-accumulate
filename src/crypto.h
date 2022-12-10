@@ -1,11 +1,11 @@
 
 #pragma once
 
+#include <common/error.h>
 #include <stdint.h>  // uint*_t
 
-#include "os.h"
 #include "cx.h"
-#include <common/error.h>
+#include "os.h"
 
 /**
  * Derive private key given BIP32 path.

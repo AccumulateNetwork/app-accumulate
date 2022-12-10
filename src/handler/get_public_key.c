@@ -15,25 +15,25 @@
  *  limitations under the License.
  *****************************************************************************/
 
-#include <stdint.h>   // uint*_t
+#include "get_public_key.h"
+
+#include <common/buffer.h>
+#include <common/error.h>
 #include <stdbool.h>  // bool
 #include <stddef.h>   // size_t
+#include <stdint.h>   // uint*_t
 #include <string.h>   // memset, explicit_bzero
 
-#include "os.h"
-#include "cx.h"
-
-#include "get_public_key.h"
+#include "../crypto.h"
 #include "../globals.h"
-#include "../types.h"
+#include "../helper/send_response.h"
 #include "../io.h"
 #include "../sw.h"
-#include "../crypto.h"
+#include "../types.h"
 #include "../ui/display/display.h"
-#include "../helper/send_response.h"
 #include "address.h"
-#include <common/error.h>
-#include <common/buffer.h>
+#include "cx.h"
+#include "os.h"
 
 int handler_get_public_key(buffer_t *cdata, bool display) {
     explicit_bzero(&G_context, sizeof(G_context));

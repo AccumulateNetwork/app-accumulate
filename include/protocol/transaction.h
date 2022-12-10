@@ -49,7 +49,7 @@ typedef struct AddCredits {
 
     // bool fieldsSet[4];
     Url Recipient;   //`json:"recipient,omitempty" form:"recipient" query:"recipient"
-                     //validate:"required"`
+                     // validate:"required"`
     BigInt Amount;   //`json:"amount,omitempty" form:"amount" query:"amount" validate:"required"`
     UVarInt Oracle;  //`json:"oracle,omitempty" form:"oracle" query:"oracle"`
     Bytes extraData[4];
@@ -91,9 +91,9 @@ typedef struct TransactionHeader {
 
     // uint8_t fieldsSet[4];
     Url Principal;      //`json:"principal,omitempty" form:"principal" query:"principal"
-                        //validate:"required"`
+                        // validate:"required"`
     Bytes32 Initiator;  //`json:"initiator,omitempty" form:"initiator" query:"initiator"
-                        //validate:"required"`
+                        // validate:"required"`
     String Memo;        //`json:"memo,omitempty" form:"memo" query:"memo"`
     Bytes Metadata;     //`json:"metadata,omitempty" form:"metadata" query:"metadata"`
     Bytes extraData[4];
@@ -121,7 +121,7 @@ typedef struct Envelope {
     // uint8_t fieldsSet[3];
     size_t Signatures_length;
     Signature *Signatures;  //`json:"signatures,omitempty" form:"signatures" query:"signatures"
-                            //validate:"required"`
+                            // validate:"required"`
     Bytes TxHash;           //`json:"txHash,omitempty" form:"txHash" query:"txHash"`
     size_t Transaction_length;
     Transaction
@@ -143,10 +143,10 @@ typedef struct TransactionStatus {
         Result;  //`json:"result,omitempty" form:"result" query:"result" validate:"required"`
     /// Received is the block when the transaction was first received.
     UVarInt Received;  //`json:"received,omitempty" form:"received" query:"received"
-                       //validate:"required"`
+                       // validate:"required"`
     /// Initiator is the signer that initiated the transaction.
     Url Initiator;  //`json:"initiator,omitempty" form:"initiator" query:"initiator"
-                    //validate:"required"`
+                    // validate:"required"`
                     /// Signers lists accounts that have signed the transaction.
     size_t Signers_length;
     Signer
@@ -154,19 +154,19 @@ typedef struct TransactionStatus {
                    /// AnchorSigners is the list of validators that have signed the anchor.
     size_t AnchorSigners_length;
     Bytes *AnchorSigners;  //`json:"anchorSigners,omitempty" form:"anchorSigners"
-                           //query:"anchorSigners" validate:"required"`
+                           // query:"anchorSigners" validate:"required"`
     /// SourceNetwork is the network that produced the transaction.
     Url SourceNetwork;  //`json:"sourceNetwork,omitempty" form:"sourceNetwork" query:"sourceNetwork"
-                        //validate:"required"`
+                        // validate:"required"`
     /// DestinationNetwork is the network that the transaction is sent to.
     Url DestinationNetwork;  //`json:"destinationNetwork,omitempty" form:"destinationNetwork"
-                             //query:"destinationNetwork" validate:"required"`
+                             // query:"destinationNetwork" validate:"required"`
     /// SequenceNumber is the sequence number of the transaction.
     UVarInt SequenceNumber;  //`json:"sequenceNumber,omitempty" form:"sequenceNumber"
-                             //query:"sequenceNumber" validate:"required"`
+                             // query:"sequenceNumber" validate:"required"`
     /// GotDirectoryReceipt indicates if a receipt has been received from the DN.
     Bool GotDirectoryReceipt;  //`json:"gotDirectoryReceipt,omitempty" form:"gotDirectoryReceipt"
-                               //query:"gotDirectoryReceipt" validate:"required"`
+                               // query:"gotDirectoryReceipt" validate:"required"`
     /// Proof is the proof of the transaction.
     Receipt Proof;  //`json:"proof,omitempty" form:"proof" query:"proof" validate:"required"`
                     // Bytes extraData[18];

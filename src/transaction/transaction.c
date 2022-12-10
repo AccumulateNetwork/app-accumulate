@@ -1,6 +1,6 @@
-#include "utils.h"
-#include "common/sha256.h"
 #include "common/format.h"
+#include "common/sha256.h"
+#include "utils.h"
 
 int getHeaderHash(TransactionHeader *v, uint8_t hash[static 32]) {
     HashContext ctx;

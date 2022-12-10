@@ -1,8 +1,8 @@
 #pragma once
 
+#include <stdbool.h>  // bool
 #include <stddef.h>   // size_t
 #include <stdint.h>   // uint*_t
-#include <stdbool.h>  // bool
 
 /**
  * Maximum length of input when decoding in base 58.

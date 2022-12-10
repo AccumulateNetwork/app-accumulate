@@ -14,8 +14,8 @@
  *  limitations under the License.
  *****************************************************************************/
 
-#include <stdint.h>  // uint*_t
 #include <stddef.h>  // size_t
+#include <stdint.h>  // uint*_t
 
 void write_u16_be(uint8_t *ptr, size_t offset, uint16_t value) {
     ptr[offset + 0] = (uint8_t) (value >> 8);

@@ -18,26 +18,26 @@
 #pragma GCC diagnostic ignored "-Wformat-invalid-specifier"  // snprintf
 #pragma GCC diagnostic ignored "-Wformat-extra-args"         // snprintf
 
+#include "display.h"
+
 #include <stdbool.h>  // bool
 #include <string.h>   // memset
 
-#include "os.h"
-#include "ux.h"
-#include "glyphs.h"
-
-#include "display.h"
-#include "constants.h"
-#include "globals.h"
-#include "io.h"
-#include "sw.h"
 #include "address.h"
-#include "ui/action/validate.h"
-#include "transaction/types.h"
 #include "common/bip32.h"
 #include "common/format.h"
-#include "ui/dynamic_display.h"
+#include "constants.h"
+#include "globals.h"
+#include "glyphs.h"
+#include "io.h"
+#include "os.h"
+#include "sw.h"
+#include "transaction/types.h"
+#include "ui/action/validate.h"
 #include "ui/display/display_address.h"
 #include "ui/display/display_transaction.h"
+#include "ui/dynamic_display.h"
+#include "ux.h"
 
 action_validate_cb g_validate_callback;
 char g_welcome[32];

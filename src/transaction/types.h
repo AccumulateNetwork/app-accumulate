@@ -1,16 +1,16 @@
 #pragma once
 
-#include <string.h>  // memmove / strlen
+#include <encoding/encoding.h>
 #include <stddef.h>  // size_t
 #include <stdint.h>  // uint*_t
-#include <encoding/encoding.h>
+#include <string.h>  // memmove / strlen
 #define MAX_TX_LEN            510
 #define ADDRESS_LEN           20
 #define CHECKSUM_LEN          4
 #define LITE_ADDRESS_LEN      (ADDRESS_LEN + CHECKSUM_LEN) * 2
 #define ACME_LITE_ADDRESS_LEN LITE_ADDRESS_LEN + 5
 
-#define MAX_MEMO_LEN 465  // 510 - ADDRESS_LEN - 2*SIZE(U64) - SIZE(MAX_VARINT)
+#define MAX_MEMO_LEN          465  // 510 - ADDRESS_LEN - 2*SIZE(U64) - SIZE(MAX_VARINT)
 
 typedef enum {
     PARSING_OK = 1,

@@ -22,7 +22,6 @@ typedef struct {
 } enum_t;
 
 typedef enum {
-
     // AccountAuthOperationTypeUnknown is used when the authorization operation is not known.
     AccountAuthOperationTypeUnknown = 0,
 
@@ -41,7 +40,6 @@ typedef enum {
 } AccountAuthOperationType;
 
 typedef enum {
-
     // AccountTypeUnknown represents an unknown account type.
     AccountTypeUnknown = 0,
 
@@ -91,7 +89,6 @@ typedef enum {
 } AccountType;
 
 typedef enum {
-
     // AllowedTransactionBitUpdateKeyPage is the offset of the UpdateKeyPage bit.
     AllowedTransactionBitUpdateKeyPage = 1,
 
@@ -101,7 +98,6 @@ typedef enum {
 } AllowedTransactionBit;
 
 typedef enum {
-
     // BookTypeNormal is a normal key book.
     BookTypeNormal = 0,
 
@@ -114,7 +110,6 @@ typedef enum {
 } BookType;
 
 typedef enum {
-
     // DataEntryTypeUnknown .
     DataEntryTypeUnknown = 0,
 
@@ -127,7 +122,6 @@ typedef enum {
 } DataEntryType;
 
 typedef enum {
-
     // KeyPageOperationTypeUnknown is used when the key page operation is not known.
     KeyPageOperationTypeUnknown = 0,
 
@@ -151,7 +145,6 @@ typedef enum {
 } KeyPageOperationType;
 
 typedef enum {
-
     // ObjectTypeUnknown is used when the object type is not known.
     ObjectTypeUnknown = 0,
 
@@ -164,7 +157,6 @@ typedef enum {
 } ObjectType;
 
 typedef enum {
-
     // PartitionTypeDirectory .
     PartitionTypeDirectory = 1,
 
@@ -174,7 +166,6 @@ typedef enum {
 } PartitionType;
 
 typedef enum {
-
     // SignatureTypeUnknown is used when the signature type is not known.
     SignatureTypeUnknown = 0,
 
@@ -217,7 +208,6 @@ typedef enum {
 } SignatureType;
 
 typedef enum {
-
     // TransactionMaxUser is the highest number reserved for user transactions.
     TransactionMaxUser = 48,
 
@@ -230,7 +220,6 @@ typedef enum {
 } TransactionMax;
 
 typedef enum {
-
     // TransactionTypeUnknown represents an unknown transaction type.
     TransactionTypeUnknown = 0,
 
@@ -340,7 +329,6 @@ typedef enum {
 } TransactionType;
 
 typedef enum {
-
     // VoteTypeAccept vote yea in favor of proposal.
     VoteTypeAccept = 0,
 

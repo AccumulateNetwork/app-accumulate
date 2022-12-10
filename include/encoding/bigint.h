@@ -1,7 +1,7 @@
 #pragma once
 
-#include <encoding/bytes.h>
 #include <common/uint256.h>
+#include <encoding/bytes.h>
 
 typedef uint256_t BigInt_t;
 typedef struct BigInt {

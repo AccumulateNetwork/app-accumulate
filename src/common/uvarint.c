@@ -14,10 +14,9 @@
  *  limitations under the License.
  *****************************************************************************/
 
-#include <stdint.h>  // uint*_t
-#include <stddef.h>  // size_t
-
 #include <common/uvarint.h>
+#include <stddef.h>  // size_t
+#include <stdint.h>  // uint*_t
 
 uint8_t uvarint_size(uint64_t value) {
     uint8_t b[MaxVarintLen64] = {0};

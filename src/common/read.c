@@ -14,8 +14,8 @@
  *  limitations under the License.
  *****************************************************************************/
 
-#include <stdint.h>  // uint*_t
 #include <stddef.h>  // size_t
+#include <stdint.h>  // uint*_t
 
 uint16_t read_u16_be(const uint8_t *ptr, size_t offset) {
     return (uint16_t) ptr[offset + 0] << 8 |  //

@@ -1,9 +1,9 @@
 #pragma once
 
-#include <stdint.h>   // uint*_t
-#include <stddef.h>   // size_t
-#include <stdbool.h>  // bool
 #include <common/uvarint.h>
+#include <stdbool.h>  // bool
+#include <stddef.h>   // size_t
+#include <stdint.h>   // uint*_t
 
 /**
  * Size of value represented as Bitcoin-like varint.

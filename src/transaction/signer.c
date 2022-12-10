@@ -1,6 +1,7 @@
-#include "utils.h"
 #include <common/hasher.h>
 #include <protocol/unions.h>
+
+#include "utils.h"
 
 int initiatorHash(Signature *s, uint8_t initiator[static 32]) {
     CHECK_ERROR_INT(s)

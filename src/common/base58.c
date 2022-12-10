@@ -14,12 +14,11 @@
  *  limitations under the License.
  *****************************************************************************/
 
+#include <common/base58.h>
+#include <stdbool.h>  // bool
 #include <stddef.h>   // size_t
 #include <stdint.h>   // uint*_t
 #include <string.h>   // memmove, memset
-#include <stdbool.h>  // bool
-
-#include <common/base58.h>
 
 uint8_t const BASE58_TABLE[] = {
     0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,  //

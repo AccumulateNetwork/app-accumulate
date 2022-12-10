@@ -14,15 +14,14 @@
  *  limitations under the License.
  *****************************************************************************/
 
-#include <stdint.h>   // uint*_t
-#include <stddef.h>   // size_t
-#include <stdbool.h>  // bool
-#include <string.h>   // memmove
-
+#include <common/bip32.h>
 #include <common/buffer.h>
 #include <common/read.h>
 #include <common/varint.h>
-#include <common/bip32.h>
+#include <stdbool.h>  // bool
+#include <stddef.h>   // size_t
+#include <stdint.h>   // uint*_t
+#include <string.h>   // memmove
 
 bool buffer_can_read(const buffer_t *buffer, size_t n) {
     return buffer->size - buffer->offset >= n;

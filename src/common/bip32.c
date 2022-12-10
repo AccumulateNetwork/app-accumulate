@@ -14,14 +14,13 @@
  *  limitations under the License.
  *****************************************************************************/
 
-#include <stdio.h>    // snprintf
-#include <string.h>   // memset, strlen
-#include <stddef.h>   // size_t
-#include <stdint.h>   // uint*_t
-#include <stdbool.h>  // bool
-
 #include <common/bip32.h>
 #include <common/read.h>
+#include <stdbool.h>  // bool
+#include <stddef.h>   // size_t
+#include <stdint.h>   // uint*_t
+#include <stdio.h>    // snprintf
+#include <string.h>   // memset, strlen
 
 bool bip32_path_read(const uint8_t *in, size_t in_len, uint32_t *out, size_t out_len) {
     if (out_len == 0 || out_len > MAX_BIP32_PATH) {

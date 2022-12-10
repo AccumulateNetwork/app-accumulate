@@ -25,7 +25,7 @@ struct Envelope;
 typedef struct Envelope {
     size_t Signatures_length;
     Signature* Signatures;  //`json:"signatures,omitempty" form:"signatures" query:"signatures"
-                            //validate:"required"`
+                            // validate:"required"`
     Bytes TxHash;           //`json:"txHash,omitempty" form:"txHash" query:"txHash"`
     size_t Transaction_length;
     Transaction*

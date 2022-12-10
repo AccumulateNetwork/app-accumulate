@@ -1,12 +1,13 @@
 #pragma once
 
-#include "ux.h"
 #include <common/error.h>
 #include <encoding/string.h>
+
+#include "address.h"
+#include "globals.h"
 #include "types.h"
 #include "ui/dynamic_display.h"
-#include "globals.h"
-#include "address.h"
+#include "ux.h"
 
 int display_transaction_principal(void);
 int display_memo_or_error(void);

@@ -15,12 +15,12 @@
  *  limitations under the License.
  *****************************************************************************/
 
-#include "os.h"
-#include "ux.h"
-#include "glyphs.h"
+#include "menu.h"
 
 #include "../globals.h"
-#include "menu.h"
+#include "glyphs.h"
+#include "os.h"
+#include "ux.h"
 
 UX_STEP_NOCB(ux_menu_ready_step, pnn, {&C_accumulate_logo, "Accumulate", "is ready"});
 UX_STEP_NOCB(ux_menu_version_step, bn, {"Version", APPVERSION});

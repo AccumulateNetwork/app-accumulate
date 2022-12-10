@@ -15,9 +15,10 @@
  *  limitations under the License.
  *****************************************************************************/
 
+#include "get_app_name.h"
+
 #include <stdint.h>  // uint*_t
 
-#include "get_app_name.h"
 #include "../constants.h"
 #include "../globals.h"
 #include "../io.h"

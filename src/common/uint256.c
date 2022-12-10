@@ -17,11 +17,11 @@
 
 // Adapted from https://github.com/calccrypto/uint256_t
 
-#include <string.h>
-#include <stdio.h>
-#include <common/uint256.h>
-#include <common/read.h>
 #include <common/buffer.h>
+#include <common/read.h>
+#include <common/uint256.h>
+#include <stdio.h>
+#include <string.h>
 
 static const char HEXDIGITS[] = "0123456789abcdef";
 

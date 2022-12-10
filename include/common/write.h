@@ -1,7 +1,7 @@
 #pragma once
 
-#include <stdint.h>  // uint*_t
 #include <stddef.h>  // size_t
+#include <stdint.h>  // uint*_t
 
 /**
  * Write 16-bit unsigned integer value as Big Endian.

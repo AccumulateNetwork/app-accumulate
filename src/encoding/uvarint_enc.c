@@ -1,8 +1,8 @@
 
 #include <common/error.h>
 #include <common/varint.h>
-#include <encoding/uvarint.h>
 #include <encoding/encoding.h>
+#include <encoding/uvarint.h>
 
 ENCODE_COPY(UVarInt)
 ENCODE_EQUAL(UVarInt)

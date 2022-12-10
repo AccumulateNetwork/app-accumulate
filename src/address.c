@@ -15,22 +15,22 @@
  *  limitations under the License.
  *****************************************************************************/
 
-#include <stdint.h>   // uint*_t
-#include <stddef.h>   // size_t
-#include <stdbool.h>  // bool
-#include <string.h>   // memmove
-#include <stdlib.h>
+#include "address.h"
 
-#include "os.h"
+#include <stdbool.h>  // bool
+#include <stddef.h>   // size_t
+#include <stdint.h>   // uint*_t
+#include <stdlib.h>
+#include <string.h>  // memmove
+
+#include "common/base58.h"
+#include "common/keccak.h"
+#include "common/sha256.h"
+#include "crypto.h"
 #include "cx.h"
 #include "lcx_ripemd160.h"
-
-#include "crypto.h"
-#include "address.h"
+#include "os.h"
 #include "transaction/types.h"
-#include "common/base58.h"
-#include "common/sha256.h"
-#include "common/keccak.h"
 
 Error lite_address_from_pubkey(CoinType t, pubkey_ctx_t *publicKey) {
     Error ret;

@@ -46,7 +46,7 @@
 
 #define INITIATOR_FIELD_INDEX 1
 
-#define MAX_TRANSACTION_LEN 512 * MAX_DATA_ENTRY  // 10270 //510
+#define MAX_TRANSACTION_LEN   512 * MAX_DATA_ENTRY  // 10270 //510
 
 /**
  * Maximum signature length (bytes).
@@ -63,7 +63,7 @@
  */
 #define EXPONENT_SMALLEST_UNIT 3
 
-#define ACME_PRECISION        8
-#define CREDITS_PRECISION     2
-#define ORACLE_PRECISION      4
-#define CREDITS_PER_FIAT_UNIT 10000
+#define ACME_PRECISION         8
+#define CREDITS_PRECISION      2
+#define ORACLE_PRECISION       4
+#define CREDITS_PER_FIAT_UNIT  10000

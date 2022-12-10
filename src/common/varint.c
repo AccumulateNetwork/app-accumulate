@@ -14,10 +14,9 @@
  *  limitations under the License.
  *****************************************************************************/
 
-#include <stdint.h>  // uint*_t
-#include <stddef.h>  // size_t
-
 #include <common/varint.h>
+#include <stddef.h>  // size_t
+#include <stdint.h>  // uint*_t
 
 uint8_t varint_size(int64_t value) {
     uint64_t ux = ((uint64_t) value) << 1;

@@ -15,13 +15,14 @@
  *  limitations under the License.
  *****************************************************************************/
 
-#include <stdint.h>  // uint*_t
-#include <limits.h>  // UINT8_MAX
-#include <assert.h>  // _Static_assert
-
 #include "get_version.h"
-#include "../globals.h"
+
+#include <assert.h>  // _Static_assert
+#include <limits.h>  // UINT8_MAX
+#include <stdint.h>  // uint*_t
+
 #include "../constants.h"
+#include "../globals.h"
 #include "../io.h"
 #include "../sw.h"
 #include "../types.h"

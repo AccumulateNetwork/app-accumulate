@@ -6,9 +6,10 @@ Language: Cpp
 ColumnLimit: 100
 PointerAlignment: Right
 AlignAfterOpenBracket: Align
-AlignConsecutiveMacros: true
+AllowShortEnumsOnASingleLine: false
+AlignConsecutiveMacros: AcrossEmptyLines
 AllowAllParametersOfDeclarationOnNextLine: false
-SortIncludes: false
+SortIncludes: true
 SpaceAfterCStyleCast: true
 AllowShortCaseLabelsOnASingleLine: false
 AllowAllArgumentsOnNextLine: false

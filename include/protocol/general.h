@@ -79,7 +79,7 @@ typedef struct AccountAuth {
     // uint8_t fieldsSet[1];
     size_t Authorities_length;
     AuthorityEntry *Authorities;  //`json:"authorities,omitempty" form:"authorities"
-                                  //query:"authorities" validate:"required"`
+                                  // query:"authorities" validate:"required"`
                                   // Bytes extraData[1];
 
 } AccountAuth;
@@ -114,9 +114,9 @@ typedef struct AnchorMetadata {
     Url Account;    //`json:"account,omitempty" form:"account" query:"account" validate:"required"`
     UVarInt Index;  //`json:"index,omitempty" form:"index" query:"index" validate:"required"`
     UVarInt SourceIndex;  //`json:"sourceIndex,omitempty" form:"sourceIndex" query:"sourceIndex"
-                          //validate:"required"`
+                          // validate:"required"`
     UVarInt SourceBlock;  //`json:"sourceBlock,omitempty" form:"sourceBlock" query:"sourceBlock"
-                          //validate:"required"`
+                          // validate:"required"`
     Bytes Entry;          //`json:"entry,omitempty" form:"entry" query:"entry" validate:"required"`
                           // Bytes extraData[6];
 
@@ -129,7 +129,7 @@ typedef struct AuthorityEntry {
     Url Url;  //`json:"url,omitempty" form:"url" query:"url" validate:"required"`
     /// Disabled disables auth checks for this authority, allowing anyone to sign for it.
     Bool Disabled;  //`json:"disabled,omitempty" form:"disabled" query:"disabled"
-                    //validate:"required"`
+                    // validate:"required"`
                     // Bytes extraData[2];
 
 } AuthorityEntry;
@@ -161,7 +161,7 @@ typedef struct ChainParams {
     // uint8_t fieldsSet[2];
     Bytes Data;     //`json:"data,omitempty" form:"data" query:"data" validate:"required"`
     Bool IsUpdate;  //`json:"isUpdate,omitempty" form:"isUpdate" query:"isUpdate"
-                    //validate:"required"`
+                    // validate:"required"`
                     // Bytes extraData[2];
 
 } ChainParams;
@@ -171,7 +171,7 @@ typedef struct FactomDataEntry {
 
     //
     Bytes32 AccountId;  //`json:"accountId,omitempty" form:"accountId" query:"accountId"
-                        //validate:"required"`
+                        // validate:"required"`
     Bytes Data;         //`json:"data,omitempty" form:"data" query:"data" validate:"required"`
     size_t ExtIds_length;
     Bytes *ExtIds;  //`json:"extIds,omitempty" form:"extIds" query:"extIds" validate:"required"`
@@ -198,8 +198,8 @@ typedef struct FeeSchedule {
     /// the cost of a one-character ADI, the second is the cost of a two-character ADI, etc.
     size_t CreateIdentitySliding_length;
     Fee *CreateIdentitySliding;  //`json:"createIdentitySliding,omitempty"
-                                 //form:"createIdentitySliding" query:"createIdentitySliding"
-                                 //validate:"required"`
+                                 // form:"createIdentitySliding" query:"createIdentitySliding"
+                                 // validate:"required"`
                                  // Bytes extraData[1];
 
 } FeeSchedule;
@@ -215,14 +215,14 @@ typedef struct IndexEntry {
     UVarInt Anchor;  //`json:"anchor,omitempty" form:"anchor" query:"anchor" validate:"required"`
     /// BlockIndex is the index of the block. Only include when indexing the root anchor chain.
     UVarInt BlockIndex;  //`json:"blockIndex,omitempty" form:"blockIndex" query:"blockIndex"
-                         //validate:"required"`
+                         // validate:"required"`
     /// BlockTime is the start time of the block. Only include when indexing the root anchor chain.
     Time BlockTime;  //`json:"blockTime,omitempty" form:"blockTime" query:"blockTime"
-                     //validate:"required"`
+                     // validate:"required"`
     /// RootIndexIndex is the index of the root anchor index chain entry. Only include when indexing
     /// the anchor ledger for a major block.
     UVarInt RootIndexIndex;  //`json:"rootIndexIndex,omitempty" form:"rootIndexIndex"
-                             //query:"rootIndexIndex" validate:"required"`
+                             // query:"rootIndexIndex" validate:"required"`
                              // Bytes extraData[5];
 
 } IndexEntry;
@@ -232,11 +232,11 @@ typedef struct KeySpec {
 
     // uint8_t fieldsSet[3];
     Bytes PublicKeyHash;  //`json:"publicKeyHash,omitempty" form:"publicKeyHash"
-                          //query:"publicKeyHash" validate:"required"`
+                          // query:"publicKeyHash" validate:"required"`
     UVarInt LastUsedOn;   //`json:"lastUsedOn,omitempty" form:"lastUsedOn" query:"lastUsedOn"
-                          //validate:"required"`
+                          // validate:"required"`
     Url Delegate;         //`json:"delegate,omitempty" form:"delegate" query:"delegate"
-                          //validate:"required"`
+                          // validate:"required"`
                           // Bytes extraData[3];
 
 } KeySpec;
@@ -256,15 +256,15 @@ typedef struct NetworkDefinition {
 
     // uint8_t fieldsSet[4];
     String NetworkName;  //`json:"networkName,omitempty" form:"networkName" query:"networkName"
-                         //validate:"required"`
+                         // validate:"required"`
     UVarInt
         Version;  //`json:"version,omitempty" form:"version" query:"version" validate:"required"`
     size_t Partitions_length;
     PartitionInfo *Partitions;  //`json:"partitions,omitempty" form:"partitions" query:"partitions"
-                                //validate:"required"`
+                                // validate:"required"`
     size_t Validators_length;
     ValidatorInfo *Validators;  //`json:"validators,omitempty" form:"validators" query:"validators"
-                                //validate:"required"`
+                                // validate:"required"`
                                 // Bytes extraData[4];
 
 } NetworkDefinition;
@@ -274,20 +274,20 @@ typedef struct NetworkGlobals {
 
     // uint8_t fieldsSet[5];
     Rational OperatorAcceptThreshold;   //`json:"operatorAcceptThreshold,omitempty"
-                                        //form:"operatorAcceptThreshold"
-                                        //query:"operatorAcceptThreshold" validate:"required"`
+                                        // form:"operatorAcceptThreshold"
+                                        // query:"operatorAcceptThreshold" validate:"required"`
     Rational ValidatorAcceptThreshold;  //`json:"validatorAcceptThreshold,omitempty"
-                                        //form:"validatorAcceptThreshold"
-                                        //query:"validatorAcceptThreshold" validate:"required"`
+                                        // form:"validatorAcceptThreshold"
+                                        // query:"validatorAcceptThreshold" validate:"required"`
     /// MajorBlockSchedule a cron expression defining the (approximate) major blocks interval.
     String MajorBlockSchedule;  //`json:"majorBlockSchedule,omitempty" form:"majorBlockSchedule"
-                                //query:"majorBlockSchedule" validate:"required"`
+                                // query:"majorBlockSchedule" validate:"required"`
     /// AnchorEmptyBlocks controls whether an anchor is sent for a block if the block contains no
     /// transactions other than a directory anchor.
     Bool AnchorEmptyBlocks;   //`json:"anchorEmptyBlocks,omitempty" form:"anchorEmptyBlocks"
-                              //query:"anchorEmptyBlocks" validate:"required"`
+                              // query:"anchorEmptyBlocks" validate:"required"`
     FeeSchedule FeeSchedule;  //`json:"feeSchedule,omitempty" form:"feeSchedule" query:"feeSchedule"
-                              //validate:"required"`
+                              // validate:"required"`
                               // Bytes extraData[5];
 
 } NetworkGlobals;
@@ -324,9 +324,9 @@ typedef struct Rational {
 
     // uint8_t fieldsSet[2];
     UVarInt Numerator;    //`json:"numerator,omitempty" form:"numerator" query:"numerator"
-                          //validate:"required"`
+                          // validate:"required"`
     UVarInt Denominator;  //`json:"denominator,omitempty" form:"denominator" query:"denominator"
-                          //validate:"required"`
+                          // validate:"required"`
                           // Bytes extraData[2];
 
 } Rational;
@@ -340,7 +340,7 @@ typedef struct Route {
     /// Value is the prefix value.
     UVarInt Value;     //`json:"value,omitempty" form:"value" query:"value" validate:"required"`
     String Partition;  //`json:"partition,omitempty" form:"partition" query:"partition"
-                       //validate:"required"`
+                       // validate:"required"`
                        // Bytes extraData[3];
 
 } Route;
@@ -351,7 +351,7 @@ typedef struct RouteOverride {
     // uint8_t fieldsSet[2];
     Url Account;  //`json:"account,omitempty" form:"account" query:"account" validate:"required"`
     String Partition;  //`json:"partition,omitempty" form:"partition" query:"partition"
-                       //validate:"required"`
+                       // validate:"required"`
                        // Bytes extraData[2];
 
 } RouteOverride;
@@ -362,7 +362,7 @@ typedef struct RoutingTable {
     // uint8_t fieldsSet[2];
     size_t Overrides_length;
     RouteOverride *Overrides;  //`json:"overrides,omitempty" form:"overrides" query:"overrides"
-                               //validate:"required"`
+                               // validate:"required"`
     size_t Routes_length;
     Route *Routes;  //`json:"routes,omitempty" form:"routes" query:"routes" validate:"required"`
                     // Bytes extraData[2];
@@ -374,7 +374,7 @@ typedef struct TokenIssuerProof {
 
     // uint8_t fieldsSet[2];
     CreateToken Transaction;  //`json:"transaction,omitempty" form:"transaction" query:"transaction"
-                              //validate:"required"`
+                              // validate:"required"`
     Receipt
         Receipt;  //`json:"receipt,omitempty" form:"receipt" query:"receipt" validate:"required"`
                   // Bytes extraData[2];
@@ -407,14 +407,14 @@ typedef struct ValidatorInfo {
 
     // uint8_t fieldsSet[4];
     Bytes PublicKey;        //`json:"publicKey,omitempty" form:"publicKey" query:"publicKey"
-                            //validate:"required"`
+                            // validate:"required"`
     Bytes32 PublicKeyHash;  //`json:"publicKeyHash,omitempty" form:"publicKeyHash"
-                            //query:"publicKeyHash" validate:"required"`
+                            // query:"publicKeyHash" validate:"required"`
     Url Operator;           //`json:"operator,omitempty" form:"operator" query:"operator"
-                            //validate:"required"`
+                            // validate:"required"`
     size_t Partitions_length;
     ValidatorPartitionInfo *Partitions;  //`json:"partitions,omitempty" form:"partitions"
-                                         //query:"partitions" validate:"required"`
+                                         // query:"partitions" validate:"required"`
                                          // Bytes extraData[4];
 
 } ValidatorInfo;
