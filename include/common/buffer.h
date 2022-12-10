@@ -7,7 +7,8 @@
 /**
  * Enumeration for endianness.
  */
-typedef enum {
+typedef enum
+{
     BE,  /// Big Endian
     LE   /// Little Endian
 } endianness_t;

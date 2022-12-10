@@ -12,7 +12,8 @@
 
 #define MAX_MEMO_LEN 465  // 510 - ADDRESS_LEN - 2*SIZE(U64) - SIZE(MAX_VARINT)
 
-typedef enum {
+typedef enum
+{
     PARSING_OK = 1,
     NONCE_PARSING_ERROR = -1,
     TO_PARSING_ERROR = -2,

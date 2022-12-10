@@ -34,7 +34,8 @@ typedef struct {
     Bytes extraData[8];
 } SignatureTypeUnion;
 
-typedef enum {
+typedef enum
+{
     SigTypeMarshalFieldType = 1,
     SigTypeMarshalFieldPublicKey = 2,
     SigTypeMarshalFieldSignature = 3,

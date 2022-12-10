@@ -13,7 +13,8 @@
 /**
  * Enumeration for the status of IO.
  */
-typedef enum {
+typedef enum
+{
     READY,     /// ready for new event
     RECEIVED,  /// data received
     WAITING    /// waiting
@@ -22,7 +23,8 @@ typedef enum {
 /**
  * Enumeration with expected INS of APDU commands.
  */
-typedef enum {
+typedef enum
+{
     GET_VERSION = 0x03,     /// version of the application
     GET_APP_NAME = 0x04,    /// name of the application
     GET_PUBLIC_KEY = 0x05,  /// public key of corresponding BIP32 path
@@ -51,7 +53,8 @@ static const CoinType CoinTypeAcme = 0x80000119;
 /**
  * Enumeration with parsing state.
  */
-typedef enum {
+typedef enum
+{
     STATE_NONE,     /// No state
     STATE_PARSED,   /// Transaction data parsed
     STATE_APPROVED  /// Transaction data approved
@@ -60,7 +63,8 @@ typedef enum {
 /**
  * Enumeration with user request type.
  */
-typedef enum {
+typedef enum
+{
     CONFIRM_ADDRESS,     /// confirm address derived from public key
     CONFIRM_TRANSACTION  /// confirm transaction information
 } request_type_e;

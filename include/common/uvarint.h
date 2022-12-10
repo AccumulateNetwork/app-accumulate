@@ -4,7 +4,8 @@
 #include <stddef.h>   // size_t
 #include <stdint.h>   // uint*_t
 
-enum {
+enum
+{
     MaxVarintLen16 = 3,
     MaxVarintLen32 = 5,
     MaxVarintLen64 = 10,

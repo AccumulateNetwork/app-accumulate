@@ -2,7 +2,8 @@
 
 #include "ux.h"
 
-enum e_state {
+enum e_state
+{
     STATIC_SCREEN,
     DYNAMIC_SCREEN,
 };

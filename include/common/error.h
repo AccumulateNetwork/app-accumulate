@@ -15,7 +15,8 @@ typedef struct Error {
 #endif
 } Error;
 
-typedef enum {
+typedef enum
+{
     ErrorNone = 0,
     ErrorUnknown = -1,
     ErrorInvalidEnum = -2,

@@ -43,7 +43,8 @@ extern "C" {
  * 	o String
  * 	o Other primitive: number, boolean (true/false) or null
  */
-typedef enum {
+typedef enum
+{
     JSMN_UNDEFINED = 0,
     JSMN_OBJECT = 1 << 0,
     JSMN_ARRAY = 1 << 1,
@@ -51,7 +52,8 @@ typedef enum {
     JSMN_PRIMITIVE = 1 << 3
 } jsmntype_t;
 
-enum jsmnerr {
+enum jsmnerr
+{
     /* Not enough tokens were provided */
     JSMN_ERROR_NOMEM = -1,
     /* Invalid character inside JSON string */

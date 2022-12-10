@@ -122,7 +122,8 @@ void sha3_Init512(void *priv) {
     sha3_Init(priv, 512);
 }
 
-enum SHA3_FLAGS sha3_SetFlags(void *priv, enum SHA3_FLAGS flags) {
+enum SHA3_FLAGS sha3_SetFlags(void *priv, enum SHA3_FLAGS flags)
+{
     sha3_context *ctx = (sha3_context *) priv;
     flags &= SHA3_FLAGS_KECCAK;
     ctx->capacityWords |= (flags == SHA3_FLAGS_KECCAK ? SHA3_USE_KECCAK_FLAG : 0);
