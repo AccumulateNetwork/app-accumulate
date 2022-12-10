@@ -7,7 +7,7 @@ ColumnLimit: 100
 PointerAlignment: Right
 AlignAfterOpenBracket: Align
 AllowShortEnumsOnASingleLine: false
-AlignConsecutiveMacros: AcrossEmptyLines
+AlignConsecutiveMacros: true
 AllowAllParametersOfDeclarationOnNextLine: false
 SortIncludes: true
 SpaceAfterCStyleCast: true

@@ -65,7 +65,8 @@ lint:
   extends: .builder
   script:
     - echo -e "${SECTION}section_start:`date +%s`:generate\r${SECTION}Verify code is correctly formatted"
-    - find src/ -type f \( -name "*.h" -o -name "*.c" \) -exec clang-format -i {} \;
+    - find src/ -type f \( -name "*.h" -o -name "*.c" \) -exec clang-format --style file -i {} \;
+    - find include/ -type f \( -name "*.h" -o -name "*.c" \) -exec clang-format --style file -i {} \;
     - git diff --quiet || die "Please run 'clang-format -i' on the following files\n$(git ls-files -m)"
     - echo -e "${SECTION}section_end:`date +%s`:generate\r${SECTION}"
 
