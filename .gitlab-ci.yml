@@ -36,7 +36,7 @@ variables:
         rm -rf bin obj debug dep output-scan-build dist
         mkdir -p dist
         make clean
-        scan-build --use-cc=clang -analyze-headers -enable-checker security -enable-checker unix -enable-checker valist -o scan-build --status-bugs make default
+        scan-build --use-cc=clang -analyze-headers -enable-checker security -enable-checker unix -enable-checker valist -disable-checker deadcode.DeadStores -o scan-build --status-bugs make default
         if [ "$(ls -A output-scan-build)" ]; then 
           zip -r dist/output-scan-build.zip output-scan-build/* 
           curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file "dist/output-scan-build.zip" "${PACKAGE_REGISTRY_URL}/${APP_VERSION}/output-scan-build.zip"
