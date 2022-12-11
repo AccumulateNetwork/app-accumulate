@@ -15,7 +15,7 @@ on:
 
 jobs:
   analyse:
-    if: ${{ false }}
+    if: ${{ false }} # disable this for now
     name: Analyse
     strategy: 
       matrix:
