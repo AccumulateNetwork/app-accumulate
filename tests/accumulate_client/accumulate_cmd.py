@@ -1,7 +1,7 @@
 import struct
 from typing import Tuple
 
-from ledgercomm import Transport
+from ledgercomm import Transport # type: ignore
 
 from accumulate_client.accumulate_cmd_builder import AccumulateCommandBuilder, InsType
 from accumulate_client.button import Button
@@ -106,9 +106,9 @@ class AccumulateCommand:
 
         return pub_key, key_name
 
-    def sign_tx(self, bip32_path: str, envelope: bytes, button: Button) -> Tuple[int, bytes, bytes]:
-        sw: int
-        response: bytes = b""
+    def sign_tx(self, bip32_path: str, envelope: bytes, button: Button) -> Tuple[int, bytes]:
+        #sw: int
+        #response: bytes = b""
 
         for is_last, chunk in self.builder.sign_tx(bip32_path=bip32_path, envelope=envelope):
             self.transport.send_raw(chunk)

@@ -23,7 +23,7 @@ class Transaction:
             raise TransactionError(f"Bad value: '{self.value}'!")
 
         if len(self.to) != 20:
-            raise TransactionError(f"Bad address: '{self.to}'!")
+            raise TransactionError(f"Bad address: '{self.to}'!") # type: ignore
 
     def serialize(self) -> bytes:
         return b"".join([

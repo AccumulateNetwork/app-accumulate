@@ -42,7 +42,7 @@ def read_varint(buf: BytesIO,
     b: bytes = prefix if prefix else buf.read(1)
 
     if not b:
-        raise ValueError(f"Can't read prefix: '{b}'!")
+        raise ValueError(f"Can't read prefix: '{b}'!") # type: ignore
 
     n: int = {b"\xfd": 2, b"\xfe": 4, b"\xff": 8}.get(b, 1)  # default to 1
 
