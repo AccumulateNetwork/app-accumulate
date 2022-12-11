@@ -12,6 +12,7 @@ on:
 jobs:
   nano_build:
     name: Build Accumulate application for NanoS, X and S+
+    if: ${{ true }} # to disable test, set to false
     strategy:
       matrix:
         include:
@@ -41,6 +42,7 @@ jobs:
 
   job_scan_build:
     name: Clang Static Analyzer
+    if: ${{ true }} # to disable test, set to false
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder-lite:latest
@@ -62,6 +64,7 @@ jobs:
 
   job_unit_test:
     name: Unit test
+    if: ${{ true }} # to disable test, set to false
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder-lite:latest
@@ -96,6 +99,7 @@ jobs:
 
   job_generate_doc:
     name: Generate project documentation
+    if: ${{ true }} # to disable test, set to false
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder-lite:latest
@@ -111,6 +115,7 @@ jobs:
 
   job_functional_test:
     name: Functional tests with Ragger (compatible with Speculos & physical devices)
+    if: ${{ true }} # to disable test, set to false
     needs:
       - nano_build
     runs-on: ubuntu-latest
