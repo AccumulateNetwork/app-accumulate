@@ -114,6 +114,9 @@ jobs:
     needs:
       - nano_build
     runs-on: ubuntu-latest
+    container:
+      name: ghcr.io/ledgerhq/speculos:latest
+      entrypoint: [""]
     steps:
       - name: Clone
         uses: actions/checkout@v3
@@ -129,4 +132,6 @@ jobs:
       - name: Run test
         env:
           CTEST_OUTPUT_ON_FAILURE: 1
-        run: pytest --tb=short -v tests/
+        run: |
+          /speculos/speculos.py elfs/accumulate_nanos.elf --seed "yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow" --display headless &
+          pytest --tb=short --headless -v tests/
