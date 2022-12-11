@@ -14,9 +14,8 @@ on:
       - 'tests/*'
 
 jobs:
-  job_name:
-    if: ${{ false }}
   analyse:
+    if: ${{ false }}
     name: Analyse
     strategy: 
       matrix:
