@@ -3,10 +3,7 @@ import logging
 import struct
 from typing import List, Tuple, Union, Iterator, cast
 
-from accumulate_client.transaction import Transaction
 from accumulate_client.utils import bip32_path_from_string
-
-import binascii
 
 MAX_APDU_LEN: int = 255
 
@@ -22,7 +19,7 @@ def chunkify(data: bytes, chunk_len: int) -> Iterator[Tuple[bool, bytes]]:
     remaining: int = size % chunk_len
     offset: int = 0
 
-    for i in range(chunk):
+    for _ in range(chunk):
         yield False, data[offset:offset + chunk_len]
         offset += chunk_len
 
@@ -208,18 +205,16 @@ class AccumulateCommandBuilder:
                                     cdata=cdata)
 
         #tx: bytes = transaction #.serialize()
-        for i, (is_last, chunk) in enumerate(chunkify(envelope, MAX_APDU_LEN)):
+        for _, (is_last, chunk) in enumerate(chunkify(envelope, MAX_APDU_LEN)):
             if is_last:
                 yield True, self.serialize(cla=self.CLA,
                                            ins=InsType.INS_SIGN_TX,
                                            p1=ParamCodeType.LedgerP1ContTransactionData,
                                            p2=ParamCodeType.LedgerP2LastTransactionData,
                                            cdata=chunk)
-                return
             else:
                 yield False, self.serialize(cla=self.CLA,
                                             ins=InsType.INS_SIGN_TX,
                                             p1=ParamCodeType.LedgerP1ContTransactionData,
                                             p2=ParamCodeType.LedgerP2MoreTransactionData,
                                             cdata=chunk)
-

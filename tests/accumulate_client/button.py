@@ -58,14 +58,13 @@ class ButtonCurl(Button):
         self.data = '{"action":"press-and-release"}'
 
     def right_click(self):
-        requests.post(self.url + "/button/right", data=self.data, headers="")
+        requests.post(self.url + "/button/right", data=self.data, headers="", timeout=2.5)
 
     def left_click(self):
-        requests.post(self.url + "/button/left", data=self.data, headers="")
+        requests.post(self.url + "/button/left", data=self.data, headers="", timeout=2.5)
 
     def both_click(self):
-        requests.post(self.url + "/button/both", data=self.data, headers="")
+        requests.post(self.url + "/button/both", data=self.data, headers="", timeout=2.5)
 
     def close(self):
         pass
-

@@ -1,7 +1,7 @@
 import enum
 from typing import Dict, Any, Union
 
-from .errors import *
+from .errors import * # pylint: disable=wildcard-import
 
 
 class DeviceException(Exception):  # pylint: disable=too-few-public-methods

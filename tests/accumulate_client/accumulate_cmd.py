@@ -6,7 +6,6 @@ from ledgercomm import Transport
 from accumulate_client.accumulate_cmd_builder import AccumulateCommandBuilder, InsType
 from accumulate_client.button import Button
 from accumulate_client.exception import DeviceException
-from accumulate_client.transaction import Transaction
 
 
 class AccumulateCommand:
@@ -32,7 +31,7 @@ class AccumulateCommand:
         #            version (var) ||
         offset: int = 0
 
-        format_id: int = response[offset]
+        # format_id: int = response[offset]
         offset += 1
         app_name_len: int = response[offset]
         offset += 1
@@ -95,9 +94,9 @@ class AccumulateCommand:
 
         chain_code_len: int = response[offset]
         offset += 1
-        chain_code: bytes = response[offset:offset + chain_code_len]
+        # chain_code: bytes = response[offset:offset + chain_code_len]
         offset += chain_code_len
-        
+
         key_name_len: int = response[offset]
         offset += 1
         key_name: bytes = response[offset:offset + key_name_len]
