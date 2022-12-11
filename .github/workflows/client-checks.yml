@@ -12,7 +12,7 @@ on:
 jobs:
 
   lint:
-    name: Boilerplate client linting
+    name: Accumulate client linting
     runs-on: ubuntu-latest
     steps:
     - name: Clone
