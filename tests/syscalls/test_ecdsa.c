@@ -95,7 +95,7 @@ void test_ecdsa(cx_curve_t curve, cx_md_t md, const ecdsa_test_vector *tv,
                      0);
     assert_memory_equal(publicKey.W, public_key, sizeof(public_key));
 
-    /* Sign the digest using the previously derived keypair*/
+    /* Sign the digest using the previously derived key pair*/
     sig_len =
         cx_ecdsa_sign(&privateKey, CX_RND_TRNG | CX_LAST, md, hash_to_sign,
                       hash_len, signature, sizeof(signature), &info);
