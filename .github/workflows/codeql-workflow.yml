@@ -15,8 +15,8 @@ on:
 
 jobs:
   analyse:
-    if: ${{ false }} # disable this for now
     name: Analyse
+    if: ${{ false }} # disable this for now
     strategy: 
       matrix:
         sdk: [ "$NANOS_SDK", "$NANOX_SDK", "$NANOSP_SDK" ]
