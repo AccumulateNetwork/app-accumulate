@@ -91,7 +91,7 @@ jobs:
           files: ./unit-tests/coverage.info
           flags: unittests
           name: codecov-app-accumulate
-          fail_ci_if_error: true
+          fail_ci_if_error: false
           verbose: true
 
   job_generate_doc:
@@ -114,9 +114,10 @@ jobs:
     needs:
       - nano_build
     runs-on: ubuntu-latest
-      #container:
-      #image: ghcr.io/ledgerhq/speculos:latest
-        #entrypoint: [""]
+    container:
+      image: ghcr.io/ledgerhq/speculos:latest
+      with:
+        entrypoint: /bin/bash 
     steps:
       - name: Clone
         uses: actions/checkout@v3
