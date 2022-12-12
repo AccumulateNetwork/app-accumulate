@@ -115,7 +115,7 @@ jobs:
       - nano_build
     runs-on: ubuntu-latest
     container:
-      name: ghcr.io/ledgerhq/speculos:latest
+      image: ghcr.io/ledgerhq/speculos:latest
       entrypoint: [""]
     steps:
       - name: Clone
