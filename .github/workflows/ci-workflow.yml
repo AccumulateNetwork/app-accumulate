@@ -114,13 +114,6 @@ jobs:
     needs:
       - nano_build
     runs-on: ubuntu-latest
-      #services:
-      #image: ghcr.io/ledgerhq/speculos:latest
-      #ports:
-      #  - 42000:42000
-      #options: 
-      #  - elfs/accumulate_nanos.elf --seed "yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow" --display headless
-        #entrypoint: /bin/bash 
     steps:
       - name: Clone
         uses: actions/checkout@v3
