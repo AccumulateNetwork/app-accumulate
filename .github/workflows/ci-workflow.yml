@@ -114,9 +114,9 @@ jobs:
     needs:
       - nano_build
     runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/ledgerhq/speculos:latest
-      entrypoint: [""]
+      #container:
+      #image: ghcr.io/ledgerhq/speculos:latest
+        #entrypoint: [""]
     steps:
       - name: Clone
         uses: actions/checkout@v3
