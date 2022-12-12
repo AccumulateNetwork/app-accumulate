@@ -118,23 +118,23 @@ jobs:
       image: ghcr.io/ledgerhq/speculos:latest
       with:
         entrypoint: /bin/bash 
-    steps:
-      - name: Clone
-        uses: actions/checkout@v3
-      - name: Download app binary
-        uses: actions/download-artifact@v3
-        with:
-          name: apps
-          path: elfs
-      - name: Install tests dependencies
-        run: |
-          sudo apt-get update && sudo apt-get install -y qemu-user-static
-          pip install --extra-index-url https://test.pypi.org/simple/ -r tests/requirements.txt
-      - name: Run test
-        env:
-          CTEST_OUTPUT_ON_FAILURE: 1
-        run: |
-          /speculos/speculos.py elfs/accumulate_nanos.elf --seed "yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow" --display headless &
-          declare -g SPECULOS_PID=$! 
-          pytest --tb=short --headless -v tests/
-          kill -9 $SPECULOS_PID
+      steps:
+        - name: Clone
+          uses: actions/checkout@v3
+        - name: Download app binary
+          uses: actions/download-artifact@v3
+            with:
+              name: apps
+              path: elfs
+        - name: Install tests dependencies
+          run: |
+            sudo apt-get update && sudo apt-get install -y qemu-user-static
+            pip install --extra-index-url https://test.pypi.org/simple/ -r tests/requirements.txt
+        - name: Run test
+          env:
+            CTEST_OUTPUT_ON_FAILURE: 1
+          run: |
+            /speculos/speculos.py elfs/accumulate_nanos.elf --seed "yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow" --display headless &
+            declare -g SPECULOS_PID=$! 
+            pytest --tb=short --headless -v tests/
+            kill -9 $SPECULOS_PID
