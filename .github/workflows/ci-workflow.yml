@@ -116,8 +116,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/ledgerhq/speculos:latest
-      with:
-        entrypoint: /bin/bash 
+      entrypoint: /bin/bash 
     steps:
       - name: Clone
         uses: actions/checkout@v3
