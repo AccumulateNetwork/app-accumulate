@@ -114,9 +114,13 @@ jobs:
     needs:
       - nano_build
     runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/ledgerhq/speculos:latest
-      entrypoint: /bin/bash 
+      #services:
+      #image: ghcr.io/ledgerhq/speculos:latest
+      #ports:
+      #  - 42000:42000
+      #options: 
+      #  - elfs/accumulate_nanos.elf --seed "yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow" --display headless
+        #entrypoint: /bin/bash 
     steps:
       - name: Clone
         uses: actions/checkout@v3
@@ -133,7 +137,7 @@ jobs:
         env:
           CTEST_OUTPUT_ON_FAILURE: 1
         run: |
-          /speculos/speculos.py elfs/accumulate_nanos.elf --seed "yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow" --display headless &
+          docker run --rm -ti ghcr.io/ledgerhq/speculos:latest elfs/accumulate_nanos.elf --seed "yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow" --display headless &
           declare -g SPECULOS_PID=$!
           pytest --tb=short --headless -v tests/
           kill -9 $SPECULOS_PID
