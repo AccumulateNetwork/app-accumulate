@@ -100,7 +100,7 @@ Speculos Nano S:
     - pytest --headless || die
     - kill -9 $SPECULOS_PID || true
 
-Speculos Nano X:
+Speculos Nano S+/X:
   stage: e2e-tests
   image:
     name: ghcr.io/ledgerhq/speculos:latest
