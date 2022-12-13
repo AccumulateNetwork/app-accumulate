@@ -40,13 +40,13 @@
 #define MAX_DATA_ENTRY 1  // the nano s can only support smaller transactions
 #define ARENA_SIZE     512
 #else
-#define MAX_DATA_ENTRY 2  // accumulate accepts a max size 20kb transaction + padding for arena
-#define ARENA_SIZE     512
+#define MAX_DATA_ENTRY 5     // allow 20kb for transaction
+#define ARENA_SIZE     4096  // arena mempool size
 #endif
 
 #define INITIATOR_FIELD_INDEX 1
 
-#define MAX_TRANSACTION_LEN 512 * MAX_DATA_ENTRY  // 10270 //510
+#define MAX_TRANSACTION_LEN ARENA_SIZE* MAX_DATA_ENTRY  // 10270 nano s+ and nano x / 512 nanos
 
 /**
  * Maximum signature length (bytes).
