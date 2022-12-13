@@ -111,7 +111,7 @@ speculos-nanos-plus:
     - function die { echo -e "${BOLD_RED}${1}${NO_COLOR}"; false; }
     - apt update && apt install -y wget build-essential
     - wget "${PACKAGE_REGISTRY_URL}/${APP_VERSION}/${NANOSP_OUTPUT_PKG_NAME}.elf"
-    - /speculos/speculos.py ${NANOS_OUTPUT_PKG_NAME}.elf -m nanosp --seed "yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow" --display headless &
+    - /speculos/speculos.py ${NANOSP_OUTPUT_PKG_NAME}.elf -m nanosp --seed "yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow" --display headless &
     - sleep 1
     - SPECULOS_PID=$!
     - cd /builds/accumulatenetwork/ledger/app-accumulate/tests
