@@ -140,7 +140,6 @@ jobs:
         env:
           CTEST_OUTPUT_ON_FAILURE: 1
         run: |
-          #docker run -p 5000:5000 -it --net=host --rm -v "$(realpath .):/app" -ti ghcr.io/ledgerhq/speculos:latest /app/elfs/accumulate_nanos.elf --seed "yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow" --display headless &
           /speculos/speculos.py elfs/accumulate_nanos.elf --seed "yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow" --display headless &
           declare -g SPECULOS_PID=$!
           pytest --tb=short --headless -v tests/
