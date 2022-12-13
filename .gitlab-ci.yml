@@ -81,7 +81,7 @@ unit-tests:
     - make
     - ctest . || die "one or more unit tests failed"
 
-speculos:
+Speculos Nano S:
   stage: e2e-tests
   image: 
     name: ghcr.io/ledgerhq/speculos:latest
@@ -100,7 +100,7 @@ speculos:
     - pytest --headless || die
     - kill -9 $SPECULOS_PID || true
 
-speculos-nanox:
+Speculos Nano X:
   stage: e2e-tests
   image:
     name: ghcr.io/ledgerhq/speculos:latest
