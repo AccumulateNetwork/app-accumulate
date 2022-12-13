@@ -142,5 +142,6 @@ jobs:
         run: |
           /speculos/speculos.py elfs/accumulate_nanos.elf --seed "yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow" --display headless &
           SPECULOS_PID=$!
+          sleep 1
           pytest --tb=short --headless -v tests/
           kill -9 $SPECULOS_PID
