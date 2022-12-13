@@ -81,7 +81,7 @@ unit-tests:
     - make
     - ctest . || die "one or more unit tests failed"
 
-speculos:
+Speculos Nano S:
   stage: e2e-tests
   image: 
     name: ghcr.io/ledgerhq/speculos:latest
@@ -94,10 +94,31 @@ speculos:
     - wget "${PACKAGE_REGISTRY_URL}/${APP_VERSION}/${NANOS_OUTPUT_PKG_NAME}.elf"
     - /speculos/speculos.py ${NANOS_OUTPUT_PKG_NAME}.elf --seed "yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow" --display headless &
     - SPECULOS_PID=$!
+    - sleep 1
     - cd /builds/accumulatenetwork/ledger/app-accumulate/tests
     - pip install -r requirements.txt
     - pytest --headless || die
     - kill -9 $SPECULOS_PID || true
+
+Speculos Nano S+/X:
+  stage: e2e-tests
+  image:
+    name: ghcr.io/ledgerhq/speculos:latest
+    entrypoint: [""]
+  variables:
+    PACKAGE_REGISTRY_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/nano-x"
+  script:
+    - function die { echo -e "${BOLD_RED}${1}${NO_COLOR}"; false; }
+    - apt update && apt install -y wget build-essential
+    - wget "${PACKAGE_REGISTRY_URL}/${APP_VERSION}/${NANOX_OUTPUT_PKG_NAME}.elf"
+    - /speculos/speculos.py ${NANOX_OUTPUT_PKG_NAME}.elf -m nanox --seed "yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow" --display headless &
+    - SPECULOS_PID=$!
+    - sleep 1
+    - cd /builds/accumulatenetwork/ledger/app-accumulate/tests
+    - pip install -r requirements.txt
+    - pytest --headless || die
+    - kill -9 $SPECULOS_PID || true
+
       
 build-nano-s:
   stage: build-firmware
