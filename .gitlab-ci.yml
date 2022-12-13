@@ -93,7 +93,7 @@ speculos:
     - apt update && apt install -y wget build-essential
     - wget "${PACKAGE_REGISTRY_URL}/${APP_VERSION}/${NANOS_OUTPUT_PKG_NAME}.elf"
     - /speculos/speculos.py ${NANOS_OUTPUT_PKG_NAME}.elf --seed "yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow" --display headless &
-    - declare -g SPECULOS_PID=$!
+    - SPECULOS_PID=$!
     - cd /builds/accumulatenetwork/ledger/app-accumulate/tests
     - pip install -r requirements.txt
     - pytest --headless || die
