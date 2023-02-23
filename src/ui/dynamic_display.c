@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <types.h>
 
-#include "../glyphs.h"
+#include "glyphs.h"
 #include "os.h"
 #include "ux.h"
 
