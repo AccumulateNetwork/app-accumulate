@@ -46,7 +46,7 @@
 
 #define INITIATOR_FIELD_INDEX 1
 
-#define MAX_TRANSACTION_LEN ARENA_SIZE * MAX_DATA_ENTRY  // 10270 nano s+ and nano x / 512 nanos
+#define MAX_TRANSACTION_LEN ARENA_SIZE* MAX_DATA_ENTRY  // 10270 nano s+ and nano x / 512 nanos
 
 /**
  * Maximum signature length (bytes).
