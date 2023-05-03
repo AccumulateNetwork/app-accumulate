@@ -23,7 +23,7 @@ Error ErrorCode(int e) {
         return (const Error){ErrorNone, {0}};
     }
 
-#if WANT_TEXT
+#ifdef WANT_TEXT
     switch (abs((int) e)) {
         case ErrorNone:
             return (const Error){ErrorNone, {0}};
