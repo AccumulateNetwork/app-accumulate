@@ -3,6 +3,27 @@
 
 #include "utils.h"
 
+#define WANT_SIMPLE_HASH
+
+bool isInitiatorField(int field, SignatureType type) {
+    bool ret = false;
+    switch (field) {
+        case SigTypeMarshalFieldType:
+        case SigTypeMarshalFieldPublicKey:
+        case SigTypeMarshalFieldSigner:
+        case SigTypeMarshalFieldSignerVersion:
+        case SigTypeMarshalFieldTimestamp:
+        case SigTypeMarshalFieldVote:
+            ret = true;
+            break;
+        case SigTypeMarshalFieldSignature:
+        case SigTypeMarshalFieldTransactionHash:
+        default:
+            ret = false;
+    }
+    return ret;
+}
+
 int initiatorHash(Signature *s, uint8_t initiator[static 32]) {
     CHECK_ERROR_INT(s)
     CHECK_ERROR_INT(s->_u)
@@ -19,14 +40,30 @@ int initiatorHash(Signature *s, uint8_t initiator[static 32]) {
         return ErrorInvalidObject;
     }
 
+#ifdef WANT_SIMPLE_HASH
+    // since we checked out each of the key fields already, we just need to hash the contents
+    int byteArrayLen = 0;
+    Bytes *byteArray = s->_u->extraData;
+    byteArrayLen = (int) sizeof(s->_u->extraData) / sizeof(Bytes);
+
+    HashContext ctx;
+    crypto_hash_init(&ctx);
+    for (int i = 0; i < byteArrayLen; i++) {
+        if (byteArray[i].buffer.ptr && isInitiatorField(i + 1, s->_u->Type)) {
+            buffer_t *buff = &byteArray[i].buffer;
+            crypto_hash_update(&ctx, buff->ptr + buff->offset, buff->size - buff->offset);
+        }
+    }
+    crypto_hash_final(&ctx, initiator, 32);
+#else
     MerkleState hasher;
     MerkleStateInit(&hasher);
     CHECK_ERROR_CODE(hasherAddBytes(&hasher, &s->_u->PublicKey));
     CHECK_ERROR_CODE(hasherAddUrl(&hasher, &s->_u->Signer));
     CHECK_ERROR_CODE(hasherAddUVarInt(&hasher, &s->_u->SignerVersion));
     CHECK_ERROR_CODE(hasherAddUVarInt(&hasher, &s->_u->Timestamp));
-
     CHECK_ERROR_CODE(MerkleDAGRoot(&hasher, initiator).code);
+#endif
     return ErrorNone;
 }
 
