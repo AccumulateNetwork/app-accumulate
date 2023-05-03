@@ -41,7 +41,7 @@ APP_LOAD_PARAMS += $(COMMON_LOAD_PARAMS)
 APPNAME      = "Accumulate"
 APPVERSION_M = 1
 APPVERSION_N = 0
-APPVERSION_P = 4
+APPVERSION_P = 5
 APPVERSION   = "$(APPVERSION_M).$(APPVERSION_N).$(APPVERSION_P)"
 
 ifeq ($(TARGET_NAME),TARGET_NANOS)
@@ -113,7 +113,7 @@ CC      := $(CLANGPATH)clang
 
 CFLAGS  += -O3 -Os -Wall
 ifeq ($(DEBUG),0)
-CFLAGS  += -Werror -Wno-self-assign -Wno-unused-function -Wno-unused-parameter
+CFLAGS  += -Werror -Wno-self-assign -Wno-unused-function -Wno-unused-parameter -Wno-implicit-fallthrough -Wno-undef
 endif
 AS      := $(GCCPATH)arm-none-eabi-gcc
 LD      := $(GCCPATH)arm-none-eabi-gcc
