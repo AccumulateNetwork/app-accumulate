@@ -3,7 +3,6 @@
 
 #include "utils.h"
 
-
 #define WANT_SIMPLE_HASH
 
 bool isInitiatorField(int field, SignatureType type) {
@@ -42,7 +41,7 @@ int initiatorHash(Signature *s, uint8_t initiator[static 32]) {
     }
 
 #ifdef WANT_SIMPLE_HASH
-    //since we checked out each of the key fields already, we just need to hash the contents
+    // since we checked out each of the key fields already, we just need to hash the contents
     int byteArrayLen = 0;
     Bytes *byteArray = s->_u->extraData;
     byteArrayLen = (int) sizeof(s->_u->extraData) / sizeof(Bytes);
