@@ -26,6 +26,16 @@
 #include "sw.h"
 #include "ui/menu/menu.h"
 
+void ui_action_signing_mode(bool choice) {
+    if (choice) {
+        helper_send_response_pubkey();
+    } else {
+        io_send_sw(SW_DENY);
+    }
+
+    ui_menu_main();
+}
+
 void ui_action_validate_pubkey(bool choice) {
     if (choice) {
         helper_send_response_pubkey();
@@ -66,6 +76,17 @@ void ui_action_validate_transaction(bool choice) {
         }
     } else {
         G_context.state = STATE_NONE;
+        io_send_sw(SW_DENY);
+    }
+
+    ui_menu_main();
+}
+
+
+void ui_action_validate_pubkey(bool choice) {
+    if (choice) {
+        helper_send_response_pubkey();
+    } else {
         io_send_sw(SW_DENY);
     }
 
