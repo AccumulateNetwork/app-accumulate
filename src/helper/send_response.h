@@ -44,3 +44,9 @@ int helper_send_response_pubkey(void);
  */
 
 int helper_send_response_sig(void);
+
+
+/**
+ * Helper to send APDU response with blind signing key.
+ */
+int helper_send_response_blind_signing_token(void);

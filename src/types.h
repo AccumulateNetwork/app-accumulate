@@ -25,11 +25,12 @@ typedef enum
  */
 typedef enum
 {
-    GET_VERSION = 0x03,     /// version of the application
-    GET_APP_NAME = 0x04,    /// name of the application
-    GET_PUBLIC_KEY = 0x05,  /// public key of corresponding BIP32 path
-    SIGN_TX = 0x06,         /// sign transaction with BIP32 path
-    GET_ADDRESS = 0x07,     /// get associated address
+    GET_VERSION = 0x03,           /// version of the application
+    GET_APP_NAME = 0x04,          /// name of the application
+    GET_PUBLIC_KEY = 0x05,        /// public key of corresponding BIP32 path
+    SIGN_TX = 0x06,               /// sign transaction with BIP32 path
+    GET_ADDRESS = 0x07,           /// get associated address
+    GET_BLIND_SIGNING_TOKEN = 0x08, /// get a key that can be used for blind signing
 } command_e;
 
 /**
@@ -109,7 +110,15 @@ typedef struct {
         pubkey_ctx_t pk_info;       /// public key context
         transaction_ctx_t tx_info;  /// transaction context
     };
+    uint8_t blind_signing_key[32];  /// return a 32 random key with the high bit representing batch mode enabled
     request_type_e req_type;              /// user request
     uint32_t bip32_path[MAX_BIP32_PATH];  /// BIP32 path
     uint8_t bip32_path_len;               /// length of BIP32 path
 } global_ctx_t;
+
+/**
+ * Structure for global context.
+ */
+typedef struct {
+    uint8_t blind_signing_token[32];  /// return a 32 random key with the high bit representing batch mode enabled
+} blind_siging_ctx_t;

@@ -33,6 +33,7 @@ io_state_e G_io_state;
 ux_state_t G_ux;
 bolos_ux_params_t G_ux_params;
 global_ctx_t G_context;
+blind_siging_ctx_t G_blind_context;
 
 /**
  * Handle APDU command received and send back APDU response using handlers.
@@ -49,6 +50,7 @@ void app_main() {
 
     // Reset context
     explicit_bzero(&G_context, sizeof(G_context));
+    explicit_bzero(&G_blind_context, sizeof(G_blind_context));
 
     for (;;) {
         BEGIN_TRY {
