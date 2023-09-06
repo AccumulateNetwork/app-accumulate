@@ -32,7 +32,7 @@ typedef enum
     GET_ADDRESS = 0x07,               /// get associated address
     GET_BLIND_SIGNING_TOKEN = 0x08,   /// get a token that can be used for blind signing
     BLIND_SIGN_TX = 0x09,             /// sign transaction with BIP32 path
-    CLEAR_BLIND_SIGNING_TOKEN = 0x10  /// reset the blind signing token
+    CLEAR_BLIND_SIGNING_TOKEN = 0x0A  /// reset the blind signing token
 } command_e;
 
 /**
@@ -104,6 +104,10 @@ typedef struct {
     uint8_t v;                           /// parity of y-coordinate of R in ECDSA signature
 } transaction_ctx_t;
 
+/**
+ * Length of the blind signing token
+ */
+#define BLIND_SIGNING_TOKEN_LENGTH 32
 /**
  * Structure for global context.
  */
