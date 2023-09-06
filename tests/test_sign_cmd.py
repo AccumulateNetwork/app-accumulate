@@ -40,8 +40,11 @@ def test_sign_tx(cmd, button):
 
     assert sig == sendTokensExpectedSig
 
+
     # now try blind signing
+    print("testing blind signing: obtaining signing token\n")
     signing_token = cmd.get_blind_signing_token(button=button)
+    print("testing blind signing: blind signing transaction\n")
     v, sig = cmd.sign_tx(bip32_path=bip32_path,
                          envelope=sendTokensEnv,
                          signing_token=signing_token,
