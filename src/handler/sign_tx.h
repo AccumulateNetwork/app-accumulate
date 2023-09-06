@@ -21,4 +21,4 @@
  * @return zero or positive integer if success, negative integer otherwise.
  *
  */
-int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more);
+int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more, bool blindSigningEnabled);

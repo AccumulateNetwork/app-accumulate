@@ -66,6 +66,7 @@ int apdu_dispatcher(const command_t *cmd) {
             buf.offset = 0;
 
             return handler_get_public_key(&buf, (bool) cmd->p1);
+        case BLIND_SIGN_TX:
         case SIGN_TX:
             if ((cmd->p1 == P1_START && cmd->p2 != P2_MORE) ||  //
                 cmd->p1 > P1_MAX ||                             //
@@ -81,13 +82,19 @@ int apdu_dispatcher(const command_t *cmd) {
             buf.size = cmd->lc;
             buf.offset = 0;
 
-            return handler_sign_tx(&buf, cmd->p1, (bool) (cmd->p2 & P2_MORE));
+            return handler_sign_tx(&buf, cmd->p1, (bool) (cmd->p2 & P2_MORE), cmd->ins == BLIND_SIGN_TX);
         case GET_BLIND_SIGNING_TOKEN:
             if (cmd->p1 != 0 || cmd->p2 != 0) {
                 return io_send_sw(SW_WRONG_P1P2);
             }
 
             return handler_get_blind_signing_token();
+        case CLEAR_BLIND_SIGNING_TOKEN:
+            if (cmd->p1 != 0 || cmd->p2 != 0) {
+                return io_send_sw(SW_WRONG_P1P2);
+            }
+
+            return handler_clear_blind_signing_token();
         default:
             return io_send_sw(SW_INS_NOT_SUPPORTED);
     }

@@ -163,7 +163,7 @@ int ui_display_transaction(void) {
             }
 
             snprintf(g_welcome, sizeof(g_welcome), "Add Credits");
-            g_validate_callback = &ui_action_validate_transaction_hash;
+            g_validate_callback = &ui_action_validate_transaction;
             global.dynamic_flow = ui_dynamic_display_add_credits;
             ux_flow_init(0, ux_dynamic_display_flow, NULL);
             break;
@@ -189,7 +189,7 @@ int ui_display_transaction(void) {
 
             global.dynamic_flow = ui_dynamic_display_send_tokens;
             snprintf(g_welcome, sizeof(g_welcome), "Send Tokens");
-            g_validate_callback = &ui_action_validate_transaction_hash;
+            g_validate_callback = &ui_action_validate_transaction;
             ux_flow_init(0, ux_dynamic_display_flow, NULL);
             break;
         }

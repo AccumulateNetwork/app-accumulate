@@ -19,3 +19,9 @@ int handler_get_blind_signing_token() {
     explicit_bzero(&G_blind_context, sizeof(G_blind_context));
     return ui_display_blind_signing_enable();
 }
+
+int handler_clear_blind_signing_token() {
+    explicit_bzero(&G_blind_context, sizeof(G_blind_context));
+    return io_send_sw(SW_OK);
+}
+

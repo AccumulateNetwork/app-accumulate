@@ -31,13 +31,14 @@
 #include "transaction/types.h"
 #include "transaction/utils.h"
 #include "ui/display/display.h"
+#include "ui/action/validate.h"
 
 int processEnvelope();
 int verifySigner();
 int computeInitiatorHash();
 int computeTransactionHash();
 
-int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more) {
+int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more, bool blindSigningRequested) {
     if (chunk == 0) {  // first APDU, parse BIP32 path
         explicit_bzero(&G_context, sizeof(G_context));
         G_context.tx_info.arena.ptr = G_context.tx_info.memory;
@@ -52,6 +53,12 @@ int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more) {
                                     G_context.bip32_path,
                                     (size_t) G_context.bip32_path_len)) {
             return io_send_sw(SW_WRONG_DATA_LENGTH);
+        }
+
+        if ( blindSigningRequested ) {
+            if ( !buffer_move(cdata, G_context.tx_info.signing_token,32) ) {
+                return io_send_sw(SW_WRONG_TX_LENGTH);
+            }
         }
 
         int raw_tx_len = cdata->size - cdata->offset;
@@ -93,9 +100,18 @@ int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more) {
 
         G_context.state = STATE_PARSED;
         // Step 4: ask for user confirmation of transaction contents
-        e = ui_display_transaction();
-        if (IsErrorCode(e)) {
-            io_send_sw(SW_ENCODE_ERROR(ErrorCode(e)));
+        if ( blindSigningRequested ) {
+            if ( memcmp(G_context.blind_signing_token, G_context.tx_info.signing_token, BLIND_SIGNING_TOKEN_LENGTH) == 0 ) {
+                ui_action_validate_transaction(true);
+            } else {
+                G_context.state = STATE_NONE;
+                io_send_sw(SW_DENY);
+            }
+        } else {
+            e = ui_display_transaction();
+            if (IsErrorCode(e)) {
+                io_send_sw(SW_ENCODE_ERROR(ErrorCode(e)));
+            }
         }
     }
 

@@ -10,6 +10,11 @@
 #define MAX_BIP32_PATH 10
 
 /**
+ * Length of the blind signing token
+ */
+#define BLIND_SIGNING_TOKEN_LENGTH 32
+
+/**
  * Read BIP32 path from byte buffer.
  *
  * @param[in]  in
