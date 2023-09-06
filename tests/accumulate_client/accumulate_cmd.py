@@ -135,7 +135,7 @@ class AccumulateCommand:
         for is_last, chunk in self.builder.sign_tx(bip32_path=bip32_path, envelope=envelope, signing_token=signing_token):
             self.transport.send_raw(chunk)
 
-            if is_last:
+            if is_last and len(signing_token) == 0:
                 # Review Transaction
                 print("left button click...")
                 button.left_click() #take the backdoor to get to the accept

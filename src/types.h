@@ -95,8 +95,7 @@ typedef struct {
     Signature *signer;
     Transaction *transaction;
     size_t raw_tx_len;  /// length of raw transaction
-    uint8_t
-        signing_token[32];  /// if a blind signing token is provided this is used to verify output
+    uint8_t signing_token[32]; /// blind signing token to compare against system token
     uint8_t metadataHash[32];
     uint8_t initiatorHash[33];           /// initiator hash -> field (1 byte) + hash (32 bytes)
     uint8_t m_hash[32];                  /// transaction / message hash digest
@@ -109,6 +108,7 @@ typedef struct {
  * Length of the blind signing token
  */
 #define BLIND_SIGNING_TOKEN_LENGTH 32
+
 /**
  * Structure for global context.
  */
@@ -118,19 +118,16 @@ typedef struct {
         pubkey_ctx_t pk_info;       /// public key context
         transaction_ctx_t tx_info;  /// transaction context
     };
-    uint8_t
-        blind_signing_token[BLIND_SIGNING_TOKEN_LENGTH];  /// return a 32 random key with the high
-                                                          /// bit representing batch mode enabled
     request_type_e req_type;                              /// user request
     uint32_t bip32_path[MAX_BIP32_PATH];                  /// BIP32 path
     uint8_t bip32_path_len;                               /// length of BIP32 path
 } global_ctx_t;
 
 /**
- * Structure for global context.
+ * Structure for global blind signing context.
  */
 typedef struct {
     uint8_t
-        blind_signing_token[BLIND_SIGNING_TOKEN_LENGTH];  /// return a 32 random key with the high
-                                                          /// bit representing batch mode enabled
-} blind_siging_ctx_t;
+        signing_token[BLIND_SIGNING_TOKEN_LENGTH];  /// a 32 random key with the high
+                                                    /// bit representing batch mode enabled
+} global_blind_signing_ctx_t;

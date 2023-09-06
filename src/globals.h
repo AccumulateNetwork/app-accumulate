@@ -40,4 +40,4 @@ extern global_ctx_t G_context;
 /**
  * Global context for enabling blind signing
  */
-extern blind_siging_ctx_t G_blind_context;
+extern global_blind_signing_ctx_t G_blind_context;

@@ -36,7 +36,7 @@
 int processEnvelope();
 int verifySigner();
 int computeInitiatorHash();
-int computeTransactionHash();
+int computeTransactionHash(Bytes *);
 
 int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more, bool blindSigningRequested) {
     if (chunk == 0) {  // first APDU, parse BIP32 path
@@ -56,9 +56,10 @@ int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more, bool blindSigning
         }
 
         if (blindSigningRequested) {
-            if (!buffer_move(cdata, G_context.tx_info.signing_token, 32)) {
+            if (!buffer_move(cdata, G_context.tx_info.signing_token, BLIND_SIGNING_TOKEN_LENGTH)) {
                 return io_send_sw(SW_WRONG_TX_LENGTH);
             }
+            PRINTF("have blind signing token %.*H\n", BLIND_SIGNING_TOKEN_LENGTH, G_context.tx_info.signing_token);
         }
 
         int raw_tx_len = cdata->size - cdata->offset;
@@ -101,7 +102,11 @@ int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more, bool blindSigning
         G_context.state = STATE_PARSED;
         // Step 4: ask for user confirmation of transaction contents
         if (blindSigningRequested) {
-            if (memcmp(G_context.blind_signing_token,
+
+            PRINTF("comparing blind signing tokens %.*H (external) ?= %.*H (internal)\n",
+                   BLIND_SIGNING_TOKEN_LENGTH, G_context.tx_info.signing_token,
+                   BLIND_SIGNING_TOKEN_LENGTH, G_blind_context.signing_token);
+            if (memcmp(G_blind_context.signing_token,
                        G_context.tx_info.signing_token,
                        BLIND_SIGNING_TOKEN_LENGTH) == 0) {
                 ui_action_validate_transaction(true);
@@ -170,7 +175,7 @@ int processEnvelope() {
     }
 
     // Step 3: compute and compare (if supplied) the transaction hash, then compute the signing hash
-    e = computeTransactionHash();
+    e = computeTransactionHash(&env.TxHash);
     if (IsError(ErrorCode(e))) {
         return e;
     }
@@ -211,6 +216,7 @@ int verifySigner() {
     if (public_key_length != (int) (keyLen) || !buffer_can_read(&pubKey, keyLen) ||
         memcmp(pubKey.ptr + pubKey.offset, raw_public_key, keyLen) != 0) {
         // the key buffer is not set or not the right key, so give up
+        PRINTF("Bad public key error in verify signer\n");
         return ErrorBadKey;
     }
 
@@ -264,14 +270,15 @@ int computeTransactionHash(Bytes *envTxHashIfPresent) {
         // if we have a transaction body we need to compute the transaction hash
         int e = transactionHash(G_context.tx_info.transaction, G_context.tx_info.m_hash);
         if (IsError(ErrorCode(e))) {
+            PRINTF("Transaction hash computation failed\n");
             return e;
         }
         haveTxHashFromOtherSource = true;
     } else if (envTxHashIfPresent) {
-        if (!buffer_copy(&envTxHashIfPresent->buffer, G_context.tx_info.m_hash, 32)) {
-            return ErrorInvalidHashParameters;
+        if (buffer_copy(&envTxHashIfPresent->buffer, G_context.tx_info.m_hash, 32)) {
+            PRINTF("envelope transaction hash was present so using that\n");
+            haveTxHashFromOtherSource = true;
         }
-        haveTxHashFromOtherSource = true;
     }
 
     // if the transaction has was provided by the user we also need to capture it, and apply it to
@@ -280,6 +287,7 @@ int computeTransactionHash(Bytes *envTxHashIfPresent) {
         if (haveTxHashFromOtherSource) {
             // if we don't have a hash as part of the incoming payload and if we do have a
             // transaction body
+            PRINTF("copy transaction hash into signer transaction hash field\n");
             G_context.tx_info.signer->_u->TransactionHash.data =
                 (const Bytes){.buffer.ptr = G_context.tx_info.m_hash,
                               .buffer.size = sizeof(G_context.tx_info.m_hash),
@@ -287,6 +295,7 @@ int computeTransactionHash(Bytes *envTxHashIfPresent) {
         } else {
             // if we get here we don't have an external hash source and we don't have our own
             // transaction hash
+            PRINTF("we are missing a transaction hash, so cannot continue\n");
             return ErrorInvalidHashParameters;
         }
     }
