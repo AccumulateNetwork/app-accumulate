@@ -59,7 +59,9 @@ int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more, bool blindSigning
             if (!buffer_move(cdata, G_context.tx_info.signing_token, BLIND_SIGNING_TOKEN_LENGTH)) {
                 return io_send_sw(SW_WRONG_TX_LENGTH);
             }
-            PRINTF("have blind signing token %.*H\n", BLIND_SIGNING_TOKEN_LENGTH, G_context.tx_info.signing_token);
+            PRINTF("have blind signing token %.*H\n",
+                   BLIND_SIGNING_TOKEN_LENGTH,
+                   G_context.tx_info.signing_token);
         }
 
         int raw_tx_len = cdata->size - cdata->offset;
@@ -102,10 +104,11 @@ int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more, bool blindSigning
         G_context.state = STATE_PARSED;
         // Step 4: ask for user confirmation of transaction contents
         if (blindSigningRequested) {
-
             PRINTF("comparing blind signing tokens %.*H (external) ?= %.*H (internal)\n",
-                   BLIND_SIGNING_TOKEN_LENGTH, G_context.tx_info.signing_token,
-                   BLIND_SIGNING_TOKEN_LENGTH, G_blind_context.signing_token);
+                   BLIND_SIGNING_TOKEN_LENGTH,
+                   G_context.tx_info.signing_token,
+                   BLIND_SIGNING_TOKEN_LENGTH,
+                   G_blind_context.signing_token);
             if (memcmp(G_blind_context.signing_token,
                        G_context.tx_info.signing_token,
                        BLIND_SIGNING_TOKEN_LENGTH) == 0) {
