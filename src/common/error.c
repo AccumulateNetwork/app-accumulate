@@ -73,6 +73,8 @@ Error ErrorCode(int e) {
             return (const Error){ErrorInvalidField, "invalid field"};
         case ErrorExpectingType:
             return (const Error){ErrorExpectingType, "expecting type"};
+        case ErrorRandomNumberGenerator:
+            return (const Error){ErrorRandomNumberGenerator, "rng fail"};
         default:
             return (const Error){ErrorInvalidEnum, "invalid enum"};
     }

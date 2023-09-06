@@ -65,7 +65,7 @@ int helper_send_response_blind_signing_token() {
     size_t len = sizeof(G_blind_context.blind_signing_token);
     cx_err_t err = cx_get_random_bytes(G_blind_context.blind_signing_token, len);
     if (err != 0) {
-        return io_send_sw(SW_RNG_FAIL);
+        return io_send_sw(SW_ENCODE_ERROR(ErrorCode(ErrorRandomNumberGenerator)));
     }
     resp[offset++] = len;
     memmove(resp + offset, G_blind_context.blind_signing_token, len);

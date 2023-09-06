@@ -144,6 +144,7 @@ This is the same as **SIGN_TX** however it will not prompt the user to confirm t
 | 0xAC15 | `ACC_BAD_KEY`                 | Parsed key is invalid or does not match what is expected                  |
 | 0xAC16 | `ACC_INVALID_FIELD`           | Unexpected field type encountered by transaction parser                   |
 | 0xAC17 | `ACC_EXPECTING_TYPE`          | Expecting type but received something else while processing transaction   |
+| 0xAC18 | `ACC_RNG_FAIL`                | Failed obtaining random number for blind signing token |
 | 0xB000 | `SW_WRONG_RESPONSE_LENGTH`    | Wrong response length (buffer size problem)                               |
 | 0xB001 | `SW_DISPLAY_BIP32_PATH_FAIL`  | BIP32 path conversion to string failed                                    |
 | 0xB002 | `SW_DISPLAY_ADDRESS_FAIL`     | Address conversion to string failed                                       |
@@ -153,6 +154,5 @@ This is the same as **SIGN_TX** however it will not prompt the user to confirm t
 | 0xB006 | `SW_TX_HASH_FAIL`             | Failed to compute hash digest of raw transaction                          |
 | 0xB007 | `SW_BAD_STATE`                | Security issue with bad state                                             |
 | 0xB008 | `SW_SIGNATURE_FAIL`           | Signature of raw transaction failed                                       |
-| 0xB009 | `SW_RNG_FAIL`                 | Failed obtaining random number for blind signing token |
 | 0x9000 | `OK`                          | Success                                                                   |
 
