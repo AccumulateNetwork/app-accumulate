@@ -69,7 +69,6 @@ UX_STEP_NOCB(ux_display_review_begin_step,
                  g_welcome,
              });
 
-
 // Step with icon and text
 UX_STEP_NOCB(ux_display_enable_blind_signing_begin_step,
              pnn,
@@ -84,7 +83,6 @@ UX_FLOW(ux_display_enable_blind_siging_flow,
         &ux_display_approve_step,
         &ux_display_reject_step,
         FLOW_LOOP);
-
 
 UX_FLOW(ux_dynamic_display_flow,
         &ux_display_review_begin_step,  // static ux
@@ -127,7 +125,6 @@ int ui_display_blind_signing_enable() {
     ux_flow_init(0, ux_display_enable_blind_siging_flow, NULL);
     return 0;
 }
-
 
 int ui_display_transaction(void) {
     PRINTF("checkpoint pre display tx 1\n");

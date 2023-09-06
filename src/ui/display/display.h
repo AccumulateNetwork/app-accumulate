@@ -21,7 +21,6 @@ typedef void (*action_validate_cb)(bool);
  */
 int ui_display_address(void);
 
-
 /**
  * Sets a blind signing key on the device if enabled.
  *

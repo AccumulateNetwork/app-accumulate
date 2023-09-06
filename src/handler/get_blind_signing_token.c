@@ -1,4 +1,6 @@
 
+#include "get_blind_signing_token.h"
+
 #include <common/buffer.h>
 #include <common/error.h>
 #include <stdbool.h>  // bool
@@ -6,12 +8,9 @@
 #include <stdint.h>   // uint*_t
 #include <string.h>   // memset, explicit_bzero
 
-
-#include "get_blind_signing_token.h"
 #include "../helper/send_response.h"
 #include "../io.h"
 #include "../sw.h"
-
 #include "../types.h"
 #include "../ui/display/display.h"
 
@@ -24,4 +23,3 @@ int handler_clear_blind_signing_token() {
     explicit_bzero(&G_blind_context, sizeof(G_blind_context));
     return io_send_sw(SW_OK);
 }
-

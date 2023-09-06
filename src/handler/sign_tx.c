@@ -30,8 +30,8 @@
 #include "sw.h"
 #include "transaction/types.h"
 #include "transaction/utils.h"
-#include "ui/display/display.h"
 #include "ui/action/validate.h"
+#include "ui/display/display.h"
 
 int processEnvelope();
 int verifySigner();
@@ -55,8 +55,8 @@ int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more, bool blindSigning
             return io_send_sw(SW_WRONG_DATA_LENGTH);
         }
 
-        if ( blindSigningRequested ) {
-            if ( !buffer_move(cdata, G_context.tx_info.signing_token,32) ) {
+        if (blindSigningRequested) {
+            if (!buffer_move(cdata, G_context.tx_info.signing_token, 32)) {
                 return io_send_sw(SW_WRONG_TX_LENGTH);
             }
         }
@@ -100,8 +100,10 @@ int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more, bool blindSigning
 
         G_context.state = STATE_PARSED;
         // Step 4: ask for user confirmation of transaction contents
-        if ( blindSigningRequested ) {
-            if ( memcmp(G_context.blind_signing_token, G_context.tx_info.signing_token, BLIND_SIGNING_TOKEN_LENGTH) == 0 ) {
+        if (blindSigningRequested) {
+            if (memcmp(G_context.blind_signing_token,
+                       G_context.tx_info.signing_token,
+                       BLIND_SIGNING_TOKEN_LENGTH) == 0) {
                 ui_action_validate_transaction(true);
             } else {
                 G_context.state = STATE_NONE;

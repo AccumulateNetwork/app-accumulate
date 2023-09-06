@@ -25,14 +25,14 @@ typedef enum
  */
 typedef enum
 {
-    GET_VERSION = 0x03,              /// version of the application
-    GET_APP_NAME = 0x04,             /// name of the application
-    GET_PUBLIC_KEY = 0x05,           /// public key of corresponding BIP32 path
-    SIGN_TX = 0x06,                  /// sign transaction with BIP32 path
-    GET_ADDRESS = 0x07,              /// get associated address
-    GET_BLIND_SIGNING_TOKEN = 0x08,  /// get a token that can be used for blind signing
-    BLIND_SIGN_TX = 0x09,            /// sign transaction with BIP32 path
-    CLEAR_BLIND_SIGNING_TOKEN = 0x10 /// reset the blind signing token
+    GET_VERSION = 0x03,               /// version of the application
+    GET_APP_NAME = 0x04,              /// name of the application
+    GET_PUBLIC_KEY = 0x05,            /// public key of corresponding BIP32 path
+    SIGN_TX = 0x06,                   /// sign transaction with BIP32 path
+    GET_ADDRESS = 0x07,               /// get associated address
+    GET_BLIND_SIGNING_TOKEN = 0x08,   /// get a token that can be used for blind signing
+    BLIND_SIGN_TX = 0x09,             /// sign transaction with BIP32 path
+    CLEAR_BLIND_SIGNING_TOKEN = 0x10  /// reset the blind signing token
 } command_e;
 
 /**
@@ -94,8 +94,8 @@ typedef struct {
     buffer_t arena;
     Signature *signer;
     Transaction *transaction;
-    size_t raw_tx_len;  /// length of raw transaction
-    uint8_t signing_token; /// if a blind signing token is provided this is used to verify output
+    size_t raw_tx_len;      /// length of raw transaction
+    uint8_t signing_token;  /// if a blind signing token is provided this is used to verify output
     uint8_t metadataHash[32];
     uint8_t initiatorHash[33];           /// initiator hash -> field (1 byte) + hash (32 bytes)
     uint8_t m_hash[32];                  /// transaction / message hash digest
@@ -113,15 +113,19 @@ typedef struct {
         pubkey_ctx_t pk_info;       /// public key context
         transaction_ctx_t tx_info;  /// transaction context
     };
-    uint8_t blind_signing_token[BLIND_SIGNING_TOKEN_LENGTH];  /// return a 32 random key with the high bit representing batch mode enabled
-    request_type_e req_type;              /// user request
-    uint32_t bip32_path[MAX_BIP32_PATH];  /// BIP32 path
-    uint8_t bip32_path_len;               /// length of BIP32 path
+    uint8_t
+        blind_signing_token[BLIND_SIGNING_TOKEN_LENGTH];  /// return a 32 random key with the high
+                                                          /// bit representing batch mode enabled
+    request_type_e req_type;                              /// user request
+    uint32_t bip32_path[MAX_BIP32_PATH];                  /// BIP32 path
+    uint8_t bip32_path_len;                               /// length of BIP32 path
 } global_ctx_t;
 
 /**
  * Structure for global context.
  */
 typedef struct {
-    uint8_t blind_signing_token[BLIND_SIGNING_TOKEN_LENGTH];  /// return a 32 random key with the high bit representing batch mode enabled
+    uint8_t
+        blind_signing_token[BLIND_SIGNING_TOKEN_LENGTH];  /// return a 32 random key with the high
+                                                          /// bit representing batch mode enabled
 } blind_siging_ctx_t;

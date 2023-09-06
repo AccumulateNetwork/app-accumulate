@@ -17,8 +17,8 @@
 
 #include "send_response.h"
 
-#include <os.h>
 #include <common/buffer.h>
+#include <os.h>
 #include <stddef.h>  // size_t
 #include <stdint.h>  // uint*_t
 #include <string.h>  // memmove
@@ -60,11 +60,11 @@ int helper_send_response_sig(void) {
 }
 
 int helper_send_response_blind_signing_token() {
-    uint8_t resp[32+1] = {0};
+    uint8_t resp[32 + 1] = {0};
     size_t offset = 0;
     size_t len = sizeof(G_blind_context.blind_signing_token);
     cx_err_t err = cx_get_random_bytes(G_blind_context.blind_signing_token, len);
-    if ( err != 0 ) {
+    if (err != 0) {
         return io_send_sw(SW_RNG_FAIL);
     }
     resp[offset++] = len;
