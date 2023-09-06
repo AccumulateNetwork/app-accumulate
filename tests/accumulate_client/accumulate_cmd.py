@@ -105,8 +105,30 @@ class AccumulateCommand:
         assert len(response) == 1 + pub_key_len + 1 + chain_code_len + 1 + key_name_len
 
         return pub_key, key_name
+    def get_blind_signing_token(self, button: Button) -> Tuple[bytes, bytes]:
+        sw, response = self.transport.exchange_raw(
+            self.builder.get_blind_signing_token()
+        )  # type: int, bytes
 
-    def sign_tx(self, bip32_path: str, envelope: bytes, button: Button) -> Tuple[int, bytes]:
+        # Move past the text
+        print("right button click...")
+        button.right_click()
+        # Approve
+        button.both_click()
+        print("both button clicks...")
+
+        if sw != 0x9000:
+            raise DeviceException(error_code=sw, ins=InsType.INS_GET_BLIND_SIGNING_TOKEN)
+
+        offset: int = 0
+
+        signing_token_len: int = response[offset]
+        offset += 1
+        signing_token: bytes = response[offset:offset + signing_token_len]
+
+        return signing_token
+
+    def sign_tx(self, bip32_path: str, envelope: bytes, signing_token: bytes, button: Button) -> Tuple[int, bytes]:
         #sw: int
         #response: bytes = b""
 

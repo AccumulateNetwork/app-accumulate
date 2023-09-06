@@ -32,6 +32,9 @@ class InsType(enum.IntEnum):
     INS_GET_APP_NAME = 0x04
     INS_GET_PUBLIC_KEY = 0x05
     INS_SIGN_TX = 0x06
+    INS_GET_BLIND_SIGNING_TOKEN = 0x08
+    INS_BLIND_SIGN_TX = 0x09
+    INS_CLEAR_BLIND_SIGNING_TOKEN = 0x0A
 
 class ParamCodeType(enum.IntEnum):
     LedgerP1InitTransactionData = 0x00 # First transaction data block for signing
@@ -174,8 +177,37 @@ class AccumulateCommandBuilder:
                               p1=0x01 if display else 0x00,
                               p2=0x00,
                               cdata=cdata)
+    def get_blind_signing_token(self) -> bytes:
+        """Command builder for GET_BLIND_SIGNING_TOKEN.
 
-    def sign_tx(self, bip32_path: str, envelope: bytes) -> Iterator[Tuple[bool, bytes]]:
+        Returns
+        -------
+        bytes
+            APDU command for GET_BLIND_SIGNING_TOKEN.
+
+        """
+        return self.serialize(cla=self.CLA,
+                              ins=InsType.INS_GET_BLIND_SIGNING_TOKEN,
+                              p1=0x00,
+                              p2=0x00,
+                              cdata=b"")
+
+    def get_clear_signing_token(self) -> bytes:
+        """Command builder for CLEAR_BLIND_SIGNING_TOKEN.
+
+        Returns
+        -------
+        bytes
+            APDU command for CLEAR_BLIND_SIGNING_TOKEN.
+
+        """
+        return self.serialize(cla=self.CLA,
+                              ins=InsType.INS_CLEAR_BLIND_SIGNING_TOKEN,
+                              p1=0x00,
+                              p2=0x00,
+                              cdata=b"")
+
+    def sign_tx(self, bip32_path: str, envelope: bytes, signing_token: bytes) -> Iterator[Tuple[bool, bytes]]:
         """Command builder for INS_SIGN_TX.
 
         Parameters
@@ -195,11 +227,16 @@ class AccumulateCommandBuilder:
 
         cdata: bytes = b"".join([
             len(bip32_paths).to_bytes(1, byteorder="big"),
-            *bip32_paths
+            *bip32_paths,
+            signing_token
         ])
 
+        ins = InsType.INS_SIGN_TX
+        if len(signing_token) != 0:
+            ins = InsType.INS_BLIND_SIGN_TX
+
         yield False, self.serialize(cla=self.CLA,
-                                    ins=InsType.INS_SIGN_TX,
+                                    ins=ins,
                                     p1=ParamCodeType.LedgerP1InitTransactionData,
                                     p2=ParamCodeType.LedgerP2MoreTransactionData,
                                     cdata=cdata)
@@ -208,13 +245,13 @@ class AccumulateCommandBuilder:
         for _, (is_last, chunk) in enumerate(chunkify(envelope, MAX_APDU_LEN)):
             if is_last:
                 yield True, self.serialize(cla=self.CLA,
-                                           ins=InsType.INS_SIGN_TX,
+                                           ins=ins,
                                            p1=ParamCodeType.LedgerP1ContTransactionData,
                                            p2=ParamCodeType.LedgerP2LastTransactionData,
                                            cdata=chunk)
             else:
                 yield False, self.serialize(cla=self.CLA,
-                                            ins=InsType.INS_SIGN_TX,
+                                            ins=ins,
                                             p1=ParamCodeType.LedgerP1ContTransactionData,
                                             p2=ParamCodeType.LedgerP2MoreTransactionData,
                                             cdata=chunk)

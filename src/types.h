@@ -95,7 +95,7 @@ typedef struct {
     Signature *signer;
     Transaction *transaction;
     size_t raw_tx_len;      /// length of raw transaction
-    uint8_t signing_token;  /// if a blind signing token is provided this is used to verify output
+    uint8_t signing_token[32];  /// if a blind signing token is provided this is used to verify output
     uint8_t metadataHash[32];
     uint8_t initiatorHash[33];           /// initiator hash -> field (1 byte) + hash (32 bytes)
     uint8_t m_hash[32];                  /// transaction / message hash digest

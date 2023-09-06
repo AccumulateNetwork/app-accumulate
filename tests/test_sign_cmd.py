@@ -22,8 +22,9 @@ def test_sign_tx(cmd, button):
 
     #signing test vector for an AddCredits transaction
     v, sig = cmd.sign_tx(bip32_path=bip32_path,
-                             envelope=addCreditsEnv,
-                             button=button)
+                            envelope=addCreditsEnv,
+                            signing_token=bytearray(),
+                            button=button)
 
     assert sig == addCreditsExpectedSig
 
@@ -34,8 +35,20 @@ def test_sign_tx(cmd, button):
     #signing test vector for an SendTokens transaction
     v, sig = cmd.sign_tx(bip32_path=bip32_path,
                          envelope=sendTokensEnv,
+                         signing_token=bytearray(),
                          button=button)
 
     assert sig == sendTokensExpectedSig
+
+    # now try blind signing
+    signing_token = cmd.get_blind_signing_token(button=button)
+    v, sig = cmd.sign_tx(bip32_path=bip32_path,
+                         envelope=sendTokensEnv,
+                         signing_token=signing_token,
+                         button=button
+                         )
+
+    assert sig == sendTokensExpectedSig
+
 
 

@@ -110,6 +110,10 @@ int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more, bool blindSigning
                 io_send_sw(SW_DENY);
             }
         } else {
+            if ( G_context.tx_info.transaction == NULL ) {
+                //in this mode the user attempted to blind sign, however it isn't enabled so DENIED....
+                io_send_sw(SW_DENY);
+            }
             e = ui_display_transaction();
             if (IsErrorCode(e)) {
                 io_send_sw(SW_ENCODE_ERROR(ErrorCode(e)));
@@ -135,11 +139,15 @@ int processEnvelope() {
     // TODO (future version): if blind signing is enabled, then we should accept
     // env.Transaction_length == 0 but for now check to make sure there is one (and only one) signer
     // and transaction object
-    if (env.Signatures_length != 1 && env.Transaction_length != 1) {
+    if (env.Signatures_length != 1 && (env.Transaction_length < 2) ) {
         return ErrorInvalidObject;
     }
 
-    G_context.tx_info.transaction = &env.Transaction[0];
+    if ( env.Transaction_length == 0 ) {
+        G_context.tx_info.transaction = NULL;
+    } else {
+        G_context.tx_info.transaction = &env.Transaction[0];
+    }
     G_context.tx_info.signer = &env.Signatures[0];
 
     // Next, do some sanity checks on the transaction to make sure it looks reasonable. These
@@ -245,24 +253,38 @@ int computeInitiatorHash() {
     return ErrorNone;
 }
 
-int computeTransactionHash() {
+int computeTransactionHash(Bytes *envTxHashIfPresent) {
     Bytes hash = {.buffer.ptr = G_context.tx_info.m_hash,
                   .buffer.size = sizeof(G_context.tx_info.m_hash),
                   .buffer.offset = 0};
 
-    // compute transaction hash
-    int e = transactionHash(G_context.tx_info.transaction, G_context.tx_info.m_hash);
-    if (IsError(ErrorCode(e))) {
-        return e;
+    bool haveTxHashFromOtherSource = false;
+    if ( G_context.tx_info.transaction != NULL ) {
+        //if we have a transaction body we need to compute the transaction hash
+        int e = transactionHash(G_context.tx_info.transaction, G_context.tx_info.m_hash);
+        if (IsError(ErrorCode(e))) {
+            return e;
+        }
+        haveTxHashFromOtherSource = true;
+    } else if ( envTxHashIfPresent ) {
+        if ( !buffer_copy(&envTxHashIfPresent->buffer, G_context.tx_info.m_hash, 32) ) {
+            return ErrorInvalidHashParameters;
+        }
+        haveTxHashFromOtherSource = true;
     }
 
-    if (!buffer_can_read(&G_context.tx_info.signer->_u->TransactionHash.data.buffer, 32)) {
-        // if we don't have a hash as part of the incoming payload, just use the one we
-        // computed.
-        G_context.tx_info.signer->_u->TransactionHash.data =
-            (const Bytes){.buffer.ptr = G_context.tx_info.m_hash,
-                          .buffer.size = sizeof(G_context.tx_info.m_hash),
-                          .buffer.offset = 0};
+    // if the transaction has was provided by the user we also need to capture it, and apply it to the signer txhash
+    if (!buffer_can_read(&G_context.tx_info.signer->_u->TransactionHash.data.buffer, 32) ) {
+        if ( haveTxHashFromOtherSource ) {
+            // if we don't have a hash as part of the incoming payload and if we do have a transaction body
+            G_context.tx_info.signer->_u->TransactionHash.data =
+                (const Bytes){.buffer.ptr = G_context.tx_info.m_hash,
+                              .buffer.size = sizeof(G_context.tx_info.m_hash),
+                              .buffer.offset = 0};
+        } else {
+            //if we get here we don't have an external hash source and we don't have our own transaction hash
+            return ErrorInvalidHashParameters;
+        }
     }
 
     // early check to see if our hashes match
@@ -270,7 +292,7 @@ int computeTransactionHash() {
     hash.buffer = (const buffer_t){.ptr = txHash, .size = sizeof(txHash), .offset = 0};
     Error err = Bytes32_get(&G_context.tx_info.signer->_u->TransactionHash, &hash);
     if (IsError(err)) {
-        return io_send_sw(SW_ENCODE_ERROR(err));
+        return err.code;
     }
 
     // sanity check on the txHash
@@ -279,7 +301,7 @@ int computeTransactionHash() {
     }
 
     // now repurpose the tx_info.hash from the txbody hash to the signing hash.
-    e = metadataHash(G_context.tx_info.signer,
+    int e = metadataHash(G_context.tx_info.signer,
                      txHash,
                      G_context.tx_info.m_hash,
                      G_context.tx_info.metadataHash);
