@@ -145,18 +145,20 @@ int processEnvelope() {
         return e;
     }
 
-    // TODO (future version): if blind signing is enabled, then we should accept
-    // env.Transaction_length == 0 but for now check to make sure there is one (and only one) signer
-    // and transaction object
-    if (env.Signatures_length != 1 && (env.Transaction_length < 2)) {
+    // make sure there is one and only one signature body
+    if (env.Signatures_length != 1) {
         return ErrorInvalidObject;
     }
 
-    if (env.Transaction_length == 0) {
-        G_context.tx_info.transaction = NULL;
-    } else {
+    // if blind signing is enabled, then we should accept env.Transaction_length == 0 and
+    // transaction == NULL is ok, otherwise we want one and only one transaction body
+    G_context.tx_info.transaction = NULL;
+    if (env.Transaction_length == 1) {
         G_context.tx_info.transaction = &env.Transaction[0];
+    } else if (env.Transaction_length > 1) {
+        return ErrorInvalidObject
     }
+
     G_context.tx_info.signer = &env.Signatures[0];
 
     // Next, do some sanity checks on the transaction to make sure it looks reasonable. These
