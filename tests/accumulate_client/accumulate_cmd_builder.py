@@ -177,7 +177,7 @@ class AccumulateCommandBuilder:
                               p1=0x01 if display else 0x00,
                               p2=0x00,
                               cdata=cdata)
-    def get_blind_signing_token(self) -> bytes:
+    def get_blind_signing_token(self) -> Iterator[bytes]:
         """Command builder for GET_BLIND_SIGNING_TOKEN.
 
         Returns
@@ -186,13 +186,13 @@ class AccumulateCommandBuilder:
             APDU command for GET_BLIND_SIGNING_TOKEN.
 
         """
-        return self.serialize(cla=self.CLA,
+        yield self.serialize(cla=self.CLA,
                               ins=InsType.INS_GET_BLIND_SIGNING_TOKEN,
                               p1=0x00,
                               p2=0x00,
                               cdata=b"")
 
-    def get_clear_signing_token(self) -> bytes:
+    def clear_blind_signing_token(self) -> bytes:
         """Command builder for CLEAR_BLIND_SIGNING_TOKEN.
 
         Returns
