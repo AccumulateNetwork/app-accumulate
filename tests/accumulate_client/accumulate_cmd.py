@@ -112,7 +112,8 @@ class AccumulateCommand:
 
         # Move past the text
         print("right button click...")
-        button.right_click()
+        button.left_click() #take the backdoor to get to the accept
+        button.left_click() #take the backdoor to get to the accept
         # Approve
         button.both_click()
         print("both button clicks...")
