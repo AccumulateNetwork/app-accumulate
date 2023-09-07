@@ -62,6 +62,14 @@ int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more, bool blindSigning
             PRINTF("have blind signing token %.*H\n",
                    BLIND_SIGNING_TOKEN_LENGTH,
                    G_context.tx_info.signing_token);
+            // immediately reject the transaction if the signing token is empty or doesn't match
+            uint8_t zero[BLIND_SIGNING_TOKEN_LENGTH] = {0};
+            if (memcmp(G_context.tx_info.signing_token, zero, BLIND_SIGNING_TOKEN_LENGTH) == 0 ||
+                memcmp(G_context.tx_info.signing_token,
+                       G_blind_context.signing_token,
+                       BLIND_SIGNING_TOKEN_LENGTH) != 0) {
+                return io_send_sw(SW_DENY);
+            }
         }
 
         int raw_tx_len = cdata->size - cdata->offset;
