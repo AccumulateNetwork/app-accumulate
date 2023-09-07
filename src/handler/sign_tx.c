@@ -164,7 +164,7 @@ int processEnvelope() {
     if (env.Transaction_length == 1) {
         G_context.tx_info.transaction = &env.Transaction[0];
     } else if (env.Transaction_length > 1) {
-        return ErrorInvalidObject
+        return ErrorInvalidObject;
     }
 
     G_context.tx_info.signer = &env.Signatures[0];
