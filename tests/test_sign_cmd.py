@@ -53,5 +53,24 @@ def test_sign_tx(cmd, button):
 
     assert sig == sendTokensExpectedSig
 
+    # now test this with an envelope with no transaction body
+    #addCreditsNoTxEnv = base64.b64decode("AWwBAgIg5V2XO/aROByUYCNU0eH2VfexxL1Wdg3/7/or70VB7BEEHWFjYzovL2xpdGUtdG9rZW4tYWNjb3VudC5hY21lBQEG0oXYzAQIA5zjhbHEh6dxOeGcKW/dY65+FJJgvDhTskX47sVixiYCIAOc44WxxIencTnhnClv3WOufhSSYLw4U7JF+O7FYsYm")
+    sendTokensNoTxEnv = base64.b64decode("AWIBAgIg5V2XO/aROByUYCNU0eH2VfexxL1Wdg3/7/or70VB7BEEE2FjYzovL2FkaS5hY21lL0FDTUUFAQbShdjMBAinZDJnLNeDTrJoc6M9PgCjUMWpo6/5t8xQY320kx5LRwIgp2QyZyzXg06yaHOjPT4Ao1DFqaOv+bfMUGN9tJMeS0c=")
+    print("testing blind signing: blind signing transaction with no tx and env.txHash\n")
+    v, sig = cmd.sign_tx(bip32_path=bip32_path,
+                     envelope=sendTokensNoTxEnv,
+                     signing_token=signing_token,
+                     button=button
+                     )
 
+    assert sig == sendTokensExpectedSig
 
+    sendTokensNoTxNoEnvTxHashEnvelope = base64.b64decode("AWIBAgIg5V2XO/aROByUYCNU0eH2VfexxL1Wdg3/7/or70VB7BEEE2FjYzovL2FkaS5hY21lL0FDTUUFAQbShdjMBAinZDJnLNeDTrJoc6M9PgCjUMWpo6/5t8xQY320kx5LRw==")
+    print("testing blind signing: blind signing transaction with no tx, no env.txHash, and with signature body tx hash\n")
+    v, sig = cmd.sign_tx(bip32_path=bip32_path,
+                         envelope=sendTokensNoTxNoEnvTxHashEnvelope,
+                         signing_token=signing_token,
+                         button=button
+                         )
+
+    assert sig == sendTokensExpectedSig

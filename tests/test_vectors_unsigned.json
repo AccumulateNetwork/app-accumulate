@@ -1,4 +1,450 @@
 {
+  "transactionless_envelopes": [
+    {
+      "name": "CreateIdentity",
+      "cases": [
+        {
+          "binary": "AXEBAgIg5V2XO/aROByUYCNU0eH2VfexxL1Wdg3/7/or70VB7BEEImFjYzovL2xpdGUtdG9rZW4tYWNjb3VudC5hY21lL0FDTUUFAQbShdjMBAgTkgiYG7NYfv6yIMoOWPjtidbxDRLbh1XALg3fR1P1OQ==",
+          "json": {
+            "signatures": [
+              {
+                "type": "ed25519",
+                "publicKey": "e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11",
+                "signer": "acc://lite-token-account.acme/ACME",
+                "signerVersion": 1,
+                "timestamp": 1234567890,
+                "transactionHash": "139208981bb3587efeb220ca0e58f8ed89d6f10d12db8755c02e0ddf4753f539"
+              }
+            ]
+          }
+        },
+        {
+          "binary": "AXEBAgIg5V2XO/aROByUYCNU0eH2VfexxL1Wdg3/7/or70VB7BEEImFjYzovL2xpdGUtdG9rZW4tYWNjb3VudC5hY21lL0FDTUUFAQbShdjMBAhtzPkGZQMkBKd+ueKTO4ErYabB2QxHg+n0d4KEeApGdA==",
+          "json": {
+            "signatures": [
+              {
+                "type": "ed25519",
+                "publicKey": "e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11",
+                "signer": "acc://lite-token-account.acme/ACME",
+                "signerVersion": 1,
+                "timestamp": 1234567890,
+                "transactionHash": "6dccf90665032404a77eb9e2933b812b61a6c1d90c4783e9f4778284780a4674"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "CreateTokenAccount",
+      "cases": [
+        {
+          "binary": "AV0BAgIg5V2XO/aROByUYCNU0eH2VfexxL1Wdg3/7/or70VB7BEEDmFjYzovL2FkaS5hY21lBQEG0oXYzAQI+KgHEf0cWDLFtCM0gw2vIhCp9oRJA2G9rbK27m+K7qA=",
+          "json": {
+            "signatures": [
+              {
+                "type": "ed25519",
+                "publicKey": "e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11",
+                "signer": "acc://adi.acme",
+                "signerVersion": 1,
+                "timestamp": 1234567890,
+                "transactionHash": "f8a80711fd1c5832c5b42334830daf2210a9f684490361bdadb2b6ee6f8aeea0"
+              }
+            ]
+          }
+        },
+        {
+          "binary": "AV0BAgIg5V2XO/aROByUYCNU0eH2VfexxL1Wdg3/7/or70VB7BEEDmFjYzovL2FkaS5hY21lBQEG0oXYzAQICKuo050gF98Dp0Tq27/IxHJr57LlCq3rMTwk9FmCc00=",
+          "json": {
+            "signatures": [
+              {
+                "type": "ed25519",
+                "publicKey": "e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11",
+                "signer": "acc://adi.acme",
+                "signerVersion": 1,
+                "timestamp": 1234567890,
+                "transactionHash": "08aba8d39d2017df03a744eadbbfc8c4726be7b2e50aadeb313c24f45982734d"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "SendTokens",
+      "cases": [
+        {
+          "binary": "AWIBAgIg5V2XO/aROByUYCNU0eH2VfexxL1Wdg3/7/or70VB7BEEE2FjYzovL2FkaS5hY21lL0FDTUUFAQbShdjMBAinZDJnLNeDTrJoc6M9PgCjUMWpo6/5t8xQY320kx5LRw==",
+          "json": {
+            "signatures": [
+              {
+                "type": "ed25519",
+                "publicKey": "e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11",
+                "signer": "acc://adi.acme/ACME",
+                "signerVersion": 1,
+                "timestamp": 1234567890,
+                "transactionHash": "a76432672cd7834eb26873a33d3e00a350c5a9a3aff9b7cc50637db4931e4b47"
+              }
+            ]
+          }
+        },
+        {
+          "binary": "AWIBAgIg5V2XO/aROByUYCNU0eH2VfexxL1Wdg3/7/or70VB7BEEE2FjYzovL2FkaS5hY21lL0FDTUUFAQbShdjMBAhKHoFH+JD0lkPoeMR78JaOMQY9NM1orCxFxqmtXHNPnA==",
+          "json": {
+            "signatures": [
+              {
+                "type": "ed25519",
+                "publicKey": "e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11",
+                "signer": "acc://adi.acme/ACME",
+                "signerVersion": 1,
+                "timestamp": 1234567890,
+                "transactionHash": "4a1e8147f890f49643e878c47bf0968e31063d34cd68ac2c45c6a9ad5c734f9c"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "CreateDataAccount",
+      "cases": [
+        {
+          "binary": "AV0BAgIg5V2XO/aROByUYCNU0eH2VfexxL1Wdg3/7/or70VB7BEEDmFjYzovL2FkaS5hY21lBQEG0oXYzAQIOS1APox4khPW4vGja9Nk4tzvGHHjNyyhKBoIZgEcTrA=",
+          "json": {
+            "signatures": [
+              {
+                "type": "ed25519",
+                "publicKey": "e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11",
+                "signer": "acc://adi.acme",
+                "signerVersion": 1,
+                "timestamp": 1234567890,
+                "transactionHash": "392d403e8c789213d6e2f1a36bd364e2dcef1871e3372ca1281a0866011c4eb0"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "WriteData",
+      "cases": [
+        {
+          "binary": "AV0BAgIg5V2XO/aROByUYCNU0eH2VfexxL1Wdg3/7/or70VB7BEEDmFjYzovL2FkaS5hY21lBQEG0oXYzAQI3EejdVw1oLWcDa0BYWHKnb7PLinFAr1XGcCOWPmEqBU=",
+          "json": {
+            "signatures": [
+              {
+                "type": "ed25519",
+                "publicKey": "e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11",
+                "signer": "acc://adi.acme",
+                "signerVersion": 1,
+                "timestamp": 1234567890,
+                "transactionHash": "dc47a3755c35a0b59c0dad016161ca9dbecf2e29c502bd5719c08e58f984a815"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "WriteDataTo",
+      "cases": [
+        {
+          "binary": "AV0BAgIg5V2XO/aROByUYCNU0eH2VfexxL1Wdg3/7/or70VB7BEEDmFjYzovL2FkaS5hY21lBQEG0oXYzAQI7Z5LjDhh56jjlxgcuOiq0j2Y9B5m88lkJST1eo/YdgQ=",
+          "json": {
+            "signatures": [
+              {
+                "type": "ed25519",
+                "publicKey": "e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11",
+                "signer": "acc://adi.acme",
+                "signerVersion": 1,
+                "timestamp": 1234567890,
+                "transactionHash": "ed9e4b8c3861e7a8e397181cb8e8aad23d98f41e66f3c9642524f57a8fd87604"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "AcmeFaucet",
+      "cases": [
+        {
+          "binary": "AWABAgIg5V2XO/aROByUYCNU0eH2VfexxL1Wdg3/7/or70VB7BEEEWFjYzovL2ZhdWNldC5hY21lBQEG0oXYzAQI5ANib9RNf2RxVUbyX8d+tM0Ec8VeDZNiyAnRpDTQgeg=",
+          "json": {
+            "signatures": [
+              {
+                "type": "ed25519",
+                "publicKey": "e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11",
+                "signer": "acc://faucet.acme",
+                "signerVersion": 1,
+                "timestamp": 1234567890,
+                "transactionHash": "e403626fd44d7f64715546f25fc77eb4cd0473c55e0d9362c809d1a434d081e8"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "CreateToken",
+      "cases": [
+        {
+          "binary": "AV0BAgIg5V2XO/aROByUYCNU0eH2VfexxL1Wdg3/7/or70VB7BEEDmFjYzovL2FkaS5hY21lBQEG0oXYzAQIBt+3+U2zI0pbz17nWgmzpkFYmWP/3O3X76cvNqoFv6o=",
+          "json": {
+            "signatures": [
+              {
+                "type": "ed25519",
+                "publicKey": "e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11",
+                "signer": "acc://adi.acme",
+                "signerVersion": 1,
+                "timestamp": 1234567890,
+                "transactionHash": "06dfb7f94db3234a5bcf5ee75a09b3a641589963ffdcedd7efa72f36aa05bfaa"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "IssueTokens",
+      "cases": [
+        {
+          "binary": "AWUBAgIg5V2XO/aROByUYCNU0eH2VfexxL1Wdg3/7/or70VB7BEEFmFjYzovL2FkaS5hY21lL2Zvb2NvaW4FAQbShdjMBAiwzMC74C9NELec84AMCpjeq38OUz9yahWBiMgcDwMyFw==",
+          "json": {
+            "signatures": [
+              {
+                "type": "ed25519",
+                "publicKey": "e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11",
+                "signer": "acc://adi.acme/foocoin",
+                "signerVersion": 1,
+                "timestamp": 1234567890,
+                "transactionHash": "b0ccc0bbe02f4d10b79cf3800c0a98deab7f0e533f726a158188c81c0f033217"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "BurnTokens",
+      "cases": [
+        {
+          "binary": "AWEBAgIg5V2XO/aROByUYCNU0eH2VfexxL1Wdg3/7/or70VB7BEEEmFjYzovL2FkaS5hY21lL2ZvbwUBBtKF2MwECAl3SpNZ5nlfoedcmNBXyJv5xf+xzyuGOVjcUYg8iOzU",
+          "json": {
+            "signatures": [
+              {
+                "type": "ed25519",
+                "publicKey": "e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11",
+                "signer": "acc://adi.acme/foo",
+                "signerVersion": 1,
+                "timestamp": 1234567890,
+                "transactionHash": "09774a9359e6795fa1e75c98d057c89bf9c5ffb1cf2b863958dc51883c88ecd4"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "CreateKeyPage",
+      "cases": [
+        {
+          "binary": "AV0BAgIg5V2XO/aROByUYCNU0eH2VfexxL1Wdg3/7/or70VB7BEEDmFjYzovL2FkaS5hY21lBQEG0oXYzAQIXafRALiHzxagl28+j+fFbd8AjqgE+1hStfZ5Oi8SgjQ=",
+          "json": {
+            "signatures": [
+              {
+                "type": "ed25519",
+                "publicKey": "e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11",
+                "signer": "acc://adi.acme",
+                "signerVersion": 1,
+                "timestamp": 1234567890,
+                "transactionHash": "5da7d100b887cf16a0976f3e8fe7c56ddf008ea804fb5852b5f6793a2f128234"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "CreateKeyBook",
+      "cases": [
+        {
+          "binary": "AV0BAgIg5V2XO/aROByUYCNU0eH2VfexxL1Wdg3/7/or70VB7BEEDmFjYzovL2FkaS5hY21lBQEG0oXYzAQIWM3kr2kl54sqlGJ3CqVR8FSujJb45JK3/OGiXad+/Co=",
+          "json": {
+            "signatures": [
+              {
+                "type": "ed25519",
+                "publicKey": "e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11",
+                "signer": "acc://adi.acme",
+                "signerVersion": 1,
+                "timestamp": 1234567890,
+                "transactionHash": "58cde4af6925e78b2a9462770aa551f054ae8c96f8e492b7fce1a25da77efc2a"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "AddCredits",
+      "cases": [
+        {
+          "binary": "AWwBAgIg5V2XO/aROByUYCNU0eH2VfexxL1Wdg3/7/or70VB7BEEHWFjYzovL2xpdGUtdG9rZW4tYWNjb3VudC5hY21lBQEG0oXYzAQIA5zjhbHEh6dxOeGcKW/dY65+FJJgvDhTskX47sVixiY=",
+          "json": {
+            "signatures": [
+              {
+                "type": "ed25519",
+                "publicKey": "e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11",
+                "signer": "acc://lite-token-account.acme",
+                "signerVersion": 1,
+                "timestamp": 1234567890,
+                "transactionHash": "039ce385b1c487a77139e19c296fdd63ae7e149260bc3853b245f8eec562c626"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "UpdateKeyPage",
+      "cases": [
+        {
+          "binary": "AV0BAgIg5V2XO/aROByUYCNU0eH2VfexxL1Wdg3/7/or70VB7BEEDmFjYzovL2FkaS5hY21lBQEG0oXYzAQIqD5tRBaZ/jGHQZiK0qwsUBN2RBcLuuk8OHB6tRmSI8o=",
+          "json": {
+            "signatures": [
+              {
+                "type": "ed25519",
+                "publicKey": "e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11",
+                "signer": "acc://adi.acme",
+                "signerVersion": 1,
+                "timestamp": 1234567890,
+                "transactionHash": "a83e6d441699fe318741988ad2ac2c50137644170bbae93c38707ab5199223ca"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "SignPending",
+      "cases": [
+        {
+          "binary": "ATwBAgIg5V2XO/aROByUYCNU0eH2VfexxL1Wdg3/7/or70VB7BEEDmFjYzovL2FkaS5hY21lBQEG0oXYzAQ=",
+          "json": {
+            "signatures": [
+              {
+                "type": "ed25519",
+                "publicKey": "e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11",
+                "signer": "acc://adi.acme",
+                "signerVersion": 1,
+                "timestamp": 1234567890
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "SyntheticCreateIdentity",
+      "cases": [
+        {
+          "binary": "AV0BAgIg5V2XO/aROByUYCNU0eH2VfexxL1Wdg3/7/or70VB7BEEDmFjYzovL2FkaS5hY21lBQEG0oXYzAQI61pcz1GtOod38LcWoqpI0J7MCY8PdR1b0mt52+ETs3E=",
+          "json": {
+            "signatures": [
+              {
+                "type": "ed25519",
+                "publicKey": "e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11",
+                "signer": "acc://adi.acme",
+                "signerVersion": 1,
+                "timestamp": 1234567890,
+                "transactionHash": "eb5a5ccf51ad3a8777f0b716a2aa48d09ecc098f0f751d5bd26b79dbe113b371"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "SyntheticWriteData",
+      "cases": [
+        {
+          "binary": "AV0BAgIg5V2XO/aROByUYCNU0eH2VfexxL1Wdg3/7/or70VB7BEEDmFjYzovL2FkaS5hY21lBQEG0oXYzAQIiBZMq72JXv2FjeQgV4N3+AdnU53CeHcsHXg89rrZf1E=",
+          "json": {
+            "signatures": [
+              {
+                "type": "ed25519",
+                "publicKey": "e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11",
+                "signer": "acc://adi.acme",
+                "signerVersion": 1,
+                "timestamp": 1234567890,
+                "transactionHash": "88164cabbd895efd858de420578377f80767539dc278772c1d783cf6bad97f51"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "SyntheticDepositTokens",
+      "cases": [
+        {
+          "binary": "AV0BAgIg5V2XO/aROByUYCNU0eH2VfexxL1Wdg3/7/or70VB7BEEDmFjYzovL2FkaS5hY21lBQEG0oXYzAQIe08vppUdFdlnapT5aIvkt0IV9ZDBVchxQzDzNXEy4SY=",
+          "json": {
+            "signatures": [
+              {
+                "type": "ed25519",
+                "publicKey": "e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11",
+                "signer": "acc://adi.acme",
+                "signerVersion": 1,
+                "timestamp": 1234567890,
+                "transactionHash": "7b4f2fa6951d15d9676a94f9688be4b74215f590c155c8714330f3357132e126"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "SyntheticDepositCredits",
+      "cases": [
+        {
+          "binary": "AV0BAgIg5V2XO/aROByUYCNU0eH2VfexxL1Wdg3/7/or70VB7BEEDmFjYzovL2FkaS5hY21lBQEG0oXYzAQIKVRpqsTDFmfLfB9QwFBMQSvnp5flYpak0l9Wz/HsGIY=",
+          "json": {
+            "signatures": [
+              {
+                "type": "ed25519",
+                "publicKey": "e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11",
+                "signer": "acc://adi.acme",
+                "signerVersion": 1,
+                "timestamp": 1234567890,
+                "transactionHash": "295469aac4c31667cb7c1f50c0504c412be7a797e56296a4d25f56cff1ec1886"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "SyntheticBurnTokens",
+      "cases": [
+        {
+          "binary": "AV0BAgIg5V2XO/aROByUYCNU0eH2VfexxL1Wdg3/7/or70VB7BEEDmFjYzovL2FkaS5hY21lBQEG0oXYzAQIuPm4da4Zup4NueEwT4dIqX3kj1QnQSzJw6Fi0e6WS0U=",
+          "json": {
+            "signatures": [
+              {
+                "type": "ed25519",
+                "publicKey": "e55d973bf691381c94602354d1e1f655f7b1c4bd56760dffeffa2bef4541ec11",
+                "signer": "acc://adi.acme",
+                "signerVersion": 1,
+                "timestamp": 1234567890,
+                "transactionHash": "b8f9b875ae19ba9e0db9e1304f8748a97de48f5427412cc9c3a162d1ee964b45"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
   "transactions": [
     {
       "name": "CreateIdentity",
@@ -234,7 +680,7 @@
       "name": "WriteData",
       "cases": [
         {
-          "binary": "AV0BAgIg5V2XO/aROByUYCNU0eH2VfexxL1Wdg3/7/or70VB7BEEDmFjYzovL2FkaS5hY21lBQEG0oXYzAQIdrFv3y2nY6ZE9XkXD4n/OZxBUMaQij66WVUzMnfJgY4DSgExAQ5hY2M6Ly9hZGkuYWNtZQJckKxEnRfESBQd7zYZfOjWOFK4X5FiGxAV5VPMu9Dy8gIVAQUCEQECAgNmb28CA2JhcgIDYmF6",
+          "binary": "AV0BAgIg5V2XO/aROByUYCNU0eH2VfexxL1Wdg3/7/or70VB7BEEDmFjYzovL2FkaS5hY21lBQEG0oXYzAQI3EejdVw1oLWcDa0BYWHKnb7PLinFAr1XGcCOWPmEqBUDSgExAQ5hY2M6Ly9hZGkuYWNtZQJckKxEnRfESBQd7zYZfOjWOFK4X5FiGxAV5VPMu9Dy8gIVAQUCEQEDAgNmb28CA2JhcgIDYmF6",
           "json": {
             "signatures": [
               {
@@ -243,7 +689,7 @@
                 "signer": "acc://adi.acme",
                 "signerVersion": 1,
                 "timestamp": 1234567890,
-                "transactionHash": "76b16fdf2da763a644f579170f89ff399c4150c6908a3eba5955333277c9818e"
+                "transactionHash": "dc47a3755c35a0b59c0dad016161ca9dbecf2e29c502bd5719c08e58f984a815"
               }
             ],
             "transaction": [
@@ -255,7 +701,7 @@
                 "body": {
                   "type": "writeData",
                   "entry": {
-                    "type": "accumulate",
+                    "type": "doubleHash",
                     "data": [
                       "666f6f",
                       "626172",

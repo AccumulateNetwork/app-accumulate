@@ -170,11 +170,13 @@ int processEnvelope() {
         return e;
     }
 
-    // Step 2: compute the initiator hash with given inputs, if signer supplied one, then compare
-    // it, otherwise set it
-    e = computeInitiatorHash();
-    if (IsError(ErrorCode(e))) {
-        return e;
+    if (G_context.tx_info.transaction) {
+        // Step 2: compute the initiator hash with given inputs, if signer supplied one, then
+        // compare it, otherwise set it
+        e = computeInitiatorHash();
+        if (IsError(ErrorCode(e))) {
+            return e;
+        }
     }
 
     // Step 3: compute and compare (if supplied) the transaction hash, then compute the signing hash
@@ -267,7 +269,9 @@ int computeTransactionHash(Bytes *envTxHashIfPresent) {
     Bytes hash = {.buffer.ptr = G_context.tx_info.m_hash,
                   .buffer.size = sizeof(G_context.tx_info.m_hash),
                   .buffer.offset = 0};
+    uint8_t txHash[32] = {0};
 
+    bool haveTxHashFromComputation = false;
     bool haveTxHashFromOtherSource = false;
     if (G_context.tx_info.transaction != NULL) {
         // if we have a transaction body we need to compute the transaction hash
@@ -276,18 +280,22 @@ int computeTransactionHash(Bytes *envTxHashIfPresent) {
             PRINTF("Transaction hash computation failed\n");
             return e;
         }
-        haveTxHashFromOtherSource = true;
+        haveTxHashFromComputation = true;
     } else if (envTxHashIfPresent) {
-        if (buffer_copy(&envTxHashIfPresent->buffer, G_context.tx_info.m_hash, 32)) {
+        // if we have data then copy it, note txHash at this point is empty
+        if (memcmp(envTxHashIfPresent->buffer.ptr + envTxHashIfPresent->buffer.offset,
+                   txHash,
+                   envTxHashIfPresent->buffer.size) != 0) {
+            haveTxHashFromOtherSource =
+                buffer_copy(&envTxHashIfPresent->buffer, G_context.tx_info.m_hash, 32);
             PRINTF("envelope transaction hash was present so using that\n");
-            haveTxHashFromOtherSource = true;
         }
     }
 
     // if the transaction has was provided by the user we also need to capture it, and apply it to
     // the signer txhash
     if (!buffer_can_read(&G_context.tx_info.signer->_u->TransactionHash.data.buffer, 32)) {
-        if (haveTxHashFromOtherSource) {
+        if (haveTxHashFromOtherSource || haveTxHashFromComputation) {
             // if we don't have a hash as part of the incoming payload and if we do have a
             // transaction body
             PRINTF("copy transaction hash into signer transaction hash field\n");
@@ -301,10 +309,27 @@ int computeTransactionHash(Bytes *envTxHashIfPresent) {
             PRINTF("we are missing a transaction hash, so cannot continue\n");
             return ErrorInvalidHashParameters;
         }
+    } else {
+        if (!haveTxHashFromComputation) {
+            PRINTF("we don't want to do this if we computed the tx hash\n");
+            if (memcmp(G_context.tx_info.signer->_u->TransactionHash.data.buffer.ptr +
+                           G_context.tx_info.signer->_u->TransactionHash.data.buffer.offset,
+                       txHash,
+                       G_context.tx_info.signer->_u->TransactionHash.data.buffer.size) != 0) {
+                // we also have a signature body transaction hash that is non-zero,
+                // so that one takes priority over env.TxHash but not computed tx Hash
+                if (!buffer_copy(&G_context.tx_info.signer->_u->TransactionHash.data.buffer,
+                                 G_context.tx_info.m_hash,
+                                 32)) {
+                    return ErrorInvalidHashParameters;
+                }
+            }
+        }
     }
 
-    // early check to see if our hashes match
-    uint8_t txHash[32] = {0};
+    PRINTF("extracting precomputed tx hash from signature body\n");
+    // early check to see if our hashes match, only really matters at this point if the
+    // computed hash equals the signature body transaction hash.
     hash.buffer = (const buffer_t){.ptr = txHash, .size = sizeof(txHash), .offset = 0};
     Error err = Bytes32_get(&G_context.tx_info.signer->_u->TransactionHash, &hash);
     if (IsError(err)) {
@@ -313,6 +338,11 @@ int computeTransactionHash(Bytes *envTxHashIfPresent) {
 
     // sanity check on the txHash
     if (memcmp(txHash, G_context.tx_info.m_hash, 32) != 0) {
+        PRINTF("transaction hash is not what is expected have %.*H want %.*H\n",
+               32,
+               txHash,
+               32,
+               G_context.tx_info.m_hash);
         return ErrorInvalidHashParameters;
     }
 
