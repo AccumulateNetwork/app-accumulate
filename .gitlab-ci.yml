@@ -182,7 +182,7 @@ build-nano-x:
   stage: build-firmware
   extends: .builder
   variables:
-    BOLOS_SDK: /opt/stax-secure-sdk
+    BOLOS_SDK: /opt/nanox-secure-sdk
     OUTPUT_PKG_NAME: "${NANOX_OUTPUT_PKG_NAME}"
     PACKAGE_REGISTRY_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/nano-x"
   script:
