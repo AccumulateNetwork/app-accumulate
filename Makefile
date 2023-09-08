@@ -113,7 +113,8 @@ CC      := $(CLANGPATH)clang
 
 CFLAGS  += -O3 -Os -Wall
 ifeq ($(DEBUG),0)
-CFLAGS  += -Werror -Wno-self-assign -Wno-unused-function -Wno-unused-parameter -Wno-implicit-fallthrough -Wno-undef -Wno-deprecated-declarations
+#CFLAGS  += -Werror -Wno-self-assign -Wno-unused-function -Wno-unused-parameter -Wno-implicit-fallthrough -Wno-undef -Wno-deprecated-declarations
+CFLAGS  += -Werror 
 endif
 AS      := $(GCCPATH)arm-none-eabi-gcc
 LD      := $(GCCPATH)arm-none-eabi-gcc

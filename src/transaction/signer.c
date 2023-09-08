@@ -7,6 +7,7 @@
 
 bool isInitiatorField(int field, SignatureType type) {
     bool ret = false;
+    UNUSED(type);
     switch (field) {
         case SigTypeMarshalFieldType:
         case SigTypeMarshalFieldPublicKey:
