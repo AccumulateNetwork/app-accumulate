@@ -17,11 +17,11 @@ Error keccak(const uint8_t *in, unsigned int len, uint8_t *out, unsigned int out
 #ifndef UNIT_TEST
     cx_sha3_t keccak256;
     cx_err_t err = cx_keccak_init_no_throw(&keccak256, 256);
-    if ( err != CX_OK ) {
+    if (err != CX_OK) {
         return ErrorCode(ErrorInvalidHashParameters);
     }
     err = cx_hash_no_throw((cx_hash_t *) &keccak256, CX_LAST, in, len, out, out_len);
-    if ( err != CX_OK ) {
+    if (err != CX_OK) {
         return ErrorCode(ErrorInvalidHashParameters);
     }
 #else
