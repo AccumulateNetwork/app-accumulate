@@ -54,14 +54,6 @@ int crypto_derive_private_key(cx_ecfp_private_key_t *private_key,
     volatile derivation_t curve = inferCurve(bip32_path, bip32_path_len);
     explicit_bzero(private_key, sizeof(cx_ecfp_private_key_t));
 
-    // unsigned int derivation_mode,
-    //         cx_curve_t curve,
-    //         const unsigned int *path,
-    //         unsigned int path_len,
-    //         unsigned char raw_privkey[static 64],
-    //         unsigned char *chain_code,
-    //         unsigned char *seed,
-    //         unsigned int seed_len
     cx_err_t err = os_derive_bip32_with_seed_no_throw(curve.mode,
                                                       curve.derivation_curve,
                                                       bip32_path,
