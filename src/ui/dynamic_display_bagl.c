@@ -1,8 +1,7 @@
-#include "dynamic_display.h"
-
 #include <stdbool.h>
 #include <types.h>
 
+#include "dynamic_display.h"
 #include "glyphs.h"
 #include "os.h"
 #include "ux.h"
@@ -65,12 +64,12 @@ UX_FLOW(dynamic_test_flow,
 // This is a special function you must call for bnnn_paging to work properly in an edgecase.
 // It does some weird stuff with the `G_ux` global which is defined by the SDK.
 // No need to dig deeper into the code, a simple copy-paste will do.
-void bnnn_paging_edgecase() {                  
+void bnnn_paging_edgecase() {
     G_ux.flow_stack[G_ux.stack_count - 1].prev_index =
         G_ux.flow_stack[G_ux.stack_count - 1].index - 2;
     G_ux.flow_stack[G_ux.stack_count - 1].index--;
-    ux_flow_relayout();   
-} 
+    ux_flow_relayout();
+}
 
 void flow_next() {
     ux_flow_next();

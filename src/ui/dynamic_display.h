@@ -25,9 +25,9 @@ extern const ux_flow_step_t step_generic;
 extern const ux_flow_step_t step_lower_delimiter;
 
 int step_test(int index);
-void flow_next(); 
-void flow_prev(); 
-void bnnn_paging_edgecase(); 
+void flow_next();
+void flow_prev();
+void bnnn_paging_edgecase();
 
 // example implementation:
 // UX_FLOW(dynamic_flow,

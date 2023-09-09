@@ -35,8 +35,8 @@ derivation_t inferCurve(const uint32_t *bip32_path, uint8_t bip32_path_len) {
             // do nothing
             break;
         case CoinTypeFct:
-            //note FCT has a hybrid key generation sceheme.
-            //It uses the normal secp256k1 derivation then generates an ed25519 key from that
+            // note FCT has a hybrid key generation sceheme.
+            // It uses the normal secp256k1 derivation then generates an ed25519 key from that
             derivation.key_gen_curve = CX_CURVE_Ed25519;
             break;
         case CoinTypeAcme:
@@ -52,7 +52,8 @@ derivation_t inferCurve(const uint32_t *bip32_path, uint8_t bip32_path_len) {
 int crypto_derive_private_key(cx_ecfp_private_key_t *private_key,
                               const uint32_t *bip32_path,
                               uint8_t bip32_path_len) {
-    volatile uint8_t raw_private_key[64] = {0}; //os_derive_bip32_with_seed requires 64 byte priv key
+    volatile uint8_t raw_private_key[64] = {
+        0};  // os_derive_bip32_with_seed requires 64 byte priv key
     volatile derivation_t curve = inferCurve(bip32_path, bip32_path_len);
     explicit_bzero(private_key, sizeof(cx_ecfp_private_key_t));
 
@@ -72,9 +73,9 @@ int crypto_derive_private_key(cx_ecfp_private_key_t *private_key,
     }
 
     err = cx_ecfp_init_private_key_no_throw(curve.key_gen_curve,
-                                        (uint8_t *) raw_private_key,
-                                        32,
-                                        private_key);
+                                            (uint8_t *) raw_private_key,
+                                            32,
+                                            private_key);
     explicit_bzero((void *) raw_private_key, sizeof(raw_private_key));
     if (err != CX_OK) {
         PRINTF("Received error from cx_ecfp_init_private_key_no_throw %d\n", err);

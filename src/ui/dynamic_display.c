@@ -109,4 +109,3 @@ void display_next_state(bool is_upper_delimiter) {
         }
     }
 }
-

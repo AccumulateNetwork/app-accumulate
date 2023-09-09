@@ -15,10 +15,9 @@
  *  limitations under the License.
  *****************************************************************************/
 
-#include "menu.h"
-
 #include "../globals.h"
 #include "glyphs.h"
+#include "menu.h"
 #include "os.h"
 #include "ux.h"
 
