@@ -35,6 +35,8 @@ derivation_t inferCurve(const uint32_t *bip32_path, uint8_t bip32_path_len) {
             // do nothing
             break;
         case CoinTypeFct:
+            //note FCT has a hybrid key generation sceheme.
+            //It uses the normal secp256k1 derivation then generates an ed25519 key from that
             derivation.key_gen_curve = CX_CURVE_Ed25519;
             break;
         case CoinTypeAcme:
@@ -50,10 +52,11 @@ derivation_t inferCurve(const uint32_t *bip32_path, uint8_t bip32_path_len) {
 int crypto_derive_private_key(cx_ecfp_private_key_t *private_key,
                               const uint32_t *bip32_path,
                               uint8_t bip32_path_len) {
-    volatile uint8_t raw_private_key[64] = {0};
+    volatile uint8_t raw_private_key[64] = {0}; //os_derive_bip32_with_seed requires 64 byte priv key
     volatile derivation_t curve = inferCurve(bip32_path, bip32_path_len);
     explicit_bzero(private_key, sizeof(cx_ecfp_private_key_t));
 
+    PRINTF("Deriving Key with seed and raw_private_key\n");
     cx_err_t err = os_derive_bip32_with_seed_no_throw(curve.mode,
                                                       curve.derivation_curve,
                                                       bip32_path,
@@ -63,16 +66,19 @@ int crypto_derive_private_key(cx_ecfp_private_key_t *private_key,
                                                       NULL,
                                                       0);
     if (err != CX_OK) {
-        explicit_bzero((void *) &raw_private_key, sizeof(raw_private_key));
+        PRINTF("Received error from os_derive_bip32_with_seed_no_throw %d\n", err);
+        explicit_bzero((void *) raw_private_key, sizeof(raw_private_key));
         return ErrorBadKey;
     }
 
     err = cx_ecfp_init_private_key_no_throw(curve.key_gen_curve,
-                                            (uint8_t *) raw_private_key,
-                                            sizeof(raw_private_key),
-                                            private_key);
+                                        (uint8_t *) raw_private_key,
+                                        32,
+                                        private_key);
+    explicit_bzero((void *) raw_private_key, sizeof(raw_private_key));
     if (err != CX_OK) {
-        explicit_bzero((void *) &raw_private_key, sizeof(raw_private_key));
+        PRINTF("Received error from cx_ecfp_init_private_key_no_throw %d\n", err);
+        explicit_bzero((void *) private_key, sizeof(private_key));
         return ErrorBadKey;
     }
 
@@ -161,6 +167,7 @@ int crypto_sign_message(void) {
             break;
         default:
             // defensive clearing of key
+            PRINTF("Unknown curve in sign message %d\n", private_key.curve);
             explicit_bzero(&private_key, sizeof(private_key));
             return ErrorUnknown;
     }

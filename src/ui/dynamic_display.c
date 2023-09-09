@@ -12,66 +12,8 @@
 #endif
 
 DynamicDisplay global;
-extern ux_state_t G_ux;
-extern bolos_ux_params_t G_ux_params;
 
 void display_next_state(bool is_upper_delimiter);
-// Note we're using UX_STEP_INIT because this step won't display anything.
-UX_STEP_INIT(step_upper_delimiter, NULL, NULL, {
-    // This function will be detailed later on.
-    display_next_state(true);
-});
-
-UX_STEP_NOCB(step_generic,
-             bnnn_paging,
-             {
-                 .title = global.title,
-                 .text = global.text,
-             });
-
-// Note we're using UX_STEP_INIT because this step won't display anything.
-UX_STEP_INIT(step_lower_delimiter, NULL, NULL, {
-    // This function will be detailed later on.
-    display_next_state(false);
-});
-
-UX_STEP_NOCB(step_welcome,
-             pnn,
-             {
-                 &C_icon_eye,
-                 "Welcome",
-                 "Do Something",
-             });
-
-UX_STEP_NOCB(step_quit,
-             pnn,
-             {
-                 &C_icon_eye,
-                 "Good Bye",
-                 "Don't do anything",
-             });
-
-UX_FLOW(dynamic_test_flow,
-        &step_welcome,
-
-        &step_upper_delimiter,  // A special step that serves as the upper delimiter. It won't print
-                                // anything on the screen.
-        &step_generic,          // The generic step that will actually display stuff on the screen.
-        &step_lower_delimiter,  // A special step that serves as the lower delimiter. It won't print
-                                // anything on the screen.
-
-        &step_quit,
-        FLOW_LOOP);
-
-// This is a special function you must call for bnnn_paging to work properly in an edgecase.
-// It does some weird stuff with the `G_ux` global which is defined by the SDK.
-// No need to dig deeper into the code, a simple copy-paste will do.
-void bnnn_paging_edgecase() {
-    G_ux.flow_stack[G_ux.stack_count - 1].prev_index =
-        G_ux.flow_stack[G_ux.stack_count - 1].index - 2;
-    G_ux.flow_stack[G_ux.stack_count - 1].index--;
-    ux_flow_relayout();
-}
 
 int step_test(int index) {
     snprintf(global.title, sizeof(global.title), "step_test");
@@ -114,7 +56,7 @@ void display_next_state(bool is_upper_delimiter) {
             }
 
             // Move to the next step, which will display the screen.
-            ux_flow_next();
+            flow_next();
         } else {
             // The previous screen was NOT a static screen, so we were already in a dynamic screen.
 
@@ -122,14 +64,14 @@ void display_next_state(bool is_upper_delimiter) {
             bool dynamic_data = get_next_data(global.title, global.text, is_upper_delimiter, false);
             if (dynamic_data) {
                 // We found some data so simply display it.
-                ux_flow_next();
+                flow_next();
             } else {
                 // There's no more dynamic data to display, so
                 // update the current state accordingly.
                 global.current_state = STATIC_SCREEN;
 
                 // Display the previous screen which should be a static one.
-                ux_flow_prev();
+                flow_prev();
             }
         }
     } else {
@@ -146,7 +88,7 @@ void display_next_state(bool is_upper_delimiter) {
             }
 
             // Display the data.
-            ux_flow_prev();
+            flow_prev();
         } else {
             // We're being called from a dynamic screen, so the user was already browsing the array.
 
@@ -162,15 +104,9 @@ void display_next_state(bool is_upper_delimiter) {
                 global.current_state = STATIC_SCREEN;
 
                 // Display the next screen
-                ux_flow_next();
+                flow_next();
             }
         }
     }
 }
 
-void debug_display() {
-    explicit_bzero(&global, sizeof(global));
-    global.dynamic_flow = step_test;
-    global.max = 10;
-    ux_flow_init(0, dynamic_test_flow, NULL);
-}
