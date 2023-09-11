@@ -7,7 +7,7 @@
 #include "globals.h"
 #include "types.h"
 #include "ui/dynamic_display.h"
-#include "ux.h"
+//#include "ux.h"
 
 int display_transaction_principal(void);
 int display_memo_or_error(void);

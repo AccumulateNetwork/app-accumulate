@@ -28,24 +28,26 @@ endif
 
 include $(BOLOS_SDK)/Makefile.defines
 
-ifeq ($(TARGET_NAME), TARGET_NANOX)
-    APP_LOAD_PARAMS += --appFlags 0x200  # APPLICATION_FLAG_BOLOS_SETTINGS
+ifeq ($(TARGET_NAME), TARGET_NANOX TARGET_STAX)
+    APP_LOAD_PARAMS += --appFlags 0xa00 # APPLICATION_FLAG_LIBRARY + APPLICATION_FLAG_BOLOS_SETTINGS
 else
-    APP_LOAD_PARAMS += --appFlags 0x000
+    APP_LOAD_PARAMS += --appFlags 0x800 # APPLICATION_FLAG_LIBRARY
 endif
-# Accumulate supports addressing bitcoin, ethereum, factom, and accumulate  for accumulate transactions
+# Accumulate supports addressing bitcoin, ethereum, factom, and accumulate for accumulate transactions
 APP_LOAD_PARAMS += --path "44'/0'" --path "44'/60'" --path "44'/131'" --path "44'/281'"
 APP_LOAD_PARAMS += --curve ed25519 --curve secp256k1
 APP_LOAD_PARAMS += $(COMMON_LOAD_PARAMS)
 
 APPNAME      = "Accumulate"
 APPVERSION_M = 1
-APPVERSION_N = 1 
+APPVERSION_N = 2
 APPVERSION_P = 0
 APPVERSION   = "$(APPVERSION_M).$(APPVERSION_N).$(APPVERSION_P)"
 
 ifeq ($(TARGET_NAME),TARGET_NANOS)
     ICONNAME=icons/nanos_app_accumulate.gif
+else ifeq ($(TARGET_NAME), TARGET_STAX)
+    ICONNAME=icons/stax_app_accumulate.gif
 else
     ICONNAME=icons/nanox_app_accumulate.gif
 endif
@@ -67,7 +69,7 @@ DEFINES += BLE_SEGMENT_SIZE=32
 DEFINES += HAVE_WEBUSB WEBUSB_URL_SIZE_B=0 WEBUSB_URL=""
 DEFINES += UNUSED\(x\)=\(void\)x
 
-ifeq ($(TARGET_NAME),TARGET_NANOX)
+ifeq ($(TARGET_NAME),TARGET_NANOX TARGET_STAX)
     DEFINES += HAVE_BLE BLE_COMMAND_TIMEOUT_MS=2000 HAVE_BLE_APDU
 endif
 
@@ -75,21 +77,30 @@ ifeq ($(TARGET_NAME),TARGET_NANOS)
     DEFINES += IO_SEPROXYHAL_BUFFER_SIZE_B=128
 else
     DEFINES += IO_SEPROXYHAL_BUFFER_SIZE_B=300
-    DEFINES += HAVE_GLO096
-    DEFINES += BAGL_WIDTH=128 BAGL_HEIGHT=64
-    DEFINES += HAVE_BAGL_ELLIPSIS
-    DEFINES += HAVE_BAGL_FONT_OPEN_SANS_REGULAR_11PX
-    DEFINES += HAVE_BAGL_FONT_OPEN_SANS_EXTRABOLD_11PX
-    DEFINES += HAVE_BAGL_FONT_OPEN_SANS_LIGHT_16PX
+endif
+
+ifeq ($(TARGET_NAME), TARGET_STAX)
+    DEFINES += NBGL_QRCODE
+    SDK_SOURCE_PATH += qrcode
+else
+    DEFINES += HAVE_BAGL HAVE_UX_FLOW
+	ifneq ($(TARGET_NAME),TARGET_NANOS)
+		DEFINES += HAVE_GLO096
+		DEFINES += BAGL_WIDTH=128 BAGL_HEIGHT=64
+		DEFINES += HAVE_BAGL_ELLIPSIS
+		DEFINES += HAVE_BAGL_FONT_OPEN_SANS_REGULAR_11PX
+		DEFINES += HAVE_BAGL_FONT_OPEN_SANS_EXTRABOLD_11PX
+		DEFINES += HAVE_BAGL_FONT_OPEN_SANS_LIGHT_16PX
+	endif
 endif
 
 DEBUG=0
 ifneq ($(DEBUG),0)
     DEFINES += HAVE_PRINTF
-    ifeq ($(TARGET_NAME),TARGET_NANOX)
-        DEFINES += PRINTF=mcu_usb_printf
-    else
+    ifeq ($(TARGET_NAME),TARGET_NANOS)
         DEFINES += PRINTF=screen_printf
+    else
+        DEFINES += PRINTF=mcu_usb_printf
     endif
 else
         DEFINES += PRINTF\(...\)=
@@ -123,10 +134,21 @@ LDLIBS  += -lm -lgcc -lc
 include $(BOLOS_SDK)/Makefile.glyphs
 
 APP_SOURCE_PATH += src
-SDK_SOURCE_PATH += lib_stusb lib_stusb_impl lib_ux
+SDK_SOURCE_PATH += lib_stusb lib_stusb_impl
 
-ifeq ($(TARGET_NAME),TARGET_NANOX)
+ifneq ($(TARGET_NAME), TARGET_STAX)
+    SDK_SOURCE_PATH += lib_ux
+endif
+
+ifeq ($(TARGET_NAME),TARGET_NANOX TARGET_STAX)
     SDK_SOURCE_PATH += lib_blewbxx lib_blewbxx_impl
+endif
+
+WITH_U2F=0
+ifneq ($(WITH_U2F),0)
+    DEFINES         += HAVE_U2F HAVE_IO_U2F
+    DEFINES         += U2F_PROXY_MAGIC=\"~ACME\"
+    SDK_SOURCE_PATH += lib_u2f
 endif
 
 load: all

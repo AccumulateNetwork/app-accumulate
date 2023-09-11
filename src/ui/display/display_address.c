@@ -5,7 +5,7 @@
 #include "ui/dynamic_display.h"
 
 // Step with icon and text
-UX_STEP_NOCB(ux_display_confirm_addr_step, pn, {&C_icon_eye, "Confirm Key Name"});
+//UX_STEP_NOCB(ux_display_confirm_addr_step, pn, {&C_icon_eye, "Confirm Key Name"});
 
 #include "../../sw.h"
 int dynamic_display_address(int index) {
