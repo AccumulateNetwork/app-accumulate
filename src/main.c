@@ -33,7 +33,7 @@ io_state_e G_io_state;
 ux_state_t G_ux;
 bolos_ux_params_t G_ux_params;
 global_ctx_t G_context;
-global_blind_signing_ctx_t G_blind_context;
+global_settings_ctx_t G_settings_context;
 
 /**
  * Handle APDU command received and send back APDU response using handlers.
@@ -50,7 +50,11 @@ void app_main() {
 
     // Reset context
     explicit_bzero(&G_context, sizeof(G_context));
-    explicit_bzero(&G_blind_context, sizeof(G_blind_context));
+
+    //the only setting is currently blind signing, so we do not persist that setting.
+    //if the user restarts the app, the blind signing will have to be re-enabled if
+    //that is how the user wants to run the app.
+    explicit_bzero(&G_settings_context, sizeof(G_settings_context));
 
     for (;;) {
         BEGIN_TRY {
