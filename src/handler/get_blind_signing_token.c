@@ -16,8 +16,8 @@
 #include "../globals.h"
 
 int handler_get_app_configuration() {
-    explicit_bzero(&G_context, sizeof(G_context));
-    explicit_bzero(&G_blind_context, sizeof(G_blind_context));
-    explicit_bzero(&G_settings_context.blind_signing_enabled);
+    //explicit_bzero(&G_context, sizeof(G_context));
+    //explicit_bzero(&G_settings_context.blind_signing_enabled);
+    
     return ui_display_blind_signing_enable();
 }

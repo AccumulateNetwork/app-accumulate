@@ -1,6 +1,10 @@
 
 #include "display_transaction.h"
 #include <protocol/unions.h>
+#include <common/format.h>
+
+#define __STDC_FORMAT_MACROS
+#include <inttypes.h>
 
 int ui_dynamic_display_blind_signing(int index) {
     SignatureTypeUnion *signer = G_context.tx_info.signer->_u;
@@ -8,7 +12,7 @@ int ui_dynamic_display_blind_signing(int index) {
         case 0:
             PRINTF("Blind signing display %d\n", index);
             snprintf(global.title, sizeof(global.title), "Blind Signing");
-            snprintf(global.text, sizeof(global.text), "Request", e.code);
+            snprintf(global.text, sizeof(global.text), "Request");
             break;
         case 1: {
             PRINTF("Blind Sign %d\n", index);
@@ -30,7 +34,7 @@ int ui_dynamic_display_blind_signing(int index) {
                 snprintf(global.text, sizeof(global.text), "code %d", e.code);
                 return e.code;
             }
-            snprintf(global.text, sizeof(global.text), "%d", version)
+            snprintf(global.text, sizeof(global.text), "%"PRIu64"", version);
         } break;
         case 3: {
             PRINTF("Blind Sign %d\n", index);
@@ -42,19 +46,18 @@ int ui_dynamic_display_blind_signing(int index) {
                 snprintf(global.text, sizeof(global.text), "code %d", e.code);
                 return e.code;
             }
-            snprintf(global.text, sizeof(global.text), "%d", timestamp)
+            snprintf(global.text, sizeof(global.text), "%"PRIu64"", timestamp);
         } break;
         case 4: {
             PRINTF("Blind Sign %d\n", index);
             snprintf(global.title, sizeof(global.title), "Transaction Hash");
-            uint8_t hash[32] = {0};
-            Error e = Bytes32_get(&signer->TransactionHash, &hash);
-            if (IsError(e)) {
+            int bytesWritten = format_hex(signer->TransactionHash.data.buffer.ptr + signer->TransactionHash.data.buffer.offset, 
+                                          signer->TransactionHash.data.buffer.size, global.text, sizeof(global.text));
+            if (bytesWritten != 32) {
                 snprintf(global.title, sizeof(global.title), "error");
-                snprintf(global.text, sizeof(global.text), "code %d", e.code);
-                return e.code;
+                snprintf(global.text, sizeof(global.text), "print hash %d", bytesWritten);
+                return ErrorBadCopy;
             }
-            snprintf(global.text, sizeof(global.text), "%.*H", 32, hash);
         } break;
         default:
             PRINTF("Blind Sign %d\n", index);
