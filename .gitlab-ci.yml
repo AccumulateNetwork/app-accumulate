@@ -16,6 +16,7 @@ variables:
   NANOS_OUTPUT_PKG_NAME: app-accumulate-nano-s
   NANOSP_OUTPUT_PKG_NAME: app-accumulate-nano-splus
   NANOX_OUTPUT_PKG_NAME: app-accumulate-nano-x
+  STAX_OUTPUT_PKG_NAME: app-accumulate-stax
 
 .builder:
   image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder:latest
@@ -92,7 +93,7 @@ Speculos Nano S:
     - function die { echo -e "${BOLD_RED}${1}${NO_COLOR}"; false; }
     - apt update && apt install -y wget build-essential
     - wget "${PACKAGE_REGISTRY_URL}/${APP_VERSION}/${NANOS_OUTPUT_PKG_NAME}.elf"
-    - /speculos/speculos.py ${NANOS_OUTPUT_PKG_NAME}.elf --seed "yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow" --display headless &
+    - /speculos/speculos.py ${NANOS_OUTPUT_PKG_NAME}.elf -m nanos --seed "yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow" --display headless &
     - SPECULOS_PID=$!
     - sleep 1
     - cd /builds/accumulatenetwork/ledger/app-accumulate/tests
@@ -100,7 +101,26 @@ Speculos Nano S:
     - pytest --headless || die
     - kill -9 $SPECULOS_PID || true
 
-Speculos Nano S+/X:
+Speculos Nano S+:
+  stage: e2e-tests
+  image:
+    name: ghcr.io/ledgerhq/speculos:latest
+    entrypoint: [""]
+  variables:
+    PACKAGE_REGISTRY_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/nano-splus"
+  script:
+    - function die { echo -e "${BOLD_RED}${1}${NO_COLOR}"; false; }
+    - apt update && apt install -y wget build-essential
+    - wget "${PACKAGE_REGISTRY_URL}/${APP_VERSION}/${NANOSP_OUTPUT_PKG_NAME}.elf"
+    - /speculos/speculos.py ${NANOSP_OUTPUT_PKG_NAME}.elf -m nanosp --seed "yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow" --display headless &
+    - SPECULOS_PID=$!
+    - sleep 1
+    - cd /builds/accumulatenetwork/ledger/app-accumulate/tests
+    - pip install -r requirements.txt
+    - pytest --headless || die
+    - kill -9 $SPECULOS_PID || true
+
+Speculos Nano X:
   stage: e2e-tests
   image:
     name: ghcr.io/ledgerhq/speculos:latest
@@ -119,6 +139,24 @@ Speculos Nano S+/X:
     - pytest --headless || die
     - kill -9 $SPECULOS_PID || true
 
+.Speculos Stax:
+  stage: e2e-tests
+  image:
+    name: ghcr.io/ledgerhq/speculos:latest
+    entrypoint: [""]
+  variables:
+    PACKAGE_REGISTRY_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/stax"
+  script:
+    - function die { echo -e "${BOLD_RED}${1}${NO_COLOR}"; false; }
+    - apt update && apt install -y wget build-essential
+    - wget "${PACKAGE_REGISTRY_URL}/${APP_VERSION}/${STAX_OUTPUT_PKG_NAME}.elf"
+    - /speculos/speculos.py ${NANOX_OUTPUT_PKG_NAME}.elf -m stax --seed "yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow yellow" --display headless &
+    - SPECULOS_PID=$!
+    - sleep 1
+    - cd /builds/accumulatenetwork/ledger/app-accumulate/tests
+    - pip install -r requirements.txt
+    - pytest --headless || die
+    - kill -9 $SPECULOS_PID || true
       
 build-nano-s:
   stage: build-firmware
@@ -149,3 +187,14 @@ build-nano-x:
     PACKAGE_REGISTRY_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/nano-x"
   script:
     - fwbuild
+
+.build-nano-stax:
+  stage: build-firmware
+  extends: .builder
+  variables:
+    BOLOS_SDK: /opt/stax-secure-sdk
+    OUTPUT_PKG_NAME: "${STAX_OUTPUT_PKG_NAME}"
+    PACKAGE_REGISTRY_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/stax"
+  script:
+    - fwbuild
+

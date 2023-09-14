@@ -4,6 +4,7 @@
 #include <encoding/encoding.h>
 #include <encoding/marshaler.h>
 #include <protocol/enum.h>
+#include <protocol/unions_config.h>
 #ifndef PRINTF
 #define PRINTF
 #endif

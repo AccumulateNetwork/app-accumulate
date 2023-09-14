@@ -15,11 +15,10 @@
  *  limitations under the License.
  *****************************************************************************/
 
-#include "menu.h"
-
 #include "../dynamic_display.h"
 #include "../globals.h"
 #include "glyphs.h"
+#include "menu.h"
 #include "os.h"
 #include "ux.h"
 
