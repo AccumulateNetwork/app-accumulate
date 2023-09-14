@@ -41,7 +41,8 @@ typedef enum
     ErrorBadKey = -21,
     ErrorInvalidField = -22,
     ErrorExpectingType = -23,
-    ErrorMaxError = -24,
+    ErrorRandomNumberGenerator = -24,
+    ErrorMaxError = -25,
 } ErrorEnum;
 
 Error ErrorCode(int e);

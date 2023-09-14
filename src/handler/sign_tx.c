@@ -30,12 +30,13 @@
 #include "sw.h"
 #include "transaction/types.h"
 #include "transaction/utils.h"
+#include "ui/action/validate.h"
 #include "ui/display/display.h"
 
 int processEnvelope();
 int verifySigner();
 int computeInitiatorHash();
-int computeTransactionHash();
+int computeTransactionHash(Bytes *);
 
 int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more) {
     if (chunk == 0) {  // first APDU, parse BIP32 path
@@ -93,9 +94,23 @@ int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more) {
 
         G_context.state = STATE_PARSED;
         // Step 4: ask for user confirmation of transaction contents
-        e = ui_display_transaction();
-        if (IsErrorCode(e)) {
-            io_send_sw(SW_ENCODE_ERROR(ErrorCode(e)));
+        if (G_settings_context.blind_signing_enabled) {
+            // if blind signing has been enabled, we do not require a transaction body.
+            e = ui_display_blind_signing_requested();
+            if (IsErrorCode(e)) {
+                io_send_sw(SW_ENCODE_ERROR(ErrorCode(e)));
+            }
+        } else {
+            if (G_context.tx_info.transaction == NULL) {
+                // In this mode, the user attempted to blind sign a transaction by not providing the
+                // transaction body, however blind signing is not enabled
+                // So, DENIED....
+                io_send_sw(SW_DENY);
+            }
+            e = ui_display_transaction();
+            if (IsErrorCode(e)) {
+                io_send_sw(SW_ENCODE_ERROR(ErrorCode(e)));
+            }
         }
     }
 
@@ -114,14 +129,20 @@ int processEnvelope() {
         return e;
     }
 
-    // TODO (future version): if blind signing is enabled, then we should accept
-    // env.Transaction_length == 0 but for now check to make sure there is one (and only one) signer
-    // and transaction object
-    if (env.Signatures_length != 1 && env.Transaction_length != 1) {
+    // make sure there is one and only one signature body
+    if (env.Signatures_length != 1) {
         return ErrorInvalidObject;
     }
 
-    G_context.tx_info.transaction = &env.Transaction[0];
+    // if blind signing is enabled, then we should accept env.Transaction_length == 0 and
+    // transaction == NULL is ok, otherwise we want one and only one transaction body
+    G_context.tx_info.transaction = NULL;
+    if (env.Transaction_length == 1) {
+        G_context.tx_info.transaction = &env.Transaction[0];
+    } else if (env.Transaction_length > 1) {
+        return ErrorInvalidObject;
+    }
+
     G_context.tx_info.signer = &env.Signatures[0];
 
     // Next, do some sanity checks on the transaction to make sure it looks reasonable. These
@@ -135,15 +156,17 @@ int processEnvelope() {
         return e;
     }
 
-    // Step 2: compute the initiator hash with given inputs, if signer supplied one, then compare
-    // it, otherwise set it
-    e = computeInitiatorHash();
-    if (IsError(ErrorCode(e))) {
-        return e;
+    if (G_context.tx_info.transaction) {
+        // Step 2: compute the initiator hash with given inputs, if signer supplied one, then
+        // compare it, otherwise set it
+        e = computeInitiatorHash();
+        if (IsError(ErrorCode(e))) {
+            return e;
+        }
     }
 
     // Step 3: compute and compare (if supplied) the transaction hash, then compute the signing hash
-    e = computeTransactionHash();
+    e = computeTransactionHash(&env.TxHash);
     if (IsError(ErrorCode(e))) {
         return e;
     }
@@ -184,6 +207,7 @@ int verifySigner() {
     if (public_key_length != (int) (keyLen) || !buffer_can_read(&pubKey, keyLen) ||
         memcmp(pubKey.ptr + pubKey.offset, raw_public_key, keyLen) != 0) {
         // the key buffer is not set or not the right key, so give up
+        PRINTF("Bad public key error in verify signer\n");
         return ErrorBadKey;
     }
 
@@ -227,44 +251,92 @@ int computeInitiatorHash() {
     return ErrorNone;
 }
 
-int computeTransactionHash() {
+int computeTransactionHash(Bytes *envTxHashIfPresent) {
     Bytes hash = {.buffer.ptr = G_context.tx_info.m_hash,
                   .buffer.size = sizeof(G_context.tx_info.m_hash),
                   .buffer.offset = 0};
-
-    // compute transaction hash
-    int e = transactionHash(G_context.tx_info.transaction, G_context.tx_info.m_hash);
-    if (IsError(ErrorCode(e))) {
-        return e;
-    }
-
-    if (!buffer_can_read(&G_context.tx_info.signer->_u->TransactionHash.data.buffer, 32)) {
-        // if we don't have a hash as part of the incoming payload, just use the one we
-        // computed.
-        G_context.tx_info.signer->_u->TransactionHash.data =
-            (const Bytes){.buffer.ptr = G_context.tx_info.m_hash,
-                          .buffer.size = sizeof(G_context.tx_info.m_hash),
-                          .buffer.offset = 0};
-    }
-
-    // early check to see if our hashes match
     uint8_t txHash[32] = {0};
+
+    bool haveTxHashFromComputation = false;
+    bool haveTxHashFromOtherSource = false;
+    if (G_context.tx_info.transaction != NULL) {
+        // if we have a transaction body we need to compute the transaction hash
+        int e = transactionHash(G_context.tx_info.transaction, G_context.tx_info.m_hash);
+        if (IsError(ErrorCode(e))) {
+            PRINTF("Transaction hash computation failed\n");
+            return e;
+        }
+        haveTxHashFromComputation = true;
+    } else if (envTxHashIfPresent) {
+        // if we have data then copy it, note txHash at this point is empty
+        if (memcmp(envTxHashIfPresent->buffer.ptr + envTxHashIfPresent->buffer.offset,
+                   txHash,
+                   envTxHashIfPresent->buffer.size) != 0) {
+            haveTxHashFromOtherSource =
+                buffer_copy(&envTxHashIfPresent->buffer, G_context.tx_info.m_hash, 32);
+            PRINTF("envelope transaction hash was present so using that\n");
+        }
+    }
+
+    // if the transaction has was provided by the user we also need to capture it, and apply it to
+    // the signer txhash
+    if (!buffer_can_read(&G_context.tx_info.signer->_u->TransactionHash.data.buffer, 32)) {
+        if (haveTxHashFromOtherSource || haveTxHashFromComputation) {
+            // if we don't have a hash as part of the incoming payload and if we do have a
+            // transaction body
+            PRINTF("copy transaction hash into signer transaction hash field\n");
+            G_context.tx_info.signer->_u->TransactionHash.data =
+                (const Bytes){.buffer.ptr = G_context.tx_info.m_hash,
+                              .buffer.size = sizeof(G_context.tx_info.m_hash),
+                              .buffer.offset = 0};
+        } else {
+            // if we get here we don't have an external hash source and we don't have our own
+            // transaction hash
+            PRINTF("we are missing a transaction hash, so cannot continue\n");
+            return ErrorInvalidHashParameters;
+        }
+    } else {
+        if (!haveTxHashFromComputation) {
+            PRINTF("we don't want to do this if we computed the tx hash\n");
+            if (memcmp(G_context.tx_info.signer->_u->TransactionHash.data.buffer.ptr +
+                           G_context.tx_info.signer->_u->TransactionHash.data.buffer.offset,
+                       txHash,
+                       G_context.tx_info.signer->_u->TransactionHash.data.buffer.size) != 0) {
+                // we also have a signature body transaction hash that is non-zero,
+                // so that one takes priority over env.TxHash but not computed tx Hash
+                if (!buffer_copy(&G_context.tx_info.signer->_u->TransactionHash.data.buffer,
+                                 G_context.tx_info.m_hash,
+                                 32)) {
+                    return ErrorInvalidHashParameters;
+                }
+            }
+        }
+    }
+
+    PRINTF("extracting precomputed tx hash from signature body\n");
+    // early check to see if our hashes match, only really matters at this point if the
+    // computed hash equals the signature body transaction hash.
     hash.buffer = (const buffer_t){.ptr = txHash, .size = sizeof(txHash), .offset = 0};
     Error err = Bytes32_get(&G_context.tx_info.signer->_u->TransactionHash, &hash);
     if (IsError(err)) {
-        return io_send_sw(SW_ENCODE_ERROR(err));
+        return err.code;
     }
 
     // sanity check on the txHash
     if (memcmp(txHash, G_context.tx_info.m_hash, 32) != 0) {
+        PRINTF("transaction hash is not what is expected have %.*H want %.*H\n",
+               32,
+               txHash,
+               32,
+               G_context.tx_info.m_hash);
         return ErrorInvalidHashParameters;
     }
 
     // now repurpose the tx_info.hash from the txbody hash to the signing hash.
-    e = metadataHash(G_context.tx_info.signer,
-                     txHash,
-                     G_context.tx_info.m_hash,
-                     G_context.tx_info.metadataHash);
+    int e = metadataHash(G_context.tx_info.signer,
+                         txHash,
+                         G_context.tx_info.m_hash,
+                         G_context.tx_info.metadataHash);
     if (IsError(ErrorCode(e))) {
         return e;
     }

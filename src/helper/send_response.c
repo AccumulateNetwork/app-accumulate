@@ -18,6 +18,7 @@
 #include "send_response.h"
 
 #include <common/buffer.h>
+#include <os.h>
 #include <stddef.h>  // size_t
 #include <stdint.h>  // uint*_t
 #include <string.h>  // memmove
@@ -56,4 +57,10 @@ int helper_send_response_sig(void) {
     resp[offset++] = (uint8_t) G_context.tx_info.v;
 
     return io_send_response(&(const buffer_t){.ptr = resp, .size = offset, .offset = 0}, SW_OK);
+}
+
+int helper_send_response_app_configuration() {
+    return io_send_response(
+        &(const buffer_t){.ptr = &G_settings_context.blind_signing_enabled, .size = 1, .offset = 0},
+        SW_OK);
 }

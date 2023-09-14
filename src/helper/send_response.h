@@ -44,3 +44,8 @@ int helper_send_response_pubkey(void);
  */
 
 int helper_send_response_sig(void);
+
+/**
+ * Helper to send APDU response with app configuration blind signing enabled.
+ */
+int helper_send_response_app_configuration(void);

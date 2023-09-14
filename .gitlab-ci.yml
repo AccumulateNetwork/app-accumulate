@@ -18,7 +18,7 @@ variables:
   NANOX_OUTPUT_PKG_NAME: app-accumulate-nano-x
 
 .builder:
-  image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder:latest 
+  image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder:latest
   before_script:
    - apk update 
    - apk add zip wget curl git clang cmake cmocka cmocka-dev  

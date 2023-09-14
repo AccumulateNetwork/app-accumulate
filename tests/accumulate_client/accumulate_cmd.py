@@ -105,8 +105,28 @@ class AccumulateCommand:
         assert len(response) == 1 + pub_key_len + 1 + chain_code_len + 1 + key_name_len
 
         return pub_key, key_name
+    def get_app_configuration(self) -> bytes:
+        data_gen = self.builder.get_app_configuration()
+        for payload in data_gen:
+            self.transport.send_raw(payload)
 
-    def sign_tx(self, bip32_path: str, envelope: bytes, button: Button) -> Tuple[int, bytes]:
+            # Move past the text
+            # print("left button click...")
+            # button.left_click() #take the backdoor to get to the accept
+            # print("left button click...")
+            # button.left_click() #take the backdoor to get to the accept
+            # # Approve
+            # print("both button clicks...")
+            # button.both_click()
+
+            sw, response = self.transport.recv()  # type: int, bytes
+
+            if sw != 0x9000:
+                raise DeviceException(error_code=sw, ins=InsType.INS_GET_APP_CONFIGURATION)
+
+        return response[0]
+
+    def sign_tx(self, bip32_path: str, envelope: bytes, button: Button, blind_signing_enabled: bool) -> Tuple[int, bytes]:
         #sw: int
         #response: bytes = b""
 
@@ -115,20 +135,26 @@ class AccumulateCommand:
 
             if is_last:
                 # Review Transaction
-                print("left button click...")
-                button.left_click() #take the backdoor to get to the accept
-                print("left button click...")
-                button.left_click()
-                #button.right_click()
-                # Address 1/3, 2/3, 3/3
-                #button.right_click()
-                #button.right_click()
-                #button.right_click()
-                # Amount
-                #button.right_click()
-                # Approve
-                button.both_click()
-                print("both button clicks...")
+                if blind_signing_enabled:
+                    print("left button click...")
+                    button.left_click()
+                    button.left_click()
+                    button.both_click()
+                else:
+                    print("left button click...")
+                    button.left_click() #take the backdoor to get to the accept
+                    print("left button click...")
+                    button.left_click()
+                    #button.right_click()
+                    # Address 1/3, 2/3, 3/3
+                    #button.right_click()
+                    #button.right_click()
+                    #button.right_click()
+                    # Amount
+                    #button.right_click()
+                    # Approve
+                    button.both_click()
+                    print("both button clicks...")
 
             sw, response = self.transport.recv()  # type: int, bytes
 

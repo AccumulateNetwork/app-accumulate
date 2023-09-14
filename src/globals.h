@@ -36,3 +36,8 @@ extern io_state_e G_io_state;
  * Global context for user requests.
  */
 extern global_ctx_t G_context;
+
+/**
+ * Global context for enabling blind signing
+ */
+extern global_settings_ctx_t G_settings_context;

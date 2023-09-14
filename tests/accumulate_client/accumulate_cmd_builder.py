@@ -32,6 +32,7 @@ class InsType(enum.IntEnum):
     INS_GET_APP_NAME = 0x04
     INS_GET_PUBLIC_KEY = 0x05
     INS_SIGN_TX = 0x06
+    INS_GET_APP_CONFIGURATION = 0x07
 
 class ParamCodeType(enum.IntEnum):
     LedgerP1InitTransactionData = 0x00 # First transaction data block for signing
@@ -174,7 +175,20 @@ class AccumulateCommandBuilder:
                               p1=0x01 if display else 0x00,
                               p2=0x00,
                               cdata=cdata)
+    def get_app_configuration(self) -> Iterator[bytes]:
+        """Command builder for GET_APP_CONFIGURATION.
 
+        Returns
+        -------
+        bytes
+            APDU command for GET_APP_CONFIGURATION.
+
+        """
+        yield self.serialize(cla=self.CLA,
+                              ins=InsType.INS_GET_APP_CONFIGURATION,
+                              p1=0x00,
+                              p2=0x00,
+                              cdata=b"")
     def sign_tx(self, bip32_path: str, envelope: bytes) -> Iterator[Tuple[bool, bytes]]:
         """Command builder for INS_SIGN_TX.
 
@@ -198,8 +212,10 @@ class AccumulateCommandBuilder:
             *bip32_paths
         ])
 
+        ins = InsType.INS_SIGN_TX
+
         yield False, self.serialize(cla=self.CLA,
-                                    ins=InsType.INS_SIGN_TX,
+                                    ins=ins,
                                     p1=ParamCodeType.LedgerP1InitTransactionData,
                                     p2=ParamCodeType.LedgerP2MoreTransactionData,
                                     cdata=cdata)
@@ -208,13 +224,13 @@ class AccumulateCommandBuilder:
         for _, (is_last, chunk) in enumerate(chunkify(envelope, MAX_APDU_LEN)):
             if is_last:
                 yield True, self.serialize(cla=self.CLA,
-                                           ins=InsType.INS_SIGN_TX,
+                                           ins=ins,
                                            p1=ParamCodeType.LedgerP1ContTransactionData,
                                            p2=ParamCodeType.LedgerP2LastTransactionData,
                                            cdata=chunk)
             else:
                 yield False, self.serialize(cla=self.CLA,
-                                            ins=InsType.INS_SIGN_TX,
+                                            ins=ins,
                                             p1=ParamCodeType.LedgerP1ContTransactionData,
                                             p2=ParamCodeType.LedgerP2MoreTransactionData,
                                             cdata=chunk)
