@@ -96,29 +96,29 @@ int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more) {
         // Step 4: ask for user confirmation of transaction contents
         if (G_settings_context.blind_signing_enabled) {
             // if blind signing has been enabled, we do not require a transaction body.
-            //e = ui_display_blind_signing_requested();
-            //if (IsErrorCode(e)) {
+            // e = ui_display_blind_signing_requested();
+            // if (IsErrorCode(e)) {
             //    io_send_sw(SW_ENCODE_ERROR(ErrorCode(e)));
-           // }
-//            if (memcmp(G_blind_context.signing_token,
-//                       G_context.tx_info.signing_token,
-//                       BLIND_SIGNING_TOKEN_LENGTH) == 0) {
-//                ui_action_validate_transaction(true);
-//            } else {
-//                //if it isn't enabled but requested, then it is denied
-//                G_context.state = STATE_NONE;
-//                io_send_sw(SW_DENY);
-//
-//            }
+            // }
+            //            if (memcmp(G_blind_context.signing_token,
+            //                       G_context.tx_info.signing_token,
+            //                       BLIND_SIGNING_TOKEN_LENGTH) == 0) {
+            //                ui_action_validate_transaction(true);
+            //            } else {
+            //                //if it isn't enabled but requested, then it is denied
+            //                G_context.state = STATE_NONE;
+            //                io_send_sw(SW_DENY);
+            //
+            //            }
         } else {
             if (G_context.tx_info.transaction == NULL) {
                 // In this mode, the user attempted to blind sign a transaction by not providing the
                 // transaction body, however blind signing is not enabled
                 // So, DENIED....
-                //e = ui_display_blind_signing_denied();
-                //if (IsErrorCode(e)) {
+                // e = ui_display_blind_signing_denied();
+                // if (IsErrorCode(e)) {
                 //    io_send_sw(SW_ENCODE_ERROR(ErrorCode(e)));
-               // }
+                // }
             }
             e = ui_display_transaction();
             if (IsErrorCode(e)) {

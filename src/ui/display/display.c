@@ -69,10 +69,6 @@ UX_STEP_NOCB(ux_display_review_begin_step,
                  g_welcome,
              });
 
-
-
-
-
 UX_FLOW(ux_dynamic_display_flow,
         &ux_display_review_begin_step,  // static ux
 
@@ -109,7 +105,7 @@ int ui_display_address() {
     return 0;
 }
 
-//int ui_display_blind_signing_requested() {
+// int ui_display_blind_signing_requested() {
 //    g_validate_callback = &ui_action_enable_blind_signing;
 //    ux_flow_init(0, ux_display_enable_blind_siging_flow, NULL);
 //    return 0;

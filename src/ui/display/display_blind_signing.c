@@ -1,7 +1,8 @@
 
-#include "display_transaction.h"
-#include <protocol/unions.h>
 #include <common/format.h>
+#include <protocol/unions.h>
+
+#include "display_transaction.h"
 
 #define __STDC_FORMAT_MACROS
 #include <inttypes.h>
@@ -34,7 +35,7 @@ int ui_dynamic_display_blind_signing(int index) {
                 snprintf(global.text, sizeof(global.text), "code %d", e.code);
                 return e.code;
             }
-            snprintf(global.text, sizeof(global.text), "%"PRIu64"", version);
+            snprintf(global.text, sizeof(global.text), "%" PRIu64 "", version);
         } break;
         case 3: {
             PRINTF("Blind Sign %d\n", index);
@@ -46,13 +47,16 @@ int ui_dynamic_display_blind_signing(int index) {
                 snprintf(global.text, sizeof(global.text), "code %d", e.code);
                 return e.code;
             }
-            snprintf(global.text, sizeof(global.text), "%"PRIu64"", timestamp);
+            snprintf(global.text, sizeof(global.text), "%" PRIu64 "", timestamp);
         } break;
         case 4: {
             PRINTF("Blind Sign %d\n", index);
             snprintf(global.title, sizeof(global.title), "Transaction Hash");
-            int bytesWritten = format_hex(signer->TransactionHash.data.buffer.ptr + signer->TransactionHash.data.buffer.offset, 
-                                          signer->TransactionHash.data.buffer.size, global.text, sizeof(global.text));
+            int bytesWritten = format_hex(signer->TransactionHash.data.buffer.ptr +
+                                              signer->TransactionHash.data.buffer.offset,
+                                          signer->TransactionHash.data.buffer.size,
+                                          global.text,
+                                          sizeof(global.text));
             if (bytesWritten != 32) {
                 snprintf(global.title, sizeof(global.title), "error");
                 snprintf(global.text, sizeof(global.text), "print hash %d", bytesWritten);

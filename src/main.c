@@ -51,9 +51,9 @@ void app_main() {
     // Reset context
     explicit_bzero(&G_context, sizeof(G_context));
 
-    //the only setting is currently blind signing, so we do not persist that setting.
-    //if the user restarts the app, the blind signing will have to be re-enabled if
-    //that is how the user wants to run the app.
+    // the only setting is currently blind signing, so we do not persist that setting.
+    // if the user restarts the app, the blind signing will have to be re-enabled if
+    // that is how the user wants to run the app.
     explicit_bzero(&G_settings_context, sizeof(G_settings_context));
 
     for (;;) {

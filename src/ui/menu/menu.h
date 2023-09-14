@@ -14,5 +14,3 @@ void ui_menu_about(void);
  * Show settings submenu (blind signing...)
  */
 void ui_menu_settings();
-
-

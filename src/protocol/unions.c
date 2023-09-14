@@ -342,10 +342,10 @@ int unmarshalerReadSignature(Unmarshaler *m, Signature *v) {
 #if _WANT_BTCSignature_
         case SignatureTypeBTC:
             b = newBTCSignature(m, v);
-            if ( IsError(ErrorCode(b))) {
+            if (IsError(ErrorCode(b))) {
                 return b;
             }
-            //v->_BTCSignature = &gSignature._BTCSignature;
+            // v->_BTCSignature = &gSignature._BTCSignature;
             b = unmarshalerReadBTCSignature(m, v->_BTCSignature);
             if (IsError(ErrorCode(b))) {
                 return b;
@@ -383,10 +383,10 @@ int unmarshalerReadSignature(Unmarshaler *m, Signature *v) {
 #if _WANT_ETHSignature_
         case SignatureTypeETH:
             b = newETHSignature(m, v);
-            if ( IsError(ErrorCode(b))) {
+            if (IsError(ErrorCode(b))) {
                 return b;
             }
-            //v->_ETHSignature = &gSignature._ETHSignature;
+            // v->_ETHSignature = &gSignature._ETHSignature;
             b = unmarshalerReadETHSignature(m, v->_ETHSignature);
             if (IsError(ErrorCode(b))) {
                 return b;
@@ -436,10 +436,10 @@ int unmarshalerReadSignature(Unmarshaler *m, Signature *v) {
 #if _WANT_RCD1Signature_
         case SignatureTypeRCD1:
             b = newRCD1Signature(m, v);
-            if ( IsError(ErrorCode(b))) {
+            if (IsError(ErrorCode(b))) {
                 return b;
             }
-            //v->_RCD1Signature = &gSignature._RCD1Signature;
+            // v->_RCD1Signature = &gSignature._RCD1Signature;
             b = unmarshalerReadRCD1Signature(m, v->_RCD1Signature);
             if (IsError(ErrorCode(b))) {
                 return b;

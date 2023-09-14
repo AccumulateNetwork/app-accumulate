@@ -81,9 +81,7 @@ int apdu_dispatcher(const command_t *cmd) {
             buf.size = cmd->lc;
             buf.offset = 0;
 
-            return handler_sign_tx(&buf,
-                                   cmd->p1,
-                                   (bool) (cmd->p2 & P2_MORE));
+            return handler_sign_tx(&buf, cmd->p1, (bool) (cmd->p2 & P2_MORE));
         case GET_APP_CONFIGURATION:
             if (cmd->p1 != 0 || cmd->p2 != 0) {
                 return io_send_sw(SW_WRONG_P1P2);

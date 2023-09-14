@@ -17,18 +17,18 @@
 
 #include "menu.h"
 
+#include "../dynamic_display.h"
 #include "../globals.h"
 #include "glyphs.h"
 #include "os.h"
 #include "ux.h"
-#include "../dynamic_display.h"
 
 UX_STEP_NOCB(ux_menu_ready_step, pnn, {&C_accumulate_logo, "Accumulate", "is ready"});
 UX_STEP_NOCB(ux_menu_version_step, bn, {"Version", APPVERSION});
 UX_STEP_CB(ux_menu_settings_step, pb, ui_menu_settings(), {&C_icon_coggle, "Settings"});
 UX_STEP_CB(ux_menu_about_step, pb, ui_menu_about(), {&C_icon_certificate, "About"});
 UX_STEP_VALID(ux_menu_exit_step, pb, os_sched_exit(-1), {&C_icon_dashboard_x, "Quit"});
-//UX_STEP_CB(ux_idle_flow_2_step,
+// UX_STEP_CB(ux_idle_flow_2_step,
 //           pb,
 //           ux_menulist_init(0, settings_submenu_getter, settings_submenu_selector),
 //           {
@@ -73,14 +73,15 @@ void ui_menu_about() {
 void ui_display_blind_signing_enable();
 
 UX_STEP_CB(ux_menu_back_settings_step, pb, ui_menu_settings(), {&C_icon_back, "Back"});
-UX_STEP_CB(ux_menu_settings_blind_signing_step, pb,ui_display_blind_signing_enable(), {&C_icon_eye, global.title});
+UX_STEP_CB(ux_menu_settings_blind_signing_step,
+           pb,
+           ui_display_blind_signing_enable(),
+           {&C_icon_eye, global.title});
 
 // FLOW for the menu settings submenu:
 // #! screen: Blind Signing Enable/Disable
 // #2 screen: back button to the main menu
-UX_FLOW(ux_menu_settings_flow,
-        &ux_menu_settings_blind_signing_step,
-        &ux_menu_back_step, FLOW_LOOP);
+UX_FLOW(ux_menu_settings_flow, &ux_menu_settings_blind_signing_step, &ux_menu_back_step, FLOW_LOOP);
 // Step with icon and text
 
 UX_STEP_NOCB(ux_menu_enable_blind_signing_begin_step,
@@ -100,7 +101,6 @@ UX_STEP_CB(ux_menu_blind_signing_toggle_step,
                global.text,
            });
 
-
 UX_FLOW(ux_menu_enable_blind_signing_flow,
         &ux_menu_enable_blind_signing_begin_step,  // static ux
         &ux_menu_blind_signing_toggle_step,
@@ -108,11 +108,12 @@ UX_FLOW(ux_menu_enable_blind_signing_flow,
         FLOW_LOOP);
 
 void ui_menu_settings() {
-    snprintf(global.title, sizeof(global.title), "Blind Signing (%s)",
-             G_settings_context.blind_signing_enabled?"on":"off");
+    snprintf(global.title,
+             sizeof(global.title),
+             "Blind Signing (%s)",
+             G_settings_context.blind_signing_enabled ? "on" : "off");
     ux_flow_init(0, ux_menu_settings_flow, NULL);
 }
-
 
 void toggleBlindSigning() {
     G_settings_context.blind_signing_enabled ^= 1;
