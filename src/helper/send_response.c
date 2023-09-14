@@ -60,16 +60,5 @@ int helper_send_response_sig(void) {
 }
 
 int helper_send_response_blind_signing_token() {
-    uint8_t resp[32 + 1] = {0};
-    size_t offset = 0;
-    size_t len = sizeof(G_blind_context.signing_token);
-    cx_err_t err = cx_get_random_bytes(G_blind_context.signing_token, len);
-    if (err != 0) {
-        return io_send_sw(SW_ENCODE_ERROR(ErrorCode(ErrorRandomNumberGenerator)));
-    }
-    resp[offset++] = len;
-    memmove(resp + offset, G_blind_context.signing_token, len);
-    offset += len;
-
-    return io_send_response(&(const buffer_t){.ptr = resp, .size = offset, .offset = 0}, SW_OK);
+    return io_send_response(&(const buffer_t){.ptr = &G_settings_context.blind_signing_enabled, .size = 1, .offset = 0}, SW_OK);
 }

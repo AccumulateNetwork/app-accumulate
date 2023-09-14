@@ -124,5 +124,5 @@ typedef struct {
  * Structure for global blind signing context.
  */
 typedef struct {
-    bool blind_signing_enabled;  /// set to true if the
+    uint8_t blind_signing_enabled;  /// set to 1 if enabled
 } global_settings_ctx_t;
