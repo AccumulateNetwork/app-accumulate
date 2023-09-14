@@ -25,14 +25,11 @@ typedef enum
  */
 typedef enum
 {
-    GET_VERSION = 0x03,               /// version of the application
-    GET_APP_NAME = 0x04,              /// name of the application
-    GET_PUBLIC_KEY = 0x05,            /// public key of corresponding BIP32 path
-    SIGN_TX = 0x06,                   /// sign transaction with BIP32 path
-    GET_ADDRESS = 0x07,               /// get associated address
-    GET_BLIND_SIGNING_TOKEN = 0x08,   /// get a token that can be used for blind signing
-    BLIND_SIGN_TX = 0x09,             /// sign transaction with BIP32 path
-    CLEAR_BLIND_SIGNING_TOKEN = 0x0A  /// reset the blind signing token
+    GET_VERSION = 0x03,            /// version of the application
+    GET_APP_NAME = 0x04,           /// name of the application
+    GET_PUBLIC_KEY = 0x05,         /// public key of corresponding BIP32 path
+    SIGN_TX = 0x06,                /// sign transaction with BIP32 path
+    GET_APP_CONFIGURATION = 0x07,  /// get the current configuration settings of the application
 } command_e;
 
 /**
@@ -127,6 +124,5 @@ typedef struct {
  * Structure for global blind signing context.
  */
 typedef struct {
-    uint8_t signing_token[BLIND_SIGNING_TOKEN_LENGTH];  /// a 32 random key with the high
-                                                        /// bit representing batch mode enabled
-} global_blind_signing_ctx_t;
+    uint8_t blind_signing_enabled;  /// set to 1 if enabled
+} global_settings_ctx_t;

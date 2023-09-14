@@ -66,7 +66,7 @@ The transaction envelope must contain one unsigned Signature structure and one c
 |-------------------------| --- |----------------------------------------------------------------------------------|
 | variable                | 0x9000 | `len(signature)` (1) <br> `signature` (variable) <br> `v` (1) <br> `tx hash` (32) |
 
-## GET_BLIND_SIGNING_TOKEN
+## GET_APP_CONFIGURATION
 
 ### Command
 
@@ -76,41 +76,11 @@ The transaction envelope must contain one unsigned Signature structure and one c
 
 ### Response
 
-| Response length (bytes) | SW | RData                                              |
-|-------------------------| --- |----------------------------------------------------|
-| 33                      | 0x9000 | `len(signing_token)` (1) <br> `signing_token` (32) |
+| Response length (bytes) | SW | RData                                                              |
+|-------------------------| --- |--------------------------------------------------------------------|
+| 1                       | 0x9000 | `blind_signing_enabled` (1)  |
 
-
-## BLIND_SIGN_TX
-### Command
-
-| CLA  | INS  | P1                                        | P2 | Lc | CData                                                                                                                                                                   |
-|------|------|-------------------------------------------| --- | --- |-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 0xE0 | 0x09 | 0x00 (first tx) <br> (0x01) (continue tx) | 0x00 (more) <br> 0x80 (last) | 1 + 4n | `len(bip32_path)` (1) <br> `bip32_path{1}` (4) <br>`...` <br>`bip32_path{n}` (4) <br> `signing_token` (32) <br> `serialized accumulate transaction envelope` (variable) |
-
-This is the same as **SIGN_TX** however it will not prompt the user to confirm the transaction on the device if `siging_token` is valid. A `signing_token` can be obtained from **GET_BLIND_SIGNING_TOKEN**
-
-### Response
-
-| Response length (bytes) | SW | RData                                                                            |
-|-------------------------| --- |----------------------------------------------------------------------------------|
-| variable                | 0x9000 | `len(signature)` (1) <br> `signature` (variable) <br> `v` (1) <br> `tx hash` (32) |
-
-
-## CLEAR_BLIND_SIGNING_TOKEN
-
-### Command
-
-| CLA | INS | P1 | P2 | Lc   | CData |
-|------|------|------|------|------|-------|
-| 0xE0 | 0x10 | 0x00 | 0x00 | 0x00 | -     |
-
-### Response
-
-| Response length (bytes) | SW | RData |
-|-------------------------| --- |-------|
-| variable                | 0x9000 | -     |
-
+Returnes the app configuration that is in settings. The `blind_signing_enabled` field returns non-zero if blind signing is enabled.
 
 ## Status Words
 
