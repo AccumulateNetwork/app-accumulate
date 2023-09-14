@@ -114,13 +114,11 @@ int ui_display_blind_signing_requested() {
     g_HaveMemoField = 0;
     explicit_bzero(&global, sizeof(global));
     global.max = 5;
-    //dry run the menu options to catch any errors
+    // dry run the menu options to catch any errors
     for (int i = 0; i < global.max; ++i) {
         int e = ui_dynamic_display_blind_signing(i);
         if (e < 0) {
-            PRINTF("An error occurred in the Blind siging display at step %d, err %d\n",
-                   i,
-                   e);
+            PRINTF("An error occurred in the Blind siging display at step %d, err %d\n", i, e);
             return e;
         }
     }

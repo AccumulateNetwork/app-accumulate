@@ -24,7 +24,7 @@
 #include "../constants.h"
 #include "../globals.h"
 #include "../handler/get_app_name.h"
-#include "../handler/get_blind_signing_token.h"
+#include "../handler/get_app_configuration.h"
 #include "../handler/get_public_key.h"
 #include "../handler/get_version.h"
 #include "../handler/sign_tx.h"

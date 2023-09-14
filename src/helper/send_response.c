@@ -59,7 +59,7 @@ int helper_send_response_sig(void) {
     return io_send_response(&(const buffer_t){.ptr = resp, .size = offset, .offset = 0}, SW_OK);
 }
 
-int helper_send_response_blind_signing_token() {
+int helper_send_response_app_configuration() {
     return io_send_response(
         &(const buffer_t){.ptr = &G_settings_context.blind_signing_enabled, .size = 1, .offset = 0},
         SW_OK);

@@ -8,7 +8,6 @@
 #include <inttypes.h>
 
 int ui_dynamic_display_blind_signing(int index) {
-
     PRINTF("Blind Sign %d\n", index);
     SignatureTypeUnion *signer = G_context.tx_info.signer->_u;
     switch (index) {

@@ -1,5 +1,5 @@
 
-#include "get_blind_signing_token.h"
+#include "get_app_configuration.h"
 
 #include <common/buffer.h>
 #include <common/error.h>
@@ -16,5 +16,5 @@
 #include "../ui/display/display.h"
 
 int handler_get_app_configuration() {
-    return helper_send_response_blind_signing_token();
+    return helper_send_response_app_configuration();
 }

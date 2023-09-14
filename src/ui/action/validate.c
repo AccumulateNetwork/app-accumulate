@@ -54,12 +54,3 @@ void ui_action_validate_transaction(bool choice) {
     ui_menu_main();
 }
 
-void ui_action_enable_blind_signing(bool choice) {
-    if (choice) {
-        helper_send_response_blind_signing_token();
-    } else {
-        io_send_sw(SW_DENY);
-    }
-
-    ui_menu_main();
-}
