@@ -53,4 +53,3 @@ void ui_action_validate_transaction(bool choice) {
 
     ui_menu_main();
 }
-
