@@ -4,4 +4,4 @@ def test_get_app_and_version(cmd, hid):
         app_name, version = cmd.get_app_and_version()
 
         assert app_name == "Accumulate"
-        assert version == "1.0.3"
+        assert version == "1.1.0"

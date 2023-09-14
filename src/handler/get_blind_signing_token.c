@@ -16,8 +16,5 @@
 #include "../ui/display/display.h"
 
 int handler_get_app_configuration() {
-    // explicit_bzero(&G_context, sizeof(G_context));
-    // explicit_bzero(&G_settings_context.blind_signing_enabled);
-
     return helper_send_response_blind_signing_token();
 }

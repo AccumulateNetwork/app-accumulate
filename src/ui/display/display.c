@@ -105,11 +105,32 @@ int ui_display_address() {
     return 0;
 }
 
-// int ui_display_blind_signing_requested() {
-//    g_validate_callback = &ui_action_enable_blind_signing;
-//    ux_flow_init(0, ux_display_enable_blind_siging_flow, NULL);
-//    return 0;
-//}
+int ui_display_blind_signing_requested() {
+    if (G_context.req_type != CONFIRM_TRANSACTION || G_context.state != STATE_PARSED) {
+        G_context.state = STATE_NONE;
+        return io_send_sw(SW_BAD_STATE);
+    }
+
+    g_HaveMemoField = 0;
+    explicit_bzero(&global, sizeof(global));
+    global.max = 5;
+    //dry run the menu options to catch any errors
+    for (int i = 0; i < global.max; ++i) {
+        int e = ui_dynamic_display_blind_signing(i);
+        if (e < 0) {
+            PRINTF("An error occurred in the Blind siging display at step %d, err %d\n",
+                   i,
+                   e);
+            return e;
+        }
+    }
+    snprintf(g_welcome, sizeof(g_welcome), "Blind Signing");
+    g_validate_callback = &ui_action_validate_transaction;
+    global.dynamic_flow = ui_dynamic_display_blind_signing;
+    ux_flow_init(0, ux_dynamic_display_flow, NULL);
+
+    return 0;
+}
 
 int ui_display_transaction(void) {
     PRINTF("checkpoint pre display tx 1\n");

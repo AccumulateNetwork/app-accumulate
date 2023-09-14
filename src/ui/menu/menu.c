@@ -28,13 +28,6 @@ UX_STEP_NOCB(ux_menu_version_step, bn, {"Version", APPVERSION});
 UX_STEP_CB(ux_menu_settings_step, pb, ui_menu_settings(), {&C_icon_coggle, "Settings"});
 UX_STEP_CB(ux_menu_about_step, pb, ui_menu_about(), {&C_icon_certificate, "About"});
 UX_STEP_VALID(ux_menu_exit_step, pb, os_sched_exit(-1), {&C_icon_dashboard_x, "Quit"});
-// UX_STEP_CB(ux_idle_flow_2_step,
-//           pb,
-//           ux_menulist_init(0, settings_submenu_getter, settings_submenu_selector),
-//           {
-//               &C_icon_coggle,
-//               "Settings",
-//           });
 
 // FLOW for the main menu:
 // #1 screen: ready
@@ -70,12 +63,12 @@ void ui_menu_about() {
     ux_flow_init(0, ux_menu_about_flow, NULL);
 }
 
-void ui_display_blind_signing_enable();
+void ui_menu_blind_signing_enable();
 
 UX_STEP_CB(ux_menu_back_settings_step, pb, ui_menu_settings(), {&C_icon_back, "Back"});
 UX_STEP_CB(ux_menu_settings_blind_signing_step,
            pb,
-           ui_display_blind_signing_enable(),
+           ui_menu_blind_signing_enable(),
            {&C_icon_eye, global.title});
 
 // FLOW for the menu settings submenu:
@@ -120,7 +113,7 @@ void toggleBlindSigning() {
     ui_menu_settings();
 }
 
-void ui_display_blind_signing_enable() {
+void ui_menu_blind_signing_enable() {
     if (G_settings_context.blind_signing_enabled) {
         snprintf(global.title, sizeof(global.title), "is Enabled");
         snprintf(global.text, sizeof(global.text), "Disable");
