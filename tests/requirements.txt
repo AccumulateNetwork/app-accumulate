@@ -4,3 +4,4 @@ ecdsa>=0.16.1,<0.17.0
 pysha3>=1.0.0,<2.0.0
 ed25519
 sha256
+ragger[tests,speculos]
