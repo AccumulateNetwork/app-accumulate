@@ -17,14 +17,14 @@ extern "C" {
 #endif
 
 #define _WANT_BTCLegacySignature_     0
-#define _WANT_BTCSignature_           0
+#define _WANT_BTCSignature_           1
 #define _WANT_DelegatedSignature_     0
 #define _WANT_ED25519Signature_       1
-#define _WANT_ETHSignature_           0
+#define _WANT_ETHSignature_           1
 #define _WANT_InternalSignature_      0
 #define _WANT_LegacyED25519Signature_ 0
 #define _WANT_PartitionSignature_     0
-#define _WANT_RCD1Signature_          0
+#define _WANT_RCD1Signature_          1
 #define _WANT_ReceiptSignature_       0
 #define _WANT_RemoteSignature_        0
 #define _WANT_SignatureSet_           0

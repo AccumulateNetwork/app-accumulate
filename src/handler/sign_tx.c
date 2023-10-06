@@ -38,7 +38,7 @@ int verifySigner();
 int computeInitiatorHash();
 int computeTransactionHash(Bytes *);
 
-int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more, bool blindSigningRequested) {
+int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more) {
     if (chunk == 0) {  // first APDU, parse BIP32 path
         explicit_bzero(&G_context, sizeof(G_context));
         G_context.tx_info.arena.ptr = G_context.tx_info.memory;
@@ -53,23 +53,6 @@ int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more, bool blindSigning
                                     G_context.bip32_path,
                                     (size_t) G_context.bip32_path_len)) {
             return io_send_sw(SW_WRONG_DATA_LENGTH);
-        }
-
-        if (blindSigningRequested) {
-            if (!buffer_move(cdata, G_context.tx_info.signing_token, BLIND_SIGNING_TOKEN_LENGTH)) {
-                return io_send_sw(SW_WRONG_TX_LENGTH);
-            }
-            PRINTF("have blind signing token %.*H\n",
-                   BLIND_SIGNING_TOKEN_LENGTH,
-                   G_context.tx_info.signing_token);
-            // immediately reject the transaction if the signing token is empty or doesn't match
-            uint8_t zero[BLIND_SIGNING_TOKEN_LENGTH] = {0};
-            if (memcmp(G_context.tx_info.signing_token, zero, BLIND_SIGNING_TOKEN_LENGTH) == 0 ||
-                memcmp(G_context.tx_info.signing_token,
-                       G_blind_context.signing_token,
-                       BLIND_SIGNING_TOKEN_LENGTH) != 0) {
-                return io_send_sw(SW_DENY);
-            }
         }
 
         int raw_tx_len = cdata->size - cdata->offset;
@@ -111,24 +94,17 @@ int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more, bool blindSigning
 
         G_context.state = STATE_PARSED;
         // Step 4: ask for user confirmation of transaction contents
-        if (blindSigningRequested) {
-            PRINTF("comparing blind signing tokens %.*H (external) ?= %.*H (internal)\n",
-                   BLIND_SIGNING_TOKEN_LENGTH,
-                   G_context.tx_info.signing_token,
-                   BLIND_SIGNING_TOKEN_LENGTH,
-                   G_blind_context.signing_token);
-            if (memcmp(G_blind_context.signing_token,
-                       G_context.tx_info.signing_token,
-                       BLIND_SIGNING_TOKEN_LENGTH) == 0) {
-                ui_action_validate_transaction(true);
-            } else {
-                G_context.state = STATE_NONE;
-                io_send_sw(SW_DENY);
+        if (G_settings_context.blind_signing_enabled) {
+            // if blind signing has been enabled, we do not require a transaction body.
+            e = ui_display_blind_signing_requested();
+            if (IsErrorCode(e)) {
+                io_send_sw(SW_ENCODE_ERROR(ErrorCode(e)));
             }
         } else {
             if (G_context.tx_info.transaction == NULL) {
-                // in this mode the user attempted to blind sign, however it isn't enabled so
-                // DENIED....
+                // In this mode, the user attempted to blind sign a transaction by not providing the
+                // transaction body, however blind signing is not enabled
+                // So, DENIED....
                 io_send_sw(SW_DENY);
             }
             e = ui_display_transaction();

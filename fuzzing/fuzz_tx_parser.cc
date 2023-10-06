@@ -4,35 +4,34 @@
 #include <sys/types.h>
 
 extern "C" {
+#include "constants.h"
 #include "common/buffer.h"
-#include "common/format.h"
-#include "transaction/deserialize.h"
-#include "transaction/utils.h"
-#include "transaction/types.h"
+#include <encoding/encoding.h>
+#include <common/sha256.h>
+#include <protocol/enum.h>
+#include <protocol/transaction.h>
+#include <protocol/signatures.h>
+#include <transaction/utils.h>
+#include <common/error.h>
 }
+
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     buffer_t buf = {.ptr = data, .size = size, .offset = 0};
-    transaction_t tx;
-    parser_status_e status;
-    char nonce[21] = {0};
-    char address[21] = {0};
-    char amount[21] = {0};
-    char tx_memo[466] = {0};
 
-    memset(&tx, 0, sizeof(tx));
+    uint8_t memory[ARENA_SIZE] = {0};
+    buffer_t arena = {.ptr = memory, .size = sizeof(memory), .offset = 0};
 
-    status = transaction_deserialize(&buf, &tx);
+    Unmarshaler envUnmarshaler = {.buffer.ptr = data,
+                                  .buffer.size = size,
+                                  .buffer.offset = 0,
+                                  .mempool = &arena};
+    Envelope env;
+    explicit_bzero(&env, sizeof(env));
 
-    if (status == PARSING_OK) {
-        format_u64(nonce, sizeof(nonce), tx.nonce);
-        printf("nonce: %s\n", nonce);
-        format_hex(tx.to, ADDRESS_LEN, address, sizeof(address));
-        printf("address: %s\n", address);
-        format_fpu64(amount, sizeof(amount), tx.value, 3);  // exponent of smallest unit is 3
-        printf("amount: %s\n", amount);
-        transaction_utils_format_memo(tx.memo, tx.memo_len, tx_memo, sizeof(tx_memo));
-        printf("memo: %s\n", tx_memo);
+    int e = readEnvelope(&envUnmarshaler, &env);
+    if (IsError(ErrorCode(e))) {
+        return e;
     }
 
     return 0;
