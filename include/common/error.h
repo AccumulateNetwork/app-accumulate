@@ -2,10 +2,6 @@
 
 #include <stdbool.h>
 
-#ifndef UNUSED
-#define UNUSED(X) (void) (X)
-#endif
-
 typedef struct Error {
     int code;
 #ifdef WANT_TEXT

@@ -2,6 +2,7 @@
 #include <common/uvarint.h>
 #include <encoding/encoding.h>
 #include <encoding/marshaler.h>
+#include <os_helpers.h>
 
 int Bytes_binarySizeStatic(const struct Bytes *self) {
     if (!self) {

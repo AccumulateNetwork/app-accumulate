@@ -16,6 +16,8 @@
  *****************************************************************************/
 
 #include "display.h"
+#include <os_helpers.h>
+#include "../action/validate.h"
 
 action_validate_cb g_validate_callback;
 char g_welcome[32];
