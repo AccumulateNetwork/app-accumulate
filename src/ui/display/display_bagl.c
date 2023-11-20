@@ -118,7 +118,7 @@ int ui_display_address() {
 }
 
 int ui_display_blind_signing_enable() {
-    g_validate_callback = &ui_action_enable_blind_signing;
+    //g_validate_callback = &ui_action_enable_blind_signing;
     ux_flow_init(0, ux_display_enable_blind_siging_flow, NULL);
     return 0;
 }
